@@ -2,7 +2,7 @@
 	<img src="./DHubBW-Logo.png" alt="DHubBW Logo" width="200" />
 </p>
 
-<h1 align="center">DHubBW – Student Platform for DHBW Karlsruhe</h1>
+<h1 align="center">DHubBW – Student Platform for DHBW Karlsruhe 🎓</h1>
 
 <p align="center"><em>One hub for files, schedules, polls, groups, and knowledge — secure, simple, and collaborative.</em></p>
 
@@ -15,84 +15,84 @@
 
 ---
 
-## Contents
+## ✨ What is DHubBW?
 
-- [Overview](#overview)
-- [Who it’s for](#who-its-for)
-- [Key features](#key-features)
-- [Tech stack](#tech-stack)
-- [Collaboration](#collaboration)
-- [Links](#links)
-- [Future ideas](#future-ideas)
+DHubBW is a lightweight, student-first platform that simplifies everyday study life. It brings files, schedules, polls, groups, and shared knowledge together in one place, so you spend less time organizing and more time learning and connecting.
 
-## Quick Start
+---
 
-For organizational and technical details see:
+## 💡 Why it matters (value)
 
-- [Project management](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement)
-- [Documentation & drafts](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dokumentation)
+- For students: fewer tools, clearer overview, faster coordination in courses and study groups
+- For lecturers: quick polls, shared materials, and simpler course organization
 
-## Overview
+---
 
-DHubBW brings together what students use every day — files, schedules, polls, groups and shared knowledge — in one place. It integrates existing systems (e.g., Rapla) with a student-first experience.
+## 🎯 Problem & goals
 
-## Who it’s for
+Students switch between multiple apps for files, calendars and coordination. DHubBW aims to:
 
-- Students at DHBW Karlsruhe (primary)
-- Lecturers/instructors for polls and course organization (secondary)
-- Start at DHBW KA, potentially extend to other campuses
+- reduce tool switching and friction
+- improve participation and knowledge sharing across cohorts
+- keep setup minimal while integrating what already exists (e.g. Rapla)
 
-## Key features
+---
 
-- File sharing (versions, quotas) for cheat sheets, notes, worksheets
-- Calendar: timetable, deadlines, exams, canteen menu
-- Polls/surveys for student decisions and feedback
-- Accounts with roles & permissions (admin, course roles)
-- Knowledge sharing and participation across cohorts
-- Study groups and networking
+## 🧰 What does DHubBW offer?
 
-## Future ideas
+While there are many tools, few address student needs end‑to‑end. DHubBW focuses on the essentials:
 
-- Binding polls for course-level decisions
-- Learning stats (e.g., who started studying on a given date)
-- “Find your Buddy” matchmaking by preferences
-- Basic messenger
-- PDF annotations (GoodNotes-like)
-- Extended admin management
+- 📁 File sharing — versions, quotas; share cheat sheets, notes, worksheets
+- 🗓️ Calendar — timetable, deadlines, exams; canteen menu; optional ICS import/export
+- 🗳️ Polls — quick decisions and feedback within courses and groups
+- 👥 Groups & roles — course spaces, study groups; clear permissions (admin, course roles)
+- 🔐 Accounts — student sign‑in with privacy by design (GDPR‑aware)
 
-## Outlook (Could-have)
+---
 
-- Forum features, discussion threads
-- Friends/contact matching
-- Multi-institution platform capability
+## 🔎 Motivation
 
-## Requirements Engineering
+Students juggle multiple apps for files, schedules, polls and collaboration. DHubBW reduces that overhead with a single, consistent hub, built to encourage participation, share knowledge across cohorts and streamline course organization.
 
-- Workshops and interviews to gather and prioritize Must/Should/Could
-- Continuous backlog refinement and scope alignment
+---
 
-## Tech stack
+## 🧭 How does it work?
 
-- Frontend: Next.js (App Router, TypeScript), React, Tailwind CSS, FullCalendar, Uppy
-- Backend: Next.js API routes (REST), Supabase Auth, Postgres (RLS, FTS), Supabase Storage
-- Infrastructure: Docker/Compose on VMs, Caddy/Nginx with SSL
+1) Sign in as a student and join your courses
+2) Organize your materials: upload, version, and share files
+3) Plan your semester with an integrated calendar
+4) Run quick polls to gather decisions or feedback 
+5) Form study groups and keep everyone in the loop
 
-## Notes
+---
 
-- Reliable Back button (UX)
-- Roles/rights for admins and courses
-- Lecturer rating form (concept)
-- Student accounts via matriculation number; careful data handling
+## 🔒 Privacy & security
 
-## Collaboration
+- Privacy by design, GDPR‑aware data handling
+- Role‑based access and Row Level Security (RLS)
+- Private storage buckets for files; auditability where needed
 
-- No force pushes to main
-- Use pull/merge requests referencing issues
-- Branch naming: feature/<short>, fix/<short>
-- Code review required before merge
+---
 
-## Links
+## 🧱 Tech stack
 
-- [Project management](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement)
-- [Documentation & drafts](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dokumentation)
+- Coming soon...
+
+---
+
+## 🗺️ Roadmap at a glance
+
+1) MVP: File sharing + basic calendar  
+2) Accounts & roles + course spaces  
+3) Polls + study groups  
+4) UX polish, accessibility, performance
+
+---
+
+## 🔗 Links
+
+- 🗂️ Project management (planning, issues, roadmap):  
+	https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement
+- 📚 Documentation & drafts (architecture, APIs, UX):  
+	https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dokumentation
 
