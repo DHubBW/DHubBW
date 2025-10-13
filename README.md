@@ -1,119 +1,119 @@
-# DHubBW – Studentenplattform für die DHBW Karlsruhe
+# DHubBW – Student Platform for DHBW Karlsruhe
 
-Willkommen bei DHubBW, der zentralen Plattform für Studierende der DHBW Karlsruhe. Ziel ist ein Ort, an dem alles zusammenläuft: Dateien, Termine, Abstimmungen, Gruppen, Wissenstransfer und mehr – sicher, einfach und kollaborativ.
+Welcome to DHubBW, the central platform for students at DHBW Karlsruhe. The goal is a single place where everything comes together: files, schedules, polls, groups, knowledge sharing, and more — secure, simple, and collaborative.
 
-– Auftraggeber: DHBW Karlsruhe
+– Client: DHBW Karlsruhe
 
-## Inhalte
+## Contents
 
-- [Überblick](#überblick)
-- [Zielgruppe und Scope](#zielgruppe-und-scope)
-- [Kernfunktionen (Muss-Anforderungen)](#kernfunktionen-muss-anforderungen)
-- [Optionale Features (Soll/Nice-to-have)](#optionale-features-sollnice-to-have)
-- [Ausblick (Kann-Anforderungen)](#ausblick-kann-anforderungen)
+- [Overview](#overview)
+- [Target Audience and Scope](#target-audience-and-scope)
+- [Core Features (Must-have)](#core-features-must-have)
+- [Optional Features (Should/Nice-to-have)](#optional-features-shouldnice-to-have)
+- [Outlook (Could-have)](#outlook-could-have)
 - [Requirements Engineering](#requirements-engineering)
-- [Technischer Vorschlag (Tech-Stack)](#technischer-vorschlag-tech-stack)
-- [Zusätzliche Notizen (aus der Diskussion)](#zusätzliche-notizen-aus-der-diskussion)
-- [Zusammenarbeit & Workflow](#zusammenarbeit--workflow)
-- [Weitere Inhalte und Links](#weitere-inhalte-und-links)
+- [Technical Proposal (Tech Stack)](#technical-proposal-tech-stack)
+- [Additional Notes (from discussion)](#additional-notes-from-discussion)
+- [Collaboration & Workflow](#collaboration--workflow)
+- [Further Content and Links](#further-content-and-links)
 
-## Schnelleinstieg
+## Quick Start
 
-Für organisatorische und technische Details siehe:
+For organizational and technical details see:
 
-- Projektmanagement: [../projektmanagement/README.md](../projektmanagement/README.md)
-- Dokumentation & Entwürfe: [../dokumentation/README.md](../dokumentation/README.md)
+- Project Management: [../projektmanagement/README.md](../projektmanagement/README.md)
+- Documentation & Drafts: [../dokumentation/README.md](../dokumentation/README.md)
 
-## Überblick
+## Overview
 
-Die App bündelt studiumsrelevante Informationen und Werkzeuge:
+The app consolidates study-related information and tools:
 
-- Zentraler Hub für Dateien, Termine, Abstimmungen und Gruppen
-- Integration bestehender Systeme (z. B. Rapla/Moodle) mit Fokus auf studentische Nutzung
-- Gemeinsames Lernen über Kursgrenzen hinweg, Wissen teilen und vernetzen
+- Central hub for files, schedules, polls, and groups
+- Integration of existing systems (e.g., Rapla/Moodle) focused on student usage
+- Learn together across cohorts, share knowledge, and connect
 
-## Zielgruppe und Scope
+## Target Audience and Scope
 
-- Primär: Studierende der DHBW Karlsruhe
-- Sekundär: Lehrende/Dozierende (Abstimmungen, Kursorganisation)
-- Start mit DHBW Karlsruhe, perspektivisch auf weitere Hochschulen erweiterbar
+- Primary: Students of DHBW Karlsruhe
+- Secondary: Lecturers/instructors (polls, course organization)
+- Start with DHBW Karlsruhe, potentially extend to other universities
 
-## Kernfunktionen (Muss-Anforderungen)
+## Core Features (Must-have)
 
-- Filesharing: Upload/Download, Versionen, Quotas; Teilen von Cheat Sheets, Notizen, Arbeitsblättern
-- Kalenderintegration: Stundenplan, Abgabetermine, Klausurtermine; Mensa-Speiseplan
-- Abstimmungen/Umfragen mit und für Studierende
-- Accounts: Registrierung und Anmeldung für Studierende; Rollen & Rechte (Admin, Kursrollen)
-- Wissenstransfer: Beiträge/Notizen teilen, Mitmachen für alle
-- Vernetzung: Lerngruppenbildung, Studierende kursübergreifend kennenlernen
+- File sharing: upload/download, versions, quotas; share cheat sheets, notes, worksheets
+- Calendar integration: timetable, deadlines, exam dates; canteen menu
+- Polls/surveys with and for students
+- Accounts: student registration and sign-in; roles & permissions (admin, course roles)
+- Knowledge transfer: share posts/notes; open participation
+- Networking: form study groups, connect across cohorts
 
-## Optionale Features (Soll/Nice-to-have)
+## Optional Features (Should/Nice-to-have)
 
-- Verbindliche Abstimmungen (z. B. Kurs-Entscheidungen)
-- Lernstatistiken (z. B. „Wie viele haben am x.y.2025 mit dem Lernen begonnen?“)
-- „Find your Buddy“: Matchmaking für Lernpartner:innen nach Präferenzen
-- Online-Messenger (Basis-Chat)
-- Erweiterte Dateianmerkungen: Orientierung an GoodNotes Web (PDF markieren/zeichnen)
-- Erweiterte Admin-Verwaltung für Accounts
+- Binding polls (e.g., course decisions)
+- Learning statistics (e.g., “How many started studying on dd.mm.yyyy?”)
+- “Find your Buddy”: matchmaking for study partners by preferences
+- Online messenger (basic chat)
+- Advanced file annotations: GoodNotes-like PDF markup/drawing
+- Extended admin management for accounts
 
-## Ausblick (Kann-Anforderungen)
+## Outlook (Could-have)
 
-- Foren-Funktionen, Diskussions-Threads
-- Freunde-/Kontakt-Matching
-- Plattformfähigkeit über mehrere Hochschulen
+- Forum features, discussion threads
+- Friends/contact matching
+- Multi-institution platform capability
 
 ## Requirements Engineering
 
-- Gemeinsamer Workshop: Anforderungen im Kurs erheben, priorisieren (Muss/Soll/Kann)
-- Stakeholder-Interviews (Studierende, Dozierende, Admins)
-- Laufendes Backlog-Management und Abgleich mit Scope DHBW KA
+- Joint workshop: elicit and prioritize requirements (Must/Should/Could)
+- Stakeholder interviews (students, lecturers, admins)
+- Ongoing backlog management and alignment with DHBW KA scope
 
-## Technischer Vorschlag (Tech-Stack)
+## Technical Proposal (Tech Stack)
 
 Frontend
-- Next.js (App Router, TypeScript) – Framework & SSR
-- React – UI-Basis
-- Tailwind CSS – Styling
-- FullCalendar – Kalender-UI
-- Uppy – Upload-Handling (resumable, Drag&Drop)
+- Next.js (App Router, TypeScript) – framework & SSR
+- React – UI foundation
+- Tailwind CSS – styling
+- FullCalendar – calendar UI
+- Uppy – upload handling (resumable, drag & drop)
 
 Backend
-- Next.js API Route Handlers (REST) – Geschäftslogik
-- Supabase Auth – Anmeldung (E-Mail/OAuth)
-- Postgres (Supabase) – Datenbank + Row Level Security
-- Supabase Storage – Dateispeicher (private Buckets)
-- Postgres FTS – Suche in Dateimetadaten/Tags
+- Next.js API Route Handlers (REST) – business logic
+- Supabase Auth – sign-in (email/OAuth)
+- Postgres (Supabase) – database + Row Level Security
+- Supabase Storage – file storage (private buckets)
+- Postgres FTS – search in file metadata/tags
 
-Kernfunktionen (technisch)
-- Filesharing (Upload, Download, Quotas, Versionen, Shares)
-- Gruppen & Rollen (owner, mod, member)
-- Kalender (CRUD, Teilnehmer, ICS-Export)
-- Sicherheit (RLS, Audit, DSGVO-konform)
+Core functions (technical)
+- File sharing (upload, download, quotas, versions, shares)
+- Groups & roles (owner, mod, member)
+- Calendar (CRUD, participants, ICS export)
+- Security (RLS, audit, GDPR-compliant)
 
-Infrastruktur
-- Containerisierung (Docker/Compose) auf VMs
-- Caddy/Nginx – Reverse Proxy + SSL
+Infrastructure
+- Containerization (Docker/Compose) on VMs
+- Caddy/Nginx – reverse proxy + SSL
 
-## Zusätzliche Notizen (aus der Diskussion)
+## Additional Notes (from discussion)
 
-- Funktionsfähiger „Zurück“-Button (UX-Detail)
-- Rechte & Rollen: Admins, Kurse etc.
-- Dozentenbewertung mit Formular
-- Accounts per Matrikelnummer (so weit wie möglich), sicherer Umgang mit Daten
+- Working “Back” button (UX detail)
+- Rights & roles: admins, courses, etc.
+- Lecturer ratings with a form
+- Accounts via matriculation number (as far as possible), secure data handling
 
-## Zusammenarbeit & Workflow
+## Collaboration & Workflow
 
-- Keine Force-Pushes auf den Haupt-Branch
-- Änderungen via Pull/Merge Requests; MRs referenzieren zugehörige Issues
-- Branch-Strategie: feature/<kurzbeschreibung>, fix/<kurzbeschreibung>
-- Code Reviews verpflichtend vor Merge
+- No force pushes to the main branch
+- Changes via pull/merge requests; MRs reference related issues
+- Branch naming: feature/<short-description>, fix/<short-description>
+- Code reviews required before merge
 
-## Weitere Inhalte und Links
+## Further Content and Links
 
-- Projektmanagement: [../projektmanagement/README.md](../projektmanagement/README.md)
-- Dokumentation & Entwürfe: [../dokumentation/README.md](../dokumentation/README.md)
-- Präsentationsfähiger Entwurf: siehe Dokumentation (wird dort gesammelt)
+- Project Management: [../projektmanagement/README.md](../projektmanagement/README.md)
+- Documentation & Drafts: [../dokumentation/README.md](../dokumentation/README.md)
+- Presentation-ready concept: see documentation (collected there)
 
 ---
 
-Wenn ihr Ergänzungen oder neue Ideen habt, öffnet bitte ein Issue oder erstellt direkt einen PR mit kurzer Begründung und Verweis auf den Kontext (Workshop/Feedback etc.).
+If you have additions or new ideas, please open an issue or create a PR with a short rationale and reference to the context (workshop/feedback, etc.).
