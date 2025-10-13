@@ -1,21 +1,29 @@
-# DHubBW – Student Platform for DHBW Karlsruhe
+<p align="center">
+	<img src="./DHubBW-Logo.png" alt="DHubBW Logo" width="200" />
+</p>
 
-Welcome to DHubBW, the central platform for students at DHBW Karlsruhe. The goal is a single place where everything comes together: files, schedules, polls, groups, knowledge sharing, and more — secure, simple, and collaborative.
+<h1 align="center">DHubBW – Student Platform for DHBW Karlsruhe</h1>
 
-– Client: DHBW Karlsruhe
+<p align="center"><em>One hub for files, schedules, polls, groups, and knowledge — secure, simple, and collaborative.</em></p>
+
+<p align="center">
+	<img alt="Status: Draft" src="https://img.shields.io/badge/status-draft-yellow" />
+	<img alt="Scope: DHBW Karlsruhe" src="https://img.shields.io/badge/scope-DHBW%20Karlsruhe-blue" />
+</p>
+
+<p align="center"><sub>Client: DHBW Karlsruhe</sub></p>
+
+---
 
 ## Contents
 
 - [Overview](#overview)
-- [Target Audience and Scope](#target-audience-and-scope)
-- [Core Features (Must-have)](#core-features-must-have)
-- [Optional Features (Should/Nice-to-have)](#optional-features-shouldnice-to-have)
-- [Outlook (Could-have)](#outlook-could-have)
-- [Requirements Engineering](#requirements-engineering)
-- [Technical Proposal (Tech Stack)](#technical-proposal-tech-stack)
-- [Additional Notes (from discussion)](#additional-notes-from-discussion)
-- [Collaboration & Workflow](#collaboration--workflow)
-- [Further Content and Links](#further-content-and-links)
+- [Who it’s for](#who-its-for)
+- [Key features](#key-features)
+- [Tech stack](#tech-stack)
+- [Collaboration](#collaboration)
+- [Links](#links)
+- [Future ideas](#future-ideas)
 
 ## Quick Start
 
@@ -26,35 +34,31 @@ For organizational and technical details see:
 
 ## Overview
 
-The app consolidates study-related information and tools:
+DHubBW brings together what students use every day — files, schedules, polls, groups and shared knowledge — in one place. It integrates existing systems (e.g., Rapla) with a student-first experience.
 
-- Central hub for files, schedules, polls, and groups
-- Integration of existing systems (e.g., Rapla/Moodle) focused on student usage
-- Learn together across cohorts, share knowledge, and connect
+## Who it’s for
 
-## Target Audience and Scope
+- Students at DHBW Karlsruhe (primary)
+- Lecturers/instructors for polls and course organization (secondary)
+- Start at DHBW KA, potentially extend to other campuses
 
-- Primary: Students of DHBW Karlsruhe
-- Secondary: Lecturers/instructors (polls, course organization)
-- Start with DHBW Karlsruhe, potentially extend to other universities
+## Key features
 
-## Core Features (Must-have)
+- File sharing (versions, quotas) for cheat sheets, notes, worksheets
+- Calendar: timetable, deadlines, exams, canteen menu
+- Polls/surveys for student decisions and feedback
+- Accounts with roles & permissions (admin, course roles)
+- Knowledge sharing and participation across cohorts
+- Study groups and networking
 
-- File sharing: upload/download, versions, quotas; share cheat sheets, notes, worksheets
-- Calendar integration: timetable, deadlines, exam dates; canteen menu
-- Polls/surveys with and for students
-- Accounts: student registration and sign-in; roles & permissions (admin, course roles)
-- Knowledge transfer: share posts/notes; open participation
-- Networking: form study groups, connect across cohorts
+## Future ideas
 
-## Optional Features (Should/Nice-to-have)
-
-- Binding polls (e.g., course decisions)
-- Learning statistics (e.g., “How many started studying on dd.mm.yyyy?”)
-- “Find your Buddy”: matchmaking for study partners by preferences
-- Online messenger (basic chat)
-- Advanced file annotations: GoodNotes-like PDF markup/drawing
-- Extended admin management for accounts
+- Binding polls for course-level decisions
+- Learning stats (e.g., who started studying on a given date)
+- “Find your Buddy” matchmaking by preferences
+- Basic messenger
+- PDF annotations (GoodNotes-like)
+- Extended admin management
 
 ## Outlook (Could-have)
 
@@ -64,56 +68,31 @@ The app consolidates study-related information and tools:
 
 ## Requirements Engineering
 
-- Joint workshop: elicit and prioritize requirements (Must/Should/Could)
-- Stakeholder interviews (students, lecturers, admins)
-- Ongoing backlog management and alignment with DHBW KA scope
+- Workshops and interviews to gather and prioritize Must/Should/Could
+- Continuous backlog refinement and scope alignment
 
-## Technical Proposal (Tech Stack)
+## Tech stack
 
-Frontend
-- Next.js (App Router, TypeScript) – framework & SSR
-- React – UI foundation
-- Tailwind CSS – styling
-- FullCalendar – calendar UI
-- Uppy – upload handling (resumable, drag & drop)
+- Frontend: Next.js (App Router, TypeScript), React, Tailwind CSS, FullCalendar, Uppy
+- Backend: Next.js API routes (REST), Supabase Auth, Postgres (RLS, FTS), Supabase Storage
+- Infrastructure: Docker/Compose on VMs, Caddy/Nginx with SSL
 
-Backend
-- Next.js API Route Handlers (REST) – business logic
-- Supabase Auth – sign-in (email/OAuth)
-- Postgres (Supabase) – database + Row Level Security
-- Supabase Storage – file storage (private buckets)
-- Postgres FTS – search in file metadata/tags
+## Notes
 
-Core functions (technical)
-- File sharing (upload, download, quotas, versions, shares)
-- Groups & roles (owner, mod, member)
-- Calendar (CRUD, participants, ICS export)
-- Security (RLS, audit, GDPR-compliant)
+- Reliable Back button (UX)
+- Roles/rights for admins and courses
+- Lecturer rating form (concept)
+- Student accounts via matriculation number; careful data handling
 
-Infrastructure
-- Containerization (Docker/Compose) on VMs
-- Caddy/Nginx – reverse proxy + SSL
+## Collaboration
 
-## Additional Notes (from discussion)
+- No force pushes to main
+- Use pull/merge requests referencing issues
+- Branch naming: feature/<short>, fix/<short>
+- Code review required before merge
 
-- Working “Back” button (UX detail)
-- Rights & roles: admins, courses, etc.
-- Lecturer ratings with a form
-- Accounts via matriculation number (as far as possible), secure data handling
+## Links
 
-## Collaboration & Workflow
+- Project management: [../projektmanagement/README.md](../projektmanagement/README.md)
+- Documentation & drafts: [../dokumentation/README.md](../dokumentation/README.md)
 
-- No force pushes to the main branch
-- Changes via pull/merge requests; MRs reference related issues
-- Branch naming: feature/<short-description>, fix/<short-description>
-- Code reviews required before merge
-
-## Further Content and Links
-
-- Project Management: [../projektmanagement/README.md](../projektmanagement/README.md)
-- Documentation & Drafts: [../dokumentation/README.md](../dokumentation/README.md)
-- Presentation-ready concept: see documentation (collected there)
-
----
-
-If you have additions or new ideas, please open an issue or create a PR with a short rationale and reference to the context (workshop/feedback, etc.).
