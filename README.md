@@ -29,8 +29,8 @@
 
 For organizational and technical details see:
 
-- Project Management: [../projektmanagement/README.md](../projektmanagement/README.md)
-- Documentation & Drafts: [../dokumentation/README.md](../dokumentation/README.md)
+- [Project management](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement)
+- [Documentation & drafts](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dokumentation)
 
 ## Overview
 
@@ -93,6 +93,6 @@ DHubBW brings together what students use every day — files, schedules, polls, 
 
 ## Links
 
-- Project management: [../projektmanagement/README.md](../projektmanagement/README.md)
-- Documentation & drafts: [../dokumentation/README.md](../dokumentation/README.md)
+- [Project management](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement)
+- [Documentation & drafts](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dokumentation)
 
