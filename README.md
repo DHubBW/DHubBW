@@ -8,7 +8,7 @@
 
 <p align="center">
 	<img alt="Status: Entwurf" src="https://img.shields.io/badge/status-entwurf-yellow" />
-	<img alt="Geltungsbereich: DHBW Karlsruhe" src="https://img.shields.io/badge/scope-DHBW%20Karlsruhe-blue" />
+	<img alt="Geltungsbereich: DHBW Karlsruhe" src="https://img.shields.io/badge/Geltungsbereich-DHBW%20Karlsruhe-blue" />
 </p>
 
 <p align="center"><sub>Auftraggeber: DHBW Karlsruhe</sub></p>
