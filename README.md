@@ -91,7 +91,5 @@ Students juggle multiple apps for files, schedules, polls and collaboration. DHu
 
 ## Links
 
-- Project management (planning, issues, roadmap):  
+- Project management (planning, issues, roadmap, architecture):  
 	https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement
-- Documentation & drafts (architecture, APIs, UX):  
-	https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dokumentation
