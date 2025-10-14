@@ -13,6 +13,12 @@
 
 <p align="center"><sub>Client: DHBW Karlsruhe</sub></p>
 
+<p align="center">
+	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw"><b>DHubBW App</b></a> •
+	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement">Project Management</a> •
+	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/requirements-engineering">Requirements Engineering</a>
+</p>
+
 ---
 
 ## What is DHubBW?
@@ -91,5 +97,4 @@ Students juggle multiple apps for files, schedules, polls and collaboration. DHu
 
 ## Links
 
-- Project management (planning, issues, roadmap, architecture):  
-	https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement
+- Placeholder for now, will update later
