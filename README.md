@@ -2,99 +2,99 @@
 	<img src="./DHubBW-Logo.png" alt="DHubBW Logo" width="200" />
 </p>
 
-<h1 align="center">DHubBW – Student Platform for DHBW Karlsruhe</h1>
+<h1 align="center">DHubBW – Studierendenplattform für die DHBW Karlsruhe</h1>
 
-<p align="center"><em>One hub for files, schedules, polls, groups, and knowledge — secure, simple, and collaborative.</em></p>
+<p align="center"><em>Ein Hub für Dateien, Stundenpläne, Umfragen, Gruppen und Wissen – sicher, einfach und kollaborativ.</em></p>
 
 <p align="center">
-	<img alt="Status: Draft" src="https://img.shields.io/badge/status-draft-yellow" />
-	<img alt="Scope: DHBW Karlsruhe" src="https://img.shields.io/badge/scope-DHBW%20Karlsruhe-blue" />
+	<img alt="Status: Entwurf" src="https://img.shields.io/badge/status-entwurf-yellow" />
+	<img alt="Geltungsbereich: DHBW Karlsruhe" src="https://img.shields.io/badge/scope-DHBW%20Karlsruhe-blue" />
 </p>
 
-<p align="center"><sub>Client: DHBW Karlsruhe</sub></p>
+<p align="center"><sub>Auftraggeber: DHBW Karlsruhe</sub></p>
 
 <p align="center">
 	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw"><b>DHubBW App</b></a> •
-	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement">Project Management</a> •
+	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement">Projektmanagement</a> •
 	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/requirements-engineering">Requirements Engineering</a>
 </p>
 
 ---
 
-## What is DHubBW?
+## Was ist DHubBW?
 
-DHubBW is a lightweight, student-first platform that simplifies everyday study life. It brings files, schedules, polls, groups, and shared knowledge together in one place, so you spend less time organizing and more time learning and connecting.
-
----
-
-## Why it matters
-
-- For students: fewer tools, clearer overview, faster coordination in courses and study groups
-- For lecturers: quick polls, shared materials, and simpler course organization
+DHubBW ist eine einfach, studierendenzentrierte Plattform, die den Studienalltag vereinfacht. Sie bringt Dateien, Stundenpläne, Umfragen, Gruppen und geteiltes Wissen an einem Ort zusammen, damit weniger organisiert und mehr gelernt und vernetzt wird.
 
 ---
 
-## Problem & Goals
+## Warum ist das wichtig?
 
-Students switch between multiple apps for files, calendars and coordination. DHubBW aims to:
-
-- reduce tool switching and friction
-- improve participation and knowledge sharing across cohorts
-- keep setup minimal while integrating what already exists (e.g. Rapla)
+- Für Studierende: weniger Tools, mehr Übersicht, schnellere Abstimmung in Kursen und Lerngruppen
+- Für Lehrende: schnelle Umfragen, geteilte Materialien und einfachere Kursorganisation
 
 ---
 
-## What does DHubBW offer?
+## Problem & Ziele
 
-While there are many tools, few address student needs end‑to‑end. DHubBW focuses on the essentials:
+Studierende wechseln zwischen mehreren Apps für Dateien, Kalender und Abstimmung. DHubBW möchte:
 
-- File sharing — versions, quotas; share cheat sheets, notes, worksheets
-- Calendar — timetable, deadlines, exams; canteen menu; optional ICS import/export
-- Polls — quick decisions and feedback within courses and groups
-- Groups & roles — course spaces, study groups; clear permissions (admin, course roles)
-- Accounts — student sign‑in with privacy by design (GDPR‑aware)
+- Tool‑Wechsel und Reibung reduzieren
+- Beteiligung und Wissensaustausch zwischen Jahrgängen fördern
+- Setup minimal halten und vorhandenes integrieren (z. B. Rapla)
+
+---
+
+## Was bietet DHubBW?
+
+Viele Tools existieren, aber wenige decken Studierendenbedürfnisse Ende‑zu‑Ende ab. DHubBW fokussiert das Wesentliche:
+
+- Dateifreigabe – Versionen, Quotas; Spickzettel, Notizen, Arbeitsblätter teilen
+- Kalender – Stundenplan, Fristen, Prüfungen; Mensaplan; optional ICS Import/Export
+- Umfragen – schnelle Entscheidungen und Feedback in Kursen und Gruppen
+- Gruppen & Rollen – Kursräume, Lerngruppen; klare Berechtigungen (Admin, Kursrollen)
+- Accounts – Studierenden‑Login mit Privacy by Design (DSGVO‑bewusst)
 
 ---
 
 ## Motivation
 
-Students juggle multiple apps for files, schedules, polls and collaboration. DHubBW reduces that overhead with a single, consistent hub, built to encourage participation, share knowledge across cohorts and streamline course organization.
+Studierende jonglieren mit mehreren Apps für Dateien, Termine, Umfragen und Zusammenarbeit. DHubBW reduziert diesen Overhead mit einem konsistenten Hub, der Beteiligung fördert, Wissen über Jahrgänge hinweg teilt und Kursorganisation vereinfacht.
 
 ---
 
-## How does it work?
+## Wie funktioniert’s?
 
-1) Sign in as a student and join your courses
-2) Organize your materials: upload, version, and share files
-3) Plan your semester with an integrated calendar
-4) Run quick polls to gather decisions or feedback 
-5) Form study groups and keep everyone in the loop
-
----
-
-## Privacy & Security
-
-- Privacy by design, GDPR‑aware data handling
-- Role‑based access and Row Level Security (RLS)
-- Private storage buckets for files; auditability where needed
+1) Als Studierende:r anmelden und Kursen beitreten
+2) Materialien organisieren: Dateien hochladen, versionieren und teilen
+3) Semester mit integriertem Kalender planen
+4) Schnelle Umfragen für Entscheidungen oder Feedback durchführen
+5) Lerngruppen bilden und alle auf dem Laufenden halten
 
 ---
 
-## Tech Stack
+## Datenschutz & Sicherheit
 
-- Coming soon...
+- Privacy by Design, DSGVO‑bewusste Datenverarbeitung
+- Rollenbasierter Zugriff und Row Level Security (RLS)
+- Private Storage‑Buckets für Dateien; Nachvollziehbarkeit wo nötig
 
 ---
 
-## Roadmap at a glance
+## Tech‑Stack
 
-1) MVP: File sharing + basic calendar  
-2) Accounts & roles + course spaces  
-3) Polls + study groups  
-4) UX polish, accessibility, performance
+- Folgt in Kürze …
+
+---
+
+## Roadmap im Überblick
+
+1) MVP: Dateifreigabe + Basis‑Kalender  
+2) Accounts & Rollen + Kursräume  
+3) Umfragen + Lerngruppen  
+4) UX‑Feinschliff, Barrierefreiheit, Performance
 
 ---
 
 ## Links
 
-- Placeholder for now, will update later
+- Platzhalter, wird später ergänzt
