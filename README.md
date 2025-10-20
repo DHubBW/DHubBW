@@ -21,80 +21,31 @@
 
 ---
 
-## Was ist DHubBW?
+## Überblick
 
-DHubBW ist eine einfach, studierendenzentrierte Plattform, die den Studienalltag vereinfacht. Sie bringt Dateien, Stundenpläne, Umfragen, Gruppen und geteiltes Wissen an einem Ort zusammen, damit weniger organisiert und mehr gelernt und vernetzt wird.
-
----
-
-## Warum ist das wichtig?
-
-- Für Studierende: weniger Tools, mehr Übersicht, schnellere Abstimmung in Kursen und Lerngruppen
-- Für Lehrende: schnelle Umfragen, geteilte Materialien und einfachere Kursorganisation
+Dieses Repository enthält den Anwendungscode von DHubBW. Hier findest du den Quellcode, Build‑Skripte und Konfigurationen. Für Projektmanagement‑Artefakte und Anforderungen siehe die separaten Repositories (Links oben).
 
 ---
 
-## Problem & Ziele
+## Entwicklung starten
 
-Studierende wechseln zwischen mehreren Apps für Dateien, Kalender und Abstimmung. DHubBW möchte:
-
-- Tool‑Wechsel und Reibung reduzieren
-- Beteiligung und Wissensaustausch zwischen Jahrgängen fördern
-- Setup minimal halten und vorhandenes integrieren (z. B. Rapla)
+1) Abhängigkeiten installieren
+2) Entwicklungserver starten
+3) Codequalität prüfen
 
 ---
 
-## Was bietet DHubBW?
+## Ordnerstruktur
 
-Viele Tools existieren, aber wenige decken Studierendenbedürfnisse Ende‑zu‑Ende ab. DHubBW fokussiert das Wesentliche:
-
-- Dateifreigabe – Versionen, Quotas; Spickzettel, Notizen, Arbeitsblätter teilen
-- Kalender – Stundenplan, Fristen, Prüfungen; Mensaplan; optional ICS Import/Export
-- Umfragen – schnelle Entscheidungen und Feedback in Kursen und Gruppen
-- Gruppen & Rollen – Kursräume, Lerngruppen; klare Berechtigungen (Admin, Kursrollen)
-- Accounts – Studierenden‑Login mit Privacy by Design (DSGVO‑bewusst)
+KOMMT BALD
 
 ---
 
-## Motivation
+## Beitragen
 
-Studierende jonglieren mit mehreren Apps für Dateien, Termine, Umfragen und Zusammenarbeit. DHubBW reduziert diesen Overhead mit einem konsistenten Hub, der Beteiligung fördert, Wissen über Jahrgänge hinweg teilt und Kursorganisation vereinfacht.
+1) Issue anlegen oder vorhandenes Issue übernehmen
+2) Feature‑Branch aus `main` erstellen
+3) Tests/Linting lokal grün halten
+4) Merge Request mit Beschreibung und Verweisen auf Issues
 
----
-
-## Wie funktioniert’s?
-
-1) Als Studierende:r anmelden und Kursen beitreten
-2) Materialien organisieren: Dateien hochladen, versionieren und teilen
-3) Semester mit integriertem Kalender planen
-4) Schnelle Umfragen für Entscheidungen oder Feedback durchführen
-5) Lerngruppen bilden und alle auf dem Laufenden halten
-
----
-
-## Datenschutz & Sicherheit
-
-- Privacy by Design, DSGVO‑bewusste Datenverarbeitung
-- Rollenbasierter Zugriff und Row Level Security (RLS)
-- Private Storage‑Buckets für Dateien; Nachvollziehbarkeit wo nötig
-
----
-
-## Tech‑Stack
-
-- Folgt in Kürze …
-
----
-
-## Roadmap im Überblick
-
-1) MVP: Dateifreigabe + Basis‑Kalender  
-2) Accounts & Rollen + Kursräume  
-3) Umfragen + Lerngruppen  
-4) UX‑Feinschliff, Barrierefreiheit, Performance
-
----
-
-## Links
-
-- Platzhalter, wird später ergänzt
+Commit‑Konventionen und MR‑Vorlage sind in GitLab hinterlegt.
