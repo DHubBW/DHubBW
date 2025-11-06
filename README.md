@@ -27,6 +27,17 @@ Dieses Repository enthält den Anwendungscode von DHubBW. Hier findest du den Qu
 
 ---
 
+
+## Technische Dokumentation
+
+Im Rahmen des Projektes wird eine umfassende technische Dokumentation angefertigt. Sie kann im Projekt Wiki gefunden werden:
+
+[Link zum Wiki](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw/-/wikis/home)
+
+Bei Fehlern in der Dokumentation können jederzeit issues eröffnet werden (siehe unter "Issues anlegen").
+
+---
+
 ## Entwicklung starten
 
 1) Abhängigkeiten installieren
@@ -41,7 +52,9 @@ KOMMT BALD
 
 ---
 
-## Beitragen
+## Issues anlegen
+
+Wenn etwaige Probleme oder strukturelle Fehler gefunden werden, unterstützt es dass Team bei der Entwicklung, wenn issues angelegt werden :D. Dieser Vorgang kann wie folgt umgesetzt werden:
 
 1) Issue anlegen oder vorhandenes Issue übernehmen
 2) Feature‑Branch aus `main` erstellen
