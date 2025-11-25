@@ -15,18 +15,16 @@
 
 <p align="center">
 	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw"><b>DHubBW App</b></a> •
-	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/projektmanagement">Projektmanagement</a> •
-	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/requirements-engineering">Requirements Engineering</a>
+	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/sonstiges">Sonstiges</a>
 </p>
 
 ---
 
 ## Überblick
 
-Dieses Repository enthält den Anwendungscode von DHubBW. Hier findest du den Quellcode, Build‑Skripte und Konfigurationen. Für Projektmanagement‑Artefakte und Anforderungen siehe die separaten Repositories (Links oben).
+Dieses Repository enthält den **Anwendungscode von DHubBW**. Hier findest du den Quellcode, Build‑Skripte, Tests und Konfigurationen für Frontend, Backend und Datenbank. Für Projektmanagement‑Artefakte und Anforderungen siehe die separaten Repositories (Links oben).
 
 ---
-
 
 ## Technische Dokumentation
 
@@ -34,7 +32,7 @@ Im Rahmen des Projektes wird eine umfassende technische Dokumentation angefertig
 
 [Link zum Wiki](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw/-/wikis/home)
 
-Bei Fehlern in der Dokumentation können jederzeit issues eröffnet werden (siehe unter "Issues anlegen").
+Bei Fehlern in der Dokumentation können jederzeit Issues eröffnet werden (siehe unter "Issues anlegen").
 
 ---
 
@@ -54,11 +52,11 @@ KOMMT BALD
 
 ## Issues anlegen
 
-Wenn etwaige Probleme oder strukturelle Fehler gefunden werden, unterstützt es dass Team bei der Entwicklung, wenn issues angelegt werden :D. Dieser Vorgang kann wie folgt umgesetzt werden:
+Wenn Probleme oder strukturelle Fehler gefunden werden, unterstützt es das Team bei der Entwicklung, wenn Issues angelegt werden. Der Ablauf:
 
-1) Issue anlegen oder vorhandenes Issue übernehmen
-2) Feature‑Branch aus `main` erstellen
-3) Tests/Linting lokal grün halten
-4) Merge Request mit Beschreibung und Verweisen auf Issues
+1. **Issue anlegen** oder vorhandenes Issue übernehmen ([Issues](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw/-/issues))
+2. **Feature‑Branch** aus `main` erstellen
+3. **Tests/Linting** lokal grün halten
+4. **Merge Request** mit Beschreibung und Verweisen auf Issues
 
 Commit‑Konventionen und MR‑Vorlage sind in GitLab hinterlegt.
