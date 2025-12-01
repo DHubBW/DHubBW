@@ -30,7 +30,7 @@ Dieses Repository enthält den **Anwendungscode von DHubBW**. Hier findest du de
 
 Im Rahmen des Projektes wird eine umfassende technische Dokumentation angefertigt. Sie kann im Projekt Wiki gefunden werden:
 
-[Link zum Wiki](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw/-/wikis/home)
+[Link zum Wiki](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische%20Dokumentation/home)
 
 Bei Fehlern in der Dokumentation können jederzeit Issues eröffnet werden (siehe unter "Issues anlegen").
 
@@ -49,14 +49,3 @@ Bei Fehlern in der Dokumentation können jederzeit Issues eröffnet werden (sieh
 KOMMT BALD
 
 ---
-
-## Issues anlegen
-
-Wenn Probleme oder strukturelle Fehler gefunden werden, unterstützt es das Team bei der Entwicklung, wenn Issues angelegt werden. Der Ablauf:
-
-1. **Issue anlegen** oder vorhandenes Issue übernehmen ([Issues](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw/-/issues))
-2. **Feature‑Branch** aus `main` erstellen
-3. **Tests/Linting** lokal grün halten
-4. **Merge Request** mit Beschreibung und Verweisen auf Issues
-
-Commit‑Konventionen und MR‑Vorlage sind in GitLab hinterlegt.
