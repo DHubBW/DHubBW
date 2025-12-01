@@ -1,51 +1,39 @@
-<p align="center">
-	<img src="./DHubBW-Logo.png" alt="DHubBW Logo" width="200" />
-</p>
+<img src="./DHubBW-Logo.png" alt="DHubBW Logo" width="400" />
 
-<h1 align="center">DHubBW – Studierendenplattform für die DHBW Karlsruhe</h1>
+# DHubBW – Zentrale Studierendenplattform für die DHBW Karlsruhe
 
-<p align="center"><em>Ein Hub für Dateien, Stundenpläne, Umfragen, Gruppen und Wissen – sicher, einfach und kollaborativ.</em></p>
+## Was ist DHubBW?
 
-<p align="center">
-	<img alt="Status: Entwurf" src="https://img.shields.io/badge/status-entwurf-yellow" />
-	<img alt="Geltungsbereich: DHBW Karlsruhe" src="https://img.shields.io/badge/Geltungsbereich-DHBW%20Karlsruhe-blue" />
-</p>
+DHubBW ist eine integrierte Webplattform für Studierende der DHBW Karlsruhe. Sie bündelt Kursmaterialien, Dateien, Termine, Kommunikation und Wissen an einem zentralen Ort und reduziert so den Wechsel zwischen vielen Einzelsystemen.
 
-<p align="center"><sub>Auftraggeber: DHBW Karlsruhe</sub></p>
+Ziel ist es, den organisatorischen Aufwand im Studienalltag zu senken und Zusammenarbeit, Transparenz und Wissensaustausch nachhaltig zu verbessern.
 
-<p align="center">
-	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw"><b>DHubBW App</b></a> •
-	<a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/sonstiges">Sonstiges</a>
-</p>
+## Zentrale Funktionen
 
----
+Studierende nutzen heute eine Vielzahl getrennter Werkzeuge (z. B. Moodle, Dualis, Rapla, Messenger, E-Mail). DHubBW führt diese Nutzungsszenarien in einer Plattform zusammen:
 
-## Überblick
-
-Dieses Repository enthält den **Anwendungscode von DHubBW**. Hier findest du den Quellcode, Build‑Skripte, Tests und Konfigurationen für Frontend, Backend und Datenbank. Für Projektmanagement‑Artefakte und Anforderungen siehe die separaten Repositories (Links oben).
+- **Dateiverwaltung:** Zentrale Ablage und Wiederauffindbarkeit von Kurs- und Lerndokumenten über Semester und Jahrgänge hinweg.
+- **Kalender & Fristen:** Konsolidierte Ansicht von Terminen und Abgaben aus verschiedenen Quellen.
+- **Kommunikation:** Strukturierte Kurs- und Gruppenkonversationen anstelle verteilter Messenger-Chats.
+- **Wissensbasis:** Frage-/Antwortbereich und geteilte Ressourcen für studienübergreifenden Wissensaustausch.
+- **Abstimmungen & Umfragen:** Integrierte Funktionen für organisatorische Entscheidungen im Studienalltag.
+- **Benachrichtigungen:** Zielgerichtete Hinweise zu Änderungen, neuen Materialien und anstehenden Fristen.
 
 ---
 
-## Technische Dokumentation
+## Schnelle Links
 
-Im Rahmen des Projektes wird eine umfassende technische Dokumentation angefertigt. Sie kann im Projekt Wiki gefunden werden:
+### Projekt-Repositories
 
-[Link zum Wiki](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische%20Dokumentation/home)
+- **[DHubBW](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw)** – Anwendungscode (Frontend, Backend, Tests & Infrastruktur)
+- **[Sonstiges](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/sonstiges)** – Präsentationen, Artefakte sowie sonstige Projektdokumente
 
-Bei Fehlern in der Dokumentation können jederzeit Issues eröffnet werden (siehe unter "Issues anlegen").
+### Wiki – Projektdokumentation (Einstiegspunkte)
 
----
+- **[Projektmanagement](Projektmanagement/home.md)** – Organisation, Rollen, Projekthandbuch & Workflow
+- **[Requirements Engineering](Requirements%20Engineering/home.md)** – WAS-/WIE-Ebene, Lasten-/Pflichtenheft, Modelle
+- **[Technische Dokumentation](Technische%20Dokumentation/home.md)** – Codebasis, APIs, Tutorials
 
-## Entwicklung starten
+### Statusreports
 
-1) Abhängigkeiten installieren
-2) Entwicklungserver starten
-3) Codequalität prüfen
-
----
-
-## Ordnerstruktur
-
-KOMMT BALD
-
----
+- **[Online-Statusreports](https://sonstiges-42cd1e.gitlab.io)** – Wöchentliche Projektstatus-Präsentationen (Übersicht über Fortschritt, Risiken & nächste Schritte)
