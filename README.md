@@ -6,10 +6,6 @@
 
 <p align="center"><em>Ein Hub für Dateien, Stundenpläne, Umfragen, Gruppen und Wissen – sicher, einfach und kollaborativ.</em></p>
 
-<p align="center">
-    <img alt="Status: Entwurf" src="https://img.shields.io/badge/status-entwurf-yellow" />
-</p>
-
 <p align="center"><sub>Auftraggeber: DHBW Karlsruhe</sub></p>
 
 <p align="center">
