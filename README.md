@@ -22,6 +22,11 @@
 
 ---
 
+## Wiki
+Unser Wiki enthält alle wichtigen Informationen zum Projekt, insbesondere die wöchentlichen Status Reports, Modelle und Planung, sowie Die Klärung aller technischer Begriffe
+
+*-> [Link zum Wiki](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/home)*
+
 ## Repository-Struktur
 
 ### GitLab-Templates
