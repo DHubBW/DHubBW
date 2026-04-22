@@ -3,6 +3,12 @@
 # Definition of Done
 - [Stichpunkte, WAS zu tun ist]
 # Checkliste
-- [ ] Label hinzugefügt
-- [ ] Zeit vorher eingeschätzt
-- [ ] Definition of Done besteht aus Stichpunkten
+- [ ] Prägnanter Titel
+- [ ] Ausführliche Beschreibung des Issues
+- [ ] Definition of Done aus Stichpunkten
+- [ ] Labels vorhanden (Priorität, Größe & Kategorie)
+- [ ] Zeit eingeschätzt
+- [ ] Parent gesetzt
+- [ ] Zeitraum der Bearbeitung
+- [ ] Health Status (On Track)
+- [ ] ggf. Issue zugeteilt
