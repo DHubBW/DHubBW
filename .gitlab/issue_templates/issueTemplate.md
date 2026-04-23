@@ -9,6 +9,6 @@
 - [ ] Labels vorhanden (Priorität, Größe & Kategorie)
 - [ ] Zeit eingeschätzt
 - [ ] Parent gesetzt
-- [ ] Zeitraum der Bearbeitung
+- [ ] Iteration ausgewählt
 - [ ] Health Status (On Track)
 - [ ] ggf. Issue zugeteilt
