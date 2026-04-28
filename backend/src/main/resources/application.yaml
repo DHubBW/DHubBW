@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: dhubbw
+  profiles:
+    active: dev
