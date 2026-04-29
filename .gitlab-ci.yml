@@ -1,0 +1,61 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  BACKEND_IMAGE: dhubbw-backend:latest
+  FRONTEND_IMAGE: dhubbw-frontend:latest
+
+pipeline-check:
+  stage: build
+  tags: [vm553]
+  script:
+    - echo "Pipeline läuft bei merge auf main."
+  rules:
+    - if: $CI_COMMIT_BRANCH != "main"
+
+build-backend:
+  stage: build
+  tags: [vm553]
+  script:
+    - docker run --rm -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app eclipse-temurin:25-jdk ./mvnw clean package -DskipTests
+    - docker run --rm -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk chown -R $(id -u):$(id -g) /target
+    - docker build -f backend/docker/Dockerfile -t $BACKEND_IMAGE backend/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - backend/**/*
+
+build-frontend:
+  stage: build
+  tags: [vm553]
+  script:
+    - docker build -t $FRONTEND_IMAGE frontend/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - frontend/**/*
+
+deploy:
+  stage: deploy
+  tags: [vm553]
+  needs:
+    - job: build-backend
+      optional: true
+    - job: build-frontend
+      optional: true
+  script:
+    - docker rm -f postgres backend frontend 2>/dev/null || true
+    - docker rm -f $(docker ps -q --filter "publish=8080") 2>/dev/null || true
+    - docker rm -f $(docker ps -q --filter "publish=80") 2>/dev/null || true
+    - docker compose --env-file /opt/projects/devstack/.env -f deploy/docker-compose.yml up -d --remove-orphans
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - backend/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - frontend/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - deploy/**/*
