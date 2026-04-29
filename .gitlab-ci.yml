@@ -1,16 +1,18 @@
 stages:
   - build
+  - test
   - deploy
 
 variables:
   BACKEND_IMAGE: dhubbw-backend:latest
   FRONTEND_IMAGE: dhubbw-frontend:latest
+  GIT_CLEAN_FLAGS: -ffdx -e backend/target/
 
 pipeline-check:
   stage: build
   tags: [vm553]
   script:
-    - echo "Pipeline läuft bei merge auf main."
+    - echo "Pipeline läuft."
   rules:
     - if: $CI_COMMIT_BRANCH != "main"
 
@@ -19,11 +21,28 @@ build-backend:
   tags: [vm553]
   script:
     - docker run --rm -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app eclipse-temurin:25-jdk ./mvnw clean package -DskipTests
-    - docker run --rm -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk chown -R $(id -u):$(id -g) /target
     - docker build -f backend/docker/Dockerfile -t $BACKEND_IMAGE backend/
+  after_script:
+    - docker run --rm -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk chown -R $(id -u):$(id -g) /target 2>/dev/null || true
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
+        - backend/**/*
+
+test-backend:
+  stage: test
+  tags: [vm553]
+  script:
+    - docker run --rm -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app eclipse-temurin:25-jdk ./mvnw clean verify
+  after_script:
+    - docker run --rm -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk chown -R $(id -u):$(id -g) /target 2>/dev/null || true
+  artifacts:
+    paths:
+      - backend/target/site/jacoco/
+    expire_in: 1 week
+  coverage: '/Total.*?([0-9]{1,3})%/'
+  rules:
+    - changes:
         - backend/**/*
 
 build-frontend:
@@ -43,6 +62,8 @@ deploy:
     - job: build-backend
       optional: true
     - job: build-frontend
+      optional: true
+    - job: test-backend
       optional: true
   script:
     - docker rm -f postgres backend frontend 2>/dev/null || true
