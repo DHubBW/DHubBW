@@ -5,10 +5,11 @@
 # Checkliste (löschen nach Erfüllung aller Punkte)
 - [ ] Prägnanter Titel
 - [ ] Ausführliche Beschreibung des Issues
-- [ ] Definition of Done aus Stichpunkten
+- [ ] Definition of Done aus Stichpunkten zum ankreuzen
 - [ ] Labels vorhanden (Priorität, Größe & Kategorie)
 - [ ] Zeit eingeschätzt
 - [ ] Parent gesetzt
-- [ ] Iteration ausgewählt
+- [ ] Iteration ausgewählt (Sprint 2026 ...)
 - [ ] Health Status (On Track)
+- [ ] Milestone ausgewählt
 - [ ] ggf. Issue zugeteilt
