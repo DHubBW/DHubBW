@@ -9,3 +9,8 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
