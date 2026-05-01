@@ -66,7 +66,7 @@ curl -X GET 'http://localhost:8080/actuator/health' \
 
 ### Mock Basic Authentication (Dev-Profil)
 Im Dev-Profil ist ein Mock-User hardcoded: `user` / `user`.
-Details siehe [DevSecurityConfig](../src/main/java/com/se/dhubbw/shared/infrastructure/security/DevSecurityConfig.java).
+Details siehe [DevSecurityConfig](../src/main/java/com/se/dhubbw/shared/infrastructure/config/security/DevSecurityConfig.java).
 
 ### Deployen in der VM (ohne Pipeline)
 Stelle sicher, dass die neuste Version des Programms als jar Datei vorhanden ist. Anschließend
