@@ -1,14 +1,15 @@
 package com.se.dhubbw.shared.application;
 
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST Controller for admin-related endpoints.
+ *
+ * <p>This controller provides endpoints for administrative operations
+ * and testing admin-level functionality (course admins / system admins).
+ */
 @RestController
 @RequestMapping("/admin")
-public class AdminController {
-    @GetMapping("")
-    public String testEndpoint() {
-        return "admin success";
-    }
+public final class AdminController {
 }
