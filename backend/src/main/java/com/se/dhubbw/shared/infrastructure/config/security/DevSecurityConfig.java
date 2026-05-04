@@ -3,6 +3,7 @@ package com.se.dhubbw.shared.infrastructure.config.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration
     .EnableWebSecurity;
@@ -25,6 +26,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  */
 @Configuration
 @EnableWebSecurity(debug = true)
+@EnableMethodSecurity(securedEnabled = true)
 @Profile("dev")
 public class DevSecurityConfig {
     /**
@@ -64,18 +66,34 @@ public class DevSecurityConfig {
 
     /**
      * Configure in-memory user details for development.
+     * The username is meant to be the dhbw mail in a future release.
+     *
+     * <p>User roles are hierarchical:
+     * - STUDENT: base role
+     * - KURSADMIN: inherits STUDENT
+     * - SYSTEMADMIN: inherits KURSADMIN and STUDENT
      *
      * @param encoder the {@code PasswordEncoder}
-     * @return a {@code UserDetailsService} with test user
+     * @return a {@code UserDetailsService} with multiple test users
      */
     @Bean
     public UserDetailsService userDetailsService(
         final PasswordEncoder encoder) {
-        String password = encoder.encode("user");
-        UserDetails user = User.withUsername("user")
-            .password(password)
-            .roles("USER")
+        UserDetails student = User.withUsername("student")
+            .password(encoder.encode("student"))
+            .roles("STUDENT")
             .build();
-        return new InMemoryUserDetailsManager(user);
+
+        UserDetails admin = User.withUsername("kursadmin")
+            .password(encoder.encode("kursadmin"))
+            .roles("KURSADMIN", "STUDENT")
+            .build();
+
+        UserDetails user = User.withUsername("systemadmin")
+            .password(encoder.encode("systemadmin"))
+            .roles("SYSTEMADMIN", "KURSADMIN", "STUDENT")
+            .build();
+
+        return new InMemoryUserDetailsManager(student, admin, user);
     }
 }

@@ -13,5 +13,5 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @Configuration
 @Profile("prod")
 @EnableWebSecurity
-public final class ProdSecurityConfiguration {
+public class ProdSecurityConfiguration {
 }

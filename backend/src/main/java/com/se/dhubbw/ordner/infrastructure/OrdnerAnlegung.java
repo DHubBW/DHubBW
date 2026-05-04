@@ -3,6 +3,8 @@ package com.se.dhubbw.ordner.infrastructure;
 import com.se.dhubbw.student.infrastructure.Student;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -27,6 +29,7 @@ public class OrdnerAnlegung {
     @Column(name = "anlegung_id")
     @Getter
     @Setter
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID anlegungID;
 
     /**
@@ -50,7 +53,7 @@ public class OrdnerAnlegung {
     /**
      * Creation date.
      */
-    @Column
+    @Column(name = "datum")
     @Getter
     @Setter
     private LocalDate datum;
