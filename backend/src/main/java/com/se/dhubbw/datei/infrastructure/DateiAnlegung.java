@@ -3,6 +3,8 @@ package com.se.dhubbw.datei.infrastructure;
 import com.se.dhubbw.student.infrastructure.Student;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -27,6 +29,7 @@ public class DateiAnlegung {
     @Setter
     @Id
     @Column(name = "anlegung_id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID anlegungID;
 
     /**

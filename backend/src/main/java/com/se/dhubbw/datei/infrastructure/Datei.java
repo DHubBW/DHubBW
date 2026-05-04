@@ -1,8 +1,11 @@
 package com.se.dhubbw.datei.infrastructure;
 
 import com.se.dhubbw.ordner.infrastructure.Ordner;
+import com.se.dhubbw.student.infrastructure.Student;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -27,6 +30,7 @@ public class Datei {
     @Getter
     @Setter
     @Column(name = "datei_id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID dateiID;
 
     /**
@@ -62,5 +66,22 @@ public class Datei {
     @Lob
     @Column(name = "data")
     private byte[] data;
+
+    /**
+     * Student who uploaded the file.
+     */
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "uploader")
+    private Student uploader;
+
+    /**
+     * Size of the Document (in MB).
+     */
+    @Getter
+    @Setter
+    @Column(name = "file_size")
+    private float fileSize;
 
 }

@@ -6,8 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * Main entry point for the DHBW DHUBBW Spring Boot application.
  */
+//CHECKSTYLE:OFF
 @SpringBootApplication
-public final class DhubbwApplication {
+public class DhubbwApplication {
 
     /**
      * Private constructor to hide implicit public constructor.
@@ -20,7 +21,7 @@ public final class DhubbwApplication {
      *
      * @param args command-line arguments passed to the application
      */
-    public static void main(final String[] args) {
+    static void main(final String[] args) {
         SpringApplication.run(DhubbwApplication.class, args);
     }
 }

@@ -13,6 +13,8 @@ spring:
   sql:
     init:
       mode: never
+  mvc:
+    dispatch-trace-request: false
 springdoc:
   swagger-ui:
     enabled: false

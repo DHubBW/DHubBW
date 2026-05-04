@@ -4,9 +4,26 @@ spring:
     driverClassName: org.h2.Driver
     username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:password}
+
+  output:
+    ansi:
+      enabled: always
+
   sql:
     init:
       mode: always
   jpa:
+    show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+  mvc:
+    dispatch-trace-request: true
+  level:
+    org.springframework.security: TRACE
+logging:
+  level:
+    com.se.dhubbw: DEBUG
+
