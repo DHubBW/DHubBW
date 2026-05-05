@@ -61,6 +61,32 @@ test-backend:
     - changes:
         - backend/**/*
 
+validate-migrations:
+  stage: test
+  variables:
+    PG_CONTAINER: migration-pg-$CI_JOB_ID
+    NET_NAME: migration-net-$CI_JOB_ID
+  script:
+    - docker network create $NET_NAME
+    - docker run -d --name $PG_CONTAINER --network $NET_NAME
+        -e POSTGRES_PASSWORD=pw -e POSTGRES_DB=testdb postgres:17
+    - |
+      for i in $(seq 1 30); do
+        docker exec $PG_CONTAINER pg_isready -U postgres && break
+        sleep 2
+      done
+    - docker run --rm --network $NET_NAME
+        -v "$PWD/backend/src/main/resources/db/migration:/flyway/sql"
+        flyway/flyway:10
+        -url=jdbc:postgresql://$PG_CONTAINER:5432/testdb
+        -user=postgres -password=pw migrate
+  after_script:
+    - docker rm -f $PG_CONTAINER 2>/dev/null || true
+    - docker network rm $NET_NAME 2>/dev/null || true
+  rules:
+    - changes:
+        - backend/src/main/resources/db/migration/**/*
+
 # ─── Deploy ──────────────────────────────────────────────────────────────────
 
 deploy:
