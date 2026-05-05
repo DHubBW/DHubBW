@@ -124,36 +124,19 @@
 			<configuration>
 				<configLocation>checkstyle.xml</configLocation>
 				<consoleOutput>true</consoleOutput>
+				<failsOnError>true</failsOnError>
+				<failOnViolation>true</failOnViolation>
 			</configuration>
 			<executions>
 				<execution>
 					<id>checkstyle</id>
 					<goals>
-						<goal>checkstyle</goal>
+						<goal>check</goal>
 					</goals>
-					<phase>prepare-package</phase>
+					<phase>verify</phase>
 				</execution>
 			</executions>
 		</plugin>
-
-			<!-- START Lombok -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.6.0</version>
-				<configuration>
-					<consoleOutput>true</consoleOutput>
-				</configuration>
-				<executions>
-					<execution>
-						<id>checkstyle</id>
-						<goals>
-							<goal>checkstyle</goal>
-						</goals>
-						<phase>prepare-package</phase>
-					</execution>
-				</executions>
-			</plugin>
 
 			<!-- START Lombok -->
 			<plugin>
