@@ -1,21 +1,32 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# DHubBW – CI/CD Pipeline
+# ═══════════════════════════════════════════════════════════════════════════════
+
 stages:
   - build
   - test
   - deploy
 
+# ─── Global Configuration ─────────────────────────────────────────────────────
+
 default:
   tags: [vm553]
 
 variables:
-  BACKEND_IMAGE: dhubbw-backend:latest
-  FRONTEND_IMAGE: dhubbw-frontend:latest
+  BACKEND_IMAGE:   dhubbw-backend:latest
+  FRONTEND_IMAGE:  dhubbw-frontend:latest
   GIT_CLEAN_FLAGS: -ffdx -e backend/target/
+
+# ─── Templates ────────────────────────────────────────────────────────────────
 
 .fix-backend-ownership:
   after_script:
-    - docker run --rm -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk chown -R $(id -u):$(id -g) /target 2>/dev/null || true
+    - docker run --rm -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk
+        chown -R $(id -u):$(id -g) /target 2>/dev/null || true
 
-# ─── Build ───────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# BUILD
+# ═══════════════════════════════════════════════════════════════════════════════
 
 pipeline-check:
   stage: build
@@ -25,10 +36,10 @@ pipeline-check:
     - if: $CI_COMMIT_BRANCH != "main"
 
 build-backend:
-  extends: .fix-backend-ownership
   stage: build
   script:
-    - docker run --rm -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app eclipse-temurin:25-jdk ./mvnw clean package -DskipTests
+    - docker run --rm -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app
+        eclipse-temurin:25-jdk ./mvnw clean package -DskipTests
     - docker build -f backend/docker/Dockerfile -t $BACKEND_IMAGE backend/
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
@@ -44,17 +55,20 @@ build-frontend:
       changes:
         - frontend/**/*
 
-# ─── Test ────────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# TEST
+# ═══════════════════════════════════════════════════════════════════════════════
 
 test-backend:
   extends: .fix-backend-ownership
   stage: test
   script:
-    - docker run --rm -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app eclipse-temurin:25-jdk ./mvnw clean verify
+    - docker run --rm -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app
+        eclipse-temurin:25-jdk ./mvnw clean verify
   artifacts:
     paths:
       - backend/target/site/jacoco/
-      - backend/target/site/apidocs/
+      - backend/target/apidocs/
       - backend/target/openapi.json
     expire_in: 1 week
   coverage: '/Total.*?([0-9]{1,3})%/'
@@ -66,7 +80,7 @@ validate-migrations:
   stage: test
   variables:
     PG_CONTAINER: migration-pg-$CI_JOB_ID
-    NET_NAME: migration-net-$CI_JOB_ID
+    NET_NAME:     migration-net-$CI_JOB_ID
   script:
     - docker network create $NET_NAME
     - docker run -d --name $PG_CONTAINER --network $NET_NAME
@@ -88,16 +102,19 @@ validate-migrations:
     - changes:
         - backend/src/main/resources/db/migration/**/*
 
-# ─── Deploy ──────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# DEPLOY
+# ═══════════════════════════════════════════════════════════════════════════════
 
 pages:
   stage: deploy
   needs:
     - job: test-backend
       artifacts: true
+      optional: true
   script:
     - mkdir -p public/apidocs public/jacoco
-    - cp -r backend/target/site/apidocs/. public/apidocs/ 2>/dev/null || true
+    - cp -r backend/target/apidocs/. public/apidocs/ 2>/dev/null || true
     - cp -r backend/target/site/jacoco/. public/jacoco/ 2>/dev/null || true
     - cp backend/target/openapi.json public/openapi.json 2>/dev/null || true
     - |
