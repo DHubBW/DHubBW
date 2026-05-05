@@ -81,6 +81,7 @@ Die vollständige Projektdokumentation befindet sich im zentralen **[DHubBW Wiki
 - **[Architektur](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/Architektur)** – Systemarchitektur und Designentscheidungen
 - **[Datenbank](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/Datenbank)** – Datenbankdesign und Datenmodellierung
 - **[Prozessmodellierung](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/Prozessmodellierung)** – Geschäftsprozesse und Soll-Zustand
+- **[SAAM](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/SAAM)** – Architekturbewertung nach der Software Architecture Analysis Method
 - **[GUI-Entwurf](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/GUI-Entwurf)** – Grafische Benutzeroberfläche und User Experience
 
 ### [4. Technische Dokumentation](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation)
@@ -142,4 +143,4 @@ Jeder Beitrag hilft uns, DHubBW besser zu machen!
 
 ---
 
-_Stand: April 2026 | DHBW Karlsruhe TINF24B2 Gruppe 4_
+_Stand: Mai 2026 | DHBW Karlsruhe TINF24B2 Gruppe 4_
