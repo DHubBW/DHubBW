@@ -12,7 +12,8 @@
     <a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw"><b>DHubBW App</b></a> •
     <a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/sonstiges">Sonstiges</a> •
     <a href="https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/home">Wiki</a> •
-    <a href="https://sonstiges-42cd1e.gitlab.io">Statusreports</a>
+    <a href="https://sonstiges-42cd1e.gitlab.io">Statusreports</a> •
+    <a href="https://dhubbw-be460f.gitlab.io">Dokumentation</a>
 </p>
 
 ---
@@ -110,6 +111,7 @@ Die vollständige Projektdokumentation befindet sich im zentralen **[DHubBW Wiki
 - **[Projektstrukturplan (PSP)](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/epics/10)** – Hierarchische Gliederung aller Arbeitspakete und Meilensteine
 - **[Issue-Tracking](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw/-/issues)** – Alle Issues, Bugs und Feature-Requests
 - **[Statusreports](https://sonstiges-42cd1e.gitlab.io)** – Wöchentliche Projektberichte als interaktive Webpräsentationen
+- **[Dokumentation](https://dhubbw-be460f.gitlab.io)** – Javadoc, JaCoCo Test Coverage & OpenAPI Spec (automatisch generiert via CI/CD)
 
 ---
 
