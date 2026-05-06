@@ -1,12 +1,14 @@
 package com.se.dhubbw.mensa.application;
 
 import com.se.dhubbw.mensa.application.dto.MensaDTO;
+import com.se.dhubbw.mensa.infrastructure.Mensa;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,12 +28,19 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/public")
+@RequiredArgsConstructor
 public class MensaController {
 
     /**
-     * Retrieve all meals.
-     * @param date as the selected day.
-     * @return ArrayList of meals.
+     * Application service providing mensa meal data.
+     */
+    private final MensaService mensaService;
+
+    /**
+     * Retrieve all meals for a specific day.
+     *
+     * @param date the requested day in ISO format (YYYY-MM-DD)
+     * @return list of meals, or 400 if no date was supplied
      */
     @Operation(
             summary = "retrieve meals for a specific day",
@@ -66,9 +74,27 @@ public class MensaController {
         if (date == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        List<MensaDTO> gerichte = new ArrayList<>();
-        gerichte.add(new MensaDTO());
+        List<MensaDTO> gerichte = mensaService.getMealsForDay(date).stream()
+            .map(MensaController::toDto)
+            .toList();
         return ResponseEntity.ok(gerichte);
     }
 
+    /**
+     * Map a {@link Mensa} entity to its DTO representation.
+     *
+     * @param mensa the entity to convert
+     * @return the corresponding {@link MensaDTO}
+     */
+    private static MensaDTO toDto(final Mensa mensa) {
+        return new MensaDTO(
+            mensa.getGerichtID(),
+            mensa.getDatum(),
+            mensa.getEssensbezeichnung(),
+            mensa.getAllergene(),
+            mensa.getPreis(),
+            mensa.getErnaehrung()
+        );
+    }
 }
+

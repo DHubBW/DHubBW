@@ -8,3 +8,5 @@ spring:
     name: dhubbw
   profiles:
     active: dev
+mensa:
+  url: https://www.sw-ka.de/de/hochschulgastronomie/speiseplan/mensa_erzberger/
