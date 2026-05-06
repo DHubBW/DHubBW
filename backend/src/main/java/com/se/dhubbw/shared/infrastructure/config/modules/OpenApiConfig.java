@@ -1,7 +1,10 @@
 package com.se.dhubbw.shared.infrastructure.config.modules;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -17,7 +20,7 @@ import org.springframework.context.annotation.Profile;
 public class OpenApiConfig {
 
     /**
-     * Create custom OpenAPI specification.
+     * Create custom OpenAPI specification with HTTP Basic Auth security scheme.
      *
      * @return the configured {@code OpenAPI} instance
      */
@@ -28,6 +31,14 @@ public class OpenApiConfig {
                 .title("DHubBW API")
                 .version("0.0.1-SNAPSHOT")
                 .description(
-                    "REST API Dokumentation für das DHubBW Backend"));
+                    "REST API Dokumentation für das DHubBW Backend"))
+            .addSecurityItem(new SecurityRequirement()
+                .addList("basicAuth"))
+            .components(new Components()
+                .addSecuritySchemes("basicAuth",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("basic")
+                        .name("basicAuth")));
     }
 }

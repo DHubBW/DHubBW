@@ -1,0 +1,25 @@
+package com.se.dhubbw.kurs.infrastructure.db;
+
+import com.se.dhubbw.student.infrastructure.db.Student;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * Spring Data repository for {@link KursBeitrittsAnfrage} entities.
+ */
+@Repository
+public interface KursBeitrittsAnfrageRepository extends
+    JpaRepository<KursBeitrittsAnfrage, UUID> {
+
+    /**
+     * Find the approved course enrollment request for the given student.
+     *
+     * @param student the student whose approved enrollment to look up
+     * @return the approved enrollment request, or empty if not found
+     */
+    Optional<KursBeitrittsAnfrage> findByStudentAndIsApprovedTrue(
+        Student student);
+}

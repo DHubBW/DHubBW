@@ -1,5 +1,7 @@
 package com.se.dhubbw.kurs.infrastructure;
 
+import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

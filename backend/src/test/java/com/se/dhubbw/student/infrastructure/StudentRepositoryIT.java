@@ -1,5 +1,7 @@
 package com.se.dhubbw.student.infrastructure;
 
+import com.se.dhubbw.student.infrastructure.db.StudentRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

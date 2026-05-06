@@ -1,4 +1,4 @@
-package com.se.dhubbw.kurs.infrastructure;
+package com.se.dhubbw.kurs.infrastructure.db;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

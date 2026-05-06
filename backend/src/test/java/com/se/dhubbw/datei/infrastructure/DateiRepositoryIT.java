@@ -1,5 +1,8 @@
 package com.se.dhubbw.datei.infrastructure;
 
+import com.se.dhubbw.datei.infrastructure.db.Datei;
+import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

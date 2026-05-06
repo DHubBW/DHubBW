@@ -1,4 +1,4 @@
-package com.se.dhubbw.student.infrastructure;
+package com.se.dhubbw.student.infrastructure.db;
 
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 import jakarta.persistence.Column;
@@ -63,4 +63,3 @@ public class Student {
     @Column(name = "dhbw_mail")
     private String dhbwMail;
 }
-

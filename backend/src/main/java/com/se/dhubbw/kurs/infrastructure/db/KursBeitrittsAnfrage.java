@@ -1,6 +1,6 @@
-package com.se.dhubbw.kurs.infrastructure;
+package com.se.dhubbw.kurs.infrastructure.db;
 
-import com.se.dhubbw.student.infrastructure.Student;
+import com.se.dhubbw.student.infrastructure.db.Student;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -50,7 +50,6 @@ public class KursBeitrittsAnfrage {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
-
 
     /**
      * Request submission date.
