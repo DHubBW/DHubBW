@@ -154,6 +154,21 @@
 			</executions>
 		</plugin>
 
+			<!-- START Failsafe (runs *IT.java integration tests) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- END Failsafe -->
+
 			<!-- START Lombok -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
