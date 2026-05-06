@@ -145,4 +145,159 @@ public class MensaScraperTest {
         Assertions.assertEquals(LocalDate.of(2026, 5, 6), week1.get(0).getDatum());
         Assertions.assertEquals(LocalDate.of(2026, 5, 13), week2.get(0).getDatum());
     }
+
+    @Test
+    public void givenRowWithNoIcon_whenParsed_thenErnaehrungIsFleisch() {
+        String html = "<html><body>"
+            + "<ul class=\"canteen-day-nav\">"
+            + "<li><a rel=\"2026-05-06\">Mi</a></li>"
+            + "</ul>"
+            + "<div id=\"canteen_day_1\" class=\"canteen-day\"><table>"
+            + "<tr class=\"mt-2\">"
+            + "<td class=\"mtd-icon\"></td>"
+            + "<td class=\"first menu-title\">"
+            + "<span><b>Schnitzel</b></span><sup>[We]</sup>"
+            + "</td>"
+            + "<td><span class=\"bgp price_1\">3,80 &euro;</span></td>"
+            + "</tr>"
+            + "</table></div>"
+            + "</body></html>";
+        Document doc = Jsoup.parse(html);
+        List<Mensa> result = scraper.parseDocument(doc);
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(Ernaehrung.FLEISCH, result.get(0).getErnaehrung());
+    }
+
+    @Test
+    public void givenRowWithNoPriceSpan_whenParsed_thenPreisIsZero() {
+        String html = "<html><body>"
+            + "<ul class=\"canteen-day-nav\">"
+            + "<li><a rel=\"2026-05-06\">Mi</a></li>"
+            + "</ul>"
+            + "<div id=\"canteen_day_1\" class=\"canteen-day\"><table>"
+            + "<tr class=\"mt-2\">"
+            + "<td class=\"mtd-icon\">"
+            + "<img src=\"/layout/icons/vegetarisches-gericht.svg\"></td>"
+            + "<td class=\"first menu-title\">"
+            + "<span><b>Suppe</b></span><sup>[Se]</sup>"
+            + "</td>"
+            + "<td></td>"
+            + "</tr>"
+            + "</table></div>"
+            + "</body></html>";
+        Document doc = Jsoup.parse(html);
+        List<Mensa> result = scraper.parseDocument(doc);
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(0.0, result.get(0).getPreis(), 0.001);
+    }
+
+    @Test
+    public void givenRowWithUnparsablePrice_whenParsed_thenPreisIsZero() {
+        String html = "<html><body>"
+            + "<ul class=\"canteen-day-nav\">"
+            + "<li><a rel=\"2026-05-06\">Mi</a></li>"
+            + "</ul>"
+            + "<div id=\"canteen_day_1\" class=\"canteen-day\"><table>"
+            + "<tr class=\"mt-2\">"
+            + "<td class=\"mtd-icon\">"
+            + "<img src=\"/layout/icons/veganes-gericht.svg\"></td>"
+            + "<td class=\"first menu-title\">"
+            + "<span><b>Tofu Bowl</b></span>"
+            + "</td>"
+            + "<td><span class=\"bgp price_1\">N/A</span></td>"
+            + "</tr>"
+            + "</table></div>"
+            + "</body></html>";
+        Document doc = Jsoup.parse(html);
+        List<Mensa> result = scraper.parseDocument(doc);
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(0.0, result.get(0).getPreis(), 0.001);
+    }
+
+    @Test
+    public void givenRowWithoutBoldInTitle_whenParsed_thenUsesFullText() {
+        String html = "<html><body>"
+            + "<ul class=\"canteen-day-nav\">"
+            + "<li><a rel=\"2026-05-06\">Mi</a></li>"
+            + "</ul>"
+            + "<div id=\"canteen_day_1\" class=\"canteen-day\"><table>"
+            + "<tr class=\"mt-2\">"
+            + "<td class=\"mtd-icon\">"
+            + "<img src=\"/layout/icons/veganes-gericht.svg\"></td>"
+            + "<td class=\"first menu-title\">"
+            + "<span>Gemüsesuppe</span>"
+            + "</td>"
+            + "<td><span class=\"bgp price_1\">2,10 &euro;</span></td>"
+            + "</tr>"
+            + "</table></div>"
+            + "</body></html>";
+        Document doc = Jsoup.parse(html);
+        List<Mensa> result = scraper.parseDocument(doc);
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertNotNull(result.get(0).getEssensbezeichnung());
+        Assertions.assertFalse(result.get(0).getEssensbezeichnung().isEmpty());
+    }
+
+    @Test
+    public void givenRowWithoutAllergene_whenParsed_thenAllergenIsEmpty() {
+        String html = "<html><body>"
+            + "<ul class=\"canteen-day-nav\">"
+            + "<li><a rel=\"2026-05-06\">Mi</a></li>"
+            + "</ul>"
+            + "<div id=\"canteen_day_1\" class=\"canteen-day\"><table>"
+            + "<tr class=\"mt-2\">"
+            + "<td class=\"mtd-icon\">"
+            + "<img src=\"/layout/icons/veganes-gericht.svg\"></td>"
+            + "<td class=\"first menu-title\">"
+            + "<span><b>Reissalat</b></span>"
+            + "</td>"
+            + "<td><span class=\"bgp price_1\">2,90 &euro;</span></td>"
+            + "</tr>"
+            + "</table></div>"
+            + "</body></html>";
+        Document doc = Jsoup.parse(html);
+        List<Mensa> result = scraper.parseDocument(doc);
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals("", result.get(0).getAllergene());
+    }
+
+    @Test
+    public void givenDayNavWithEmptyRelAttribute_whenParsed_thenDayIsSkipped() {
+        String html = "<html><body>"
+            + "<ul class=\"canteen-day-nav\">"
+            + "<li><a rel=\"\">Mo</a></li>"
+            + "<li><a rel=\"2026-05-07\">Di</a></li>"
+            + "</ul>"
+            + "<div class=\"canteen-day\"><table>"
+            + "<tr class=\"mt-2\">"
+            + "<td class=\"mtd-icon\">"
+            + "<img src=\"/layout/icons/veganes-gericht.svg\"></td>"
+            + "<td class=\"first menu-title\">"
+            + "<span><b>Meal A</b></span>"
+            + "</td>"
+            + "<td><span class=\"bgp price_1\">3,00 &euro;</span></td>"
+            + "</tr>"
+            + "</table></div>"
+            + "<div class=\"canteen-day\"><table>"
+            + "<tr class=\"mt-2\">"
+            + "<td class=\"mtd-icon\">"
+            + "<img src=\"/layout/icons/veganes-gericht.svg\"></td>"
+            + "<td class=\"first menu-title\">"
+            + "<span><b>Meal B</b></span>"
+            + "</td>"
+            + "<td><span class=\"bgp price_1\">3,50 &euro;</span></td>"
+            + "</tr>"
+            + "</table></div>"
+            + "</body></html>";
+        Document doc = Jsoup.parse(html);
+        List<Mensa> result = scraper.parseDocument(doc);
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(LocalDate.of(2026, 5, 7), result.get(0).getDatum());
+    }
 }
