@@ -1,10 +1,154 @@
 package com.se.dhubbw.kurs.application;
 
+import com.se.dhubbw.kurs.application.dto.KursCreateRequestDTO;
+import com.se.dhubbw.kurs.application.dto.KursYearDTO;
+import com.se.dhubbw.kurs.infrastructure.KursService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * REST controller for course-related endpoints.
+ *
+ * <p>Provides endpoints for retrieving available courses,
+ * submitting course join requests, and submitting course
+ * creation requests.</p>
+ */
 @RestController
 @RequestMapping("/public")
+@RequiredArgsConstructor
 public class KursController {
 
+    /**
+     * Service containing all course-related business logic.
+     */
+    private final KursService kursService;
+
+    /**
+     * Retrieve all available courses with their identifier,
+     * name, and cohort year.
+     *
+     * <p>Requires at least the {@code STUDENT} role.</p>
+     *
+     * @return 200 with the list of all courses; may be empty
+     */
+    @Operation(
+            summary = "Retrieve all courses",
+            description = "Returns identifier, name, and cohort "
+                + "year for every available course."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "List of all courses successfully loaded",
+            content =
+            @Content(mediaType = "application/json",
+                    array = @ArraySchema
+                        (schema = @Schema(
+                            implementation = KursYearDTO.class))
+            )
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/kurse")
+    public ResponseEntity<List<KursYearDTO>> retrieveKursNamesAndYears() {
+        return ResponseEntity.ok(kursService.retrieveKursNamesAndYears());
+    }
+
+    /**
+     * Open a join request for the authenticated student.
+     *
+     * <p>Validates that the course exists, the student is not
+     * already enrolled in any course, and the student has no
+     * other open join request.</p>
+     *
+     * @param kursId         the UUID of the course to join
+     * @param authentication the current user's security context
+     * @return 200 if the request was created successfully
+     */
+    @Operation(
+            summary = "Open a course join request",
+            description = "Creates a pending join request for "
+                + "the authenticated student. The course must "
+                + "exist and the student must not already be "
+                + "enrolled or have an open join request."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Join request created successfully")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Course not found",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(
+            responseCode = "409",
+            description = "Student already enrolled "
+                + "or has an open join request",
+            content = @Content(mediaType = "application/json"))
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/kurse/{kursId}/beitreten")
+    public ResponseEntity<Void> openJoinKursRequest(
+            @Parameter(
+                    description = "UUID of the course to join",
+                    required = true)
+            @PathVariable final UUID kursId,
+            final Authentication authentication) {
+        kursService.openJoinKursRequest(
+            kursId, authentication.getName());
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Open a course creation request for the authenticated student.
+     *
+     * <p>Validates that no course with the same name and cohort
+     * year already exists before persisting the request.</p>
+     *
+     * @param request        request body containing course name,
+     *     cohort year, and optional notes
+     * @param authentication the current user's security context
+     * @return 200 if the creation request was submitted
+     */
+    @Operation(
+            summary = "Open a course creation request",
+            description = "Submits a course creation request for "
+                + "the authenticated student. The combination of "
+                + "course name and cohort year must not exist."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Course creation request submitted")
+    @ApiResponse(
+            responseCode = "409",
+            description = "Student already enrolled, or course "
+                + "with this name and cohort year already exists",
+            content = @Content(mediaType = "application/json"))
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/kurse/erstellen")
+    public ResponseEntity<Void> openCreateCourseRequest(
+            @Valid @RequestBody final KursCreateRequestDTO request,
+            final Authentication authentication) {
+        kursService.openCreateCourseRequest(
+            request.getKursName(),
+            request.getJahrgang(),
+            request.getAdditionalNotes(),
+            authentication.getName()
+        );
+        return ResponseEntity.ok().build();
+    }
 }
