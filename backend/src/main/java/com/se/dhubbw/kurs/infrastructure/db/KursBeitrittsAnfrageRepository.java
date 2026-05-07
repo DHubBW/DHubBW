@@ -4,6 +4,7 @@ import com.se.dhubbw.student.infrastructure.db.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +23,15 @@ public interface KursBeitrittsAnfrageRepository extends
      */
     Optional<KursBeitrittsAnfrage> findByStudentAndIsApprovedTrue(
         Student student);
+
+    /**
+     * Find all pending (not yet approved) enrollment requests
+     * for the given course.
+     *
+     * @param kurs the course whose pending requests to retrieve
+     * @return list of pending requests, may be empty
+     */
+    List<KursBeitrittsAnfrage> findByKursAndIsApprovedFalse(Kurs kurs);
 
     /**
      * Check whether the student already has an approved course enrollment.

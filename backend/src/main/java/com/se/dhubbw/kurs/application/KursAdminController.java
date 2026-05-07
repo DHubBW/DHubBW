@@ -1,0 +1,190 @@
+package com.se.dhubbw.kurs.application;
+
+import com.se.dhubbw.kurs.application.dto.KursanfrageDTO;
+import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+
+/**
+ * REST controller for course-admin enrollment request management.
+ *
+ * <p>Exposes endpoints for a KURSADMIN to list, approve, or
+ * decline pending join requests for their course. All endpoints
+ * require the {@code KURSADMIN} role.</p>
+ */
+@RestController
+@RequestMapping("/kursadmin/anfragen")
+@RequiredArgsConstructor
+public class KursAdminController {
+
+    /**
+     * Service handling the enrollment request business logic.
+     */
+    private final KursAdminService kursAdminService;
+
+    /**
+     * Retrieve all open enrollment requests for the admin's course.
+     *
+     * @param authentication the current user's security context
+     * @return 200 with the list of pending requests, or 404 if the
+     *     admin has no approved course assignment
+     */
+    @Operation(
+            summary = "Retrieve pending enrollment requests",
+            description = "Returns all open join requests "
+                + "for the admin's course."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Pending requests successfully loaded",
+            content = @Content(
+                    mediaType = "application/json",
+                    array = @ArraySchema(
+                            schema = @Schema(
+                                    implementation = KursanfrageDTO.class))
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Admin has no course assignment",
+            content = @Content(mediaType = "application/json")
+    )
+    @PreAuthorize("hasRole('KURSADMIN')")
+    @GetMapping
+    public ResponseEntity<List<KursanfrageDTO>>
+            retrieveKursbeitrittsanfragen(
+            final Authentication authentication) {
+        try {
+            List<KursBeitrittsAnfrage> anfragen =
+                kursAdminService.retrieveKursbeitrittsanfragen(
+                    authentication.getName());
+            List<KursanfrageDTO> dtos = anfragen.stream()
+                .map(KursAdminController::toDto)
+                .toList();
+            return ResponseEntity.ok(dtos);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    /**
+     * Approve a pending enrollment request, assigning the student
+     * to the course.
+     *
+     * @param id the ID of the request to approve
+     * @param authentication the current user's security context
+     * @return 200 on success, 404 if the request is not found,
+     *     or 403 if the request belongs to another course
+     */
+    @Operation(
+            summary = "Approve enrollment request",
+            description = "Approves a join request and "
+                + "assigns the student to the course."
+    )
+    @ApiResponse(responseCode = "200", description = "Request approved")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Request not found"
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Request belongs to another course"
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "Student is already enrolled in a course"
+    )
+    @PreAuthorize("hasRole('KURSADMIN')")
+    @PatchMapping("/{id}/approve")
+    public ResponseEntity<Void> approveKursbeitrittsanfrage(
+            @PathVariable final UUID id,
+            final Authentication authentication) {
+        try {
+            kursAdminService.approveKursbeitrittsanfrage(
+                id, authentication.getName());
+            return ResponseEntity.ok().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    /**
+     * Decline and permanently delete a pending enrollment request.
+     *
+     * @param id the ID of the request to decline
+     * @param authentication the current user's security context
+     * @return 204 on success, 404 if the request is not found,
+     *     or 403 if the request belongs to another course
+     */
+    @Operation(
+            summary = "Decline enrollment request",
+            description = "Declines and removes a join request."
+    )
+    @ApiResponse(
+            responseCode = "204",
+            description = "Request declined and deleted"
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Request not found"
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Request belongs to another course"
+    )
+    @PreAuthorize("hasRole('KURSADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> declineKursbeitrittsanfrage(
+            @PathVariable final UUID id,
+            final Authentication authentication) {
+        try {
+            kursAdminService.declineKursbeitrittsanfrage(
+                id, authentication.getName());
+            return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    /**
+     * Map a {@link KursBeitrittsAnfrage} entity to its DTO.
+     *
+     * @param anfrage the entity to convert
+     * @return the corresponding {@link KursanfrageDTO}
+     */
+    private static KursanfrageDTO toDto(
+            final KursBeitrittsAnfrage anfrage) {
+        return new KursanfrageDTO(
+            anfrage.getAnfrageID(),
+            anfrage.getKurs().getKursID(),
+            anfrage.getKurs().getKursName(),
+            anfrage.getStudent().getStudentID(),
+            anfrage.getStudent().getName(),
+            anfrage.getAnfrageDatum()
+        );
+    }
+}
