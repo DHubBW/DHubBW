@@ -22,4 +22,21 @@ public interface KursBeitrittsAnfrageRepository extends
      */
     Optional<KursBeitrittsAnfrage> findByStudentAndIsApprovedTrue(
         Student student);
+
+    /**
+     * Check whether the student already has an approved course enrollment.
+     *
+     * @param student the student to check
+     * @return {@code true} if an approved enrollment request exists
+     */
+    boolean existsByStudentAndIsApprovedTrue(Student student);
+
+    /**
+     * Check whether the student already has an open join request
+     * that has not yet been approved.
+     *
+     * @param student the student to check
+     * @return {@code true} if a pending join request exists
+     */
+    boolean existsByStudentAndIsApprovedFalse(Student student);
 }

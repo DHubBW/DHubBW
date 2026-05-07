@@ -10,4 +10,14 @@ import java.util.UUID;
  */
 @Repository
 public interface KursRepository extends JpaRepository<Kurs, UUID> {
+
+    /**
+     * Check whether a course with the given name and cohort
+     * year already exists.
+     *
+     * @param kursName the course name to check (e.g. "TINF24B2")
+     * @param jahrgang the cohort year to check (e.g. "2024")
+     * @return {@code true} if a matching course exists
+     */
+    boolean existsByKursNameAndJahrgang(String kursName, String jahrgang);
 }

@@ -45,7 +45,6 @@ public class DevSecurityConfig {
         http
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/student/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html",
                     "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated())
