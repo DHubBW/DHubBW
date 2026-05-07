@@ -1,6 +1,6 @@
 package com.se.dhubbw.kurs.application;
 
-import com.se.dhubbw.kurs.application.dto.KursCreateRequestDTO;
+import com.se.dhubbw.kurs.application.dto.KursErstellungsAnfrageRequestDTO;
 import com.se.dhubbw.kurs.application.dto.KursYearDTO;
 import com.se.dhubbw.kurs.infrastructure.KursService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -141,7 +141,7 @@ public class KursController {
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/kurse/erstellen")
     public ResponseEntity<Void> openCreateCourseRequest(
-            @Valid @RequestBody final KursCreateRequestDTO request,
+            @Valid @RequestBody final KursErstellungsAnfrageRequestDTO request,
             final Authentication authentication) {
         kursService.openCreateCourseRequest(
             request.getKursName(),

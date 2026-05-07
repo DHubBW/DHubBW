@@ -4,7 +4,6 @@ import com.se.dhubbw.dashboard.domain.DashboardService;
 import com.se.dhubbw.datei.application.dto.DateiDTO;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.mensa.application.dto.MensaDTO;
-import com.se.dhubbw.mensa.infrastructure.Mensa;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -66,7 +65,7 @@ public class DashboardController {
     @GetMapping("/meals/today")
     public ResponseEntity<List<MensaDTO>> retrieveMealsForToday() {
         List<MensaDTO> gerichte = dashboardService.getMealsForToday().stream()
-            .map(DashboardController::toMensaDto)
+            .map(MensaDTO::from)
             .toList();
         return ResponseEntity.ok(gerichte);
     }
@@ -134,23 +133,6 @@ public class DashboardController {
         return authentication.getAuthorities().stream()
             .anyMatch(auth ->
                 auth.getAuthority().equals(ROLE_SYSTEMADMIN));
-    }
-
-    /**
-     * Map a {@link Mensa} entity to its DTO representation.
-     *
-     * @param mensa the entity to convert
-     * @return the corresponding {@link MensaDTO}
-     */
-    private static MensaDTO toMensaDto(final Mensa mensa) {
-        return new MensaDTO(
-            mensa.getGerichtID(),
-            mensa.getDatum(),
-            mensa.getEssensbezeichnung(),
-            mensa.getAllergene(),
-            mensa.getPreis(),
-            mensa.getErnaehrung()
-        );
     }
 
     /**

@@ -1,7 +1,6 @@
 package com.se.dhubbw.mensa.application;
 
 import com.se.dhubbw.mensa.application.dto.MensaDTO;
-import com.se.dhubbw.mensa.infrastructure.Mensa;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -75,26 +74,9 @@ public class MensaController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         List<MensaDTO> gerichte = mensaService.getMealsForDay(date).stream()
-            .map(MensaController::toDto)
+            .map(MensaDTO::from)
             .toList();
         return ResponseEntity.ok(gerichte);
-    }
-
-    /**
-     * Map a {@link Mensa} entity to its DTO representation.
-     *
-     * @param mensa the entity to convert
-     * @return the corresponding {@link MensaDTO}
-     */
-    private static MensaDTO toDto(final Mensa mensa) {
-        return new MensaDTO(
-            mensa.getGerichtID(),
-            mensa.getDatum(),
-            mensa.getEssensbezeichnung(),
-            mensa.getAllergene(),
-            mensa.getPreis(),
-            mensa.getErnaehrung()
-        );
     }
 }
 

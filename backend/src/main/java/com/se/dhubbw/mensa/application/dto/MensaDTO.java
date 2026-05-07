@@ -1,5 +1,6 @@
 package com.se.dhubbw.mensa.application.dto;
 
+import com.se.dhubbw.mensa.infrastructure.Mensa;
 import com.se.dhubbw.mensa.infrastructure.util.Ernaehrung;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,4 +45,22 @@ public class MensaDTO {
      * Dietary classification.
      */
     private Ernaehrung ernaehrung;
+
+    /**
+     * Create a DTO from a {@link Mensa} entity.
+     *
+     * @param mensa the entity to convert
+     * @return the corresponding {@link MensaDTO}
+     */
+    public static MensaDTO from(final Mensa mensa) {
+        return new MensaDTO(
+            mensa.getGerichtID(),
+            mensa.getDatum(),
+            mensa.getEssensbezeichnung(),
+            mensa.getAllergene(),
+            mensa.getPreis(),
+            mensa.getErnaehrung()
+        );
+    }
 }
+
