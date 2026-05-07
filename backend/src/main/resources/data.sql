@@ -3,7 +3,12 @@
 INSERT INTO student (student_id, student_type, name, password_hash, dhbw_mail) VALUES
     ('11111111-1111-1111-1111-111111111111', 'STUDENT', 'Linus', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'linus.kronenberger@dhbw-karlsruhe.de'),
     ('11111111-1111-1111-1111-111111111112', 'KURSADMIN', 'Nico', '$2a$10$EU3zuRnSvnl4m/sX8AWiCeILm.oKvm6Y5ySuq.Ycvp84tmIxxnYz6', 'nico.anonym@dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111113', 'SYSTEMADMIN', 'Tom', '$2a$10$B0cbDwnXAoS0PQLSc8tiYeGXXZi25wtMqQTQ0KRCSZjCPC2QodlJe', 'tom.random@dhbw-karlsruhe.de');
+    ('11111111-1111-1111-1111-111111111113', 'SYSTEMADMIN', 'Tom', '$2a$10$B0cbDwnXAoS0PQLSc8tiYeGXXZi25wtMqQTQ0KRCSZjCPC2QodlJe', 'tom.random@dhbw-karlsruhe.de'),
+    -- KursAdmin endpoint test users
+    ('11111111-1111-1111-1111-111111111114', 'KURSADMIN', 'Felix', '$2a$10$EU3zuRnSvnl4m/sX8AWiCeILm.oKvm6Y5ySuq.Ycvp84tmIxxnYz6', 'felix.kursadmin@dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111115', 'STUDENT', 'Lena', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'lena.test@dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111116', 'STUDENT', 'Karl', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'karl.test@dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111117', 'STUDENT', 'Max', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'max.test@dhbw-karlsruhe.de');
 
 -- Kurse
 INSERT INTO kurs (kurs_id, kurs_name, jahrgang) VALUES
@@ -31,7 +36,17 @@ INSERT INTO datei (datei_id, ordner_id, name, zuletzt_bearbeitet, data, uploader
 -- Kurs-Beitrittsanfragen
 INSERT INTO kurs_beitritts_anfrage (anfrage_id, kurs_id, student_id, datum, is_approved) VALUES
     ('66666666-6666-6666-6666-666666666661', '22222222-2222-2222-2222-222222222221', '11111111-1111-1111-1111-111111111111', DATE '2026-04-15', TRUE),
-    ('66666666-6666-6666-6666-666666666662', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111112', DATE '2026-04-20', FALSE);
+    ('66666666-6666-6666-6666-666666666662', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111112', DATE '2026-04-20', FALSE),
+    -- Felix approved in TINF24B1 — establishes Felix as KURSADMIN of TINF24B1
+    ('66666666-6666-6666-6666-666666666663', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111114', DATE '2026-03-01', TRUE),
+    -- Pending requests to TINF24B1 for KursAdmin endpoint tests
+    ('66666666-6666-6666-6666-666666666664', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111115', DATE '2026-04-21', FALSE),
+    ('66666666-6666-6666-6666-666666666665', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111116', DATE '2026-04-22', FALSE),
+    -- Linus already enrolled in TINF24B2, also has a pending request to TINF24B1
+    -- used to test 409 when admin tries to approve an already-enrolled student
+    ('66666666-6666-6666-6666-666666666667', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', DATE '2026-04-24', FALSE),
+    -- Pending request to TINF24B2 — for cross-course forbidden test
+    ('66666666-6666-6666-6666-666666666666', '22222222-2222-2222-2222-222222222221', '11111111-1111-1111-1111-111111111117', DATE '2026-04-23', FALSE);
 
 -- Kurs-Erstellungsanfragen
 INSERT INTO kurs_erstellungs_anfrage (anfrage_id, student_id, kurs_name, jahrgang, anfrage_datum, is_approved, request_notes) VALUES
