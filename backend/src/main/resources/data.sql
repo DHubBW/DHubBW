@@ -51,7 +51,11 @@ INSERT INTO kurs_beitritts_anfrage (anfrage_id, kurs_id, student_id, datum, is_a
 -- Kurs-Erstellungsanfragen
 INSERT INTO kurs_erstellungs_anfrage (anfrage_id, student_id, kurs_name, jahrgang, anfrage_datum, is_approved, request_notes) VALUES
     ('99999999-9999-9999-9999-999999999991', '11111111-1111-1111-1111-111111111112', 'TINF24B3', '2024', DATE '2026-04-18', TRUE, 'Bitte lass mich Kurs erstellen!'),
-    ('99999999-9999-9999-9999-999999999992', '11111111-1111-1111-1111-111111111111', 'WINF25A1', '2025', DATE '2026-04-22', FALSE, 'Ich bin sehr unzufrieden ohne Kurs!');
+    ('99999999-9999-9999-9999-999999999992', '11111111-1111-1111-1111-111111111111', 'WINF25A1', '2025', DATE '2026-04-22', FALSE, 'Ich bin sehr unzufrieden ohne Kurs!'),
+    -- SystemAdmin endpoint test data: Karl (not enrolled) for approve
+    ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', '11111111-1111-1111-1111-111111111116', 'TINF26A1', '2026', DATE '2026-05-01', FALSE, 'Karl wants a new course'),
+    -- SystemAdmin endpoint test data: Lena for decline
+    ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', '11111111-1111-1111-1111-111111111115', 'WINF26B1', '2026', DATE '2026-05-02', FALSE, 'Lena wants a new course');
 
 -- Ordner-Anlegungen
 INSERT INTO ordner_anlegung (anlegung_id, student_id, ordner_id, datum) VALUES
