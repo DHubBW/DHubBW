@@ -128,7 +128,11 @@ Im Verzeichnis **`.gitlab/`** befinden sich alle Templates für GitLab:
 
 ### Source Code
 
-**Die detaillierte Beschreibung des Source Codes und der Ordnerstruktur folgt in Kürze.**
+| Verzeichnis | README | Inhalt |
+|---|---|---|
+| **[`backend/`](./backend/)** | **[backend/README.md](./backend/README.md)** | Spring Boot REST API – Überblick, Ordnerstruktur, Konfiguration, Vorsichtshinweise |
+| **[`frontend/`](./frontend/)** | **[frontend/README.md](./frontend/README.md)** | Expo (React Native) App – Überblick, Ordnerstruktur, Konfiguration, Vorsichtshinweise |
+| **[`deploy/`](./deploy/)** | – | `docker-compose.yml` für den Produktivbetrieb (PostgreSQL + Backend + Frontend) |
 
 ---
 
