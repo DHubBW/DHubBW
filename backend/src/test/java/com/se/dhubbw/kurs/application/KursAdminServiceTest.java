@@ -1,5 +1,6 @@
 package com.se.dhubbw.kurs.application;
 
+import com.se.dhubbw.kurs.application.dto.KursanfrageDTO;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -45,15 +46,21 @@ public class KursAdminServiceTest {
         admin = new Student();
         kurs = new Kurs();
         kurs.setKursID(UUID.randomUUID());
+        kurs.setKursName("TINF24B1");
 
         adminAnfrage = new KursBeitrittsAnfrage();
         adminAnfrage.setKurs(kurs);
         adminAnfrage.setApproved(true);
 
+        Student pendingStudent = new Student();
+        pendingStudent.setStudentID(UUID.randomUUID());
+        pendingStudent.setName("Lena");
+
         pendingAnfrage = new KursBeitrittsAnfrage();
         pendingAnfrage.setAnfrageID(UUID.randomUUID());
         pendingAnfrage.setKurs(kurs);
         pendingAnfrage.setApproved(false);
+        pendingAnfrage.setStudent(pendingStudent);
     }
 
     @Test
@@ -67,11 +74,11 @@ public class KursAdminServiceTest {
             .findByKursAndIsApprovedFalse(kurs))
             .thenReturn(List.of(pendingAnfrage));
 
-        List<KursBeitrittsAnfrage> result =
+        List<KursanfrageDTO> result =
             kursAdminService.retrieveKursbeitrittsanfragen("admin@dhbw.de");
 
         assertEquals(1, result.size());
-        assertEquals(pendingAnfrage, result.get(0));
+        assertEquals(pendingAnfrage.getAnfrageID(), result.get(0).getAnfrageID());
     }
 
     @Test

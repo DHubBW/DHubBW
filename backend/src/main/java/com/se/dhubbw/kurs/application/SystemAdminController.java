@@ -33,7 +33,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/systemadmin/anfragen")
 @RequiredArgsConstructor
-public class KursSystemAdminController {
+public class SystemAdminController {
 
     /**
      * Service handling the course creation request business logic.
@@ -68,7 +68,7 @@ public class KursSystemAdminController {
         List<KursErstellungsAnfrage> anfragen =
             kursSystemAdminService.retrieveKursErstellungsanfragen();
         List<KursErstellungsAnfrageDTO> dtos = anfragen.stream()
-            .map(KursSystemAdminController::toDto)
+            .map(SystemAdminController::toDto)
             .toList();
         return ResponseEntity.ok(dtos);
     }

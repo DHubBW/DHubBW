@@ -1,7 +1,6 @@
 package com.se.dhubbw.kurs.application;
 
 import com.se.dhubbw.kurs.application.dto.KursanfrageDTO;
-import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -73,13 +72,9 @@ public class KursAdminController {
             retrieveKursbeitrittsanfragen(
             final Authentication authentication) {
         try {
-            List<KursBeitrittsAnfrage> anfragen =
+            return ResponseEntity.ok(
                 kursAdminService.retrieveKursbeitrittsanfragen(
-                    authentication.getName());
-            List<KursanfrageDTO> dtos = anfragen.stream()
-                .map(KursAdminController::toDto)
-                .toList();
-            return ResponseEntity.ok(dtos);
+                    authentication.getName()));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -168,23 +163,5 @@ public class KursAdminController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-    }
-
-    /**
-     * Map a {@link KursBeitrittsAnfrage} entity to its DTO.
-     *
-     * @param anfrage the entity to convert
-     * @return the corresponding {@link KursanfrageDTO}
-     */
-    private static KursanfrageDTO toDto(
-            final KursBeitrittsAnfrage anfrage) {
-        return new KursanfrageDTO(
-            anfrage.getAnfrageID(),
-            anfrage.getKurs().getKursID(),
-            anfrage.getKurs().getKursName(),
-            anfrage.getStudent().getStudentID(),
-            anfrage.getStudent().getName(),
-            anfrage.getAnfrageDatum()
-        );
     }
 }

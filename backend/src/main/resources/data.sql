@@ -8,7 +8,11 @@ INSERT INTO student (student_id, student_type, name, password_hash, dhbw_mail) V
     ('11111111-1111-1111-1111-111111111114', 'KURSADMIN', 'Felix', '$2a$10$EU3zuRnSvnl4m/sX8AWiCeILm.oKvm6Y5ySuq.Ycvp84tmIxxnYz6', 'felix.kursadmin@dhbw-karlsruhe.de'),
     ('11111111-1111-1111-1111-111111111115', 'STUDENT', 'Lena', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'lena.test@dhbw-karlsruhe.de'),
     ('11111111-1111-1111-1111-111111111116', 'STUDENT', 'Karl', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'karl.test@dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111117', 'STUDENT', 'Max', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'max.test@dhbw-karlsruhe.de');
+    ('11111111-1111-1111-1111-111111111117', 'STUDENT', 'Max', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'max.test@dhbw-karlsruhe.de'),
+    -- KursMitglieder test users
+    ('11111111-1111-1111-1111-111111111119', 'STUDENT', 'Anna', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'anna.member@dhbw-karlsruhe.de'),
+    -- Enrolled in TINF24B1 as STUDENT; promoted to KURSADMIN during tests for resign happy path
+    ('11111111-1111-1111-1111-111111111120', 'STUDENT', 'Hans', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'hans.resign@dhbw-karlsruhe.de');
 
 -- Kurse
 INSERT INTO kurs (kurs_id, kurs_name, jahrgang) VALUES
@@ -46,7 +50,11 @@ INSERT INTO kurs_beitritts_anfrage (anfrage_id, kurs_id, student_id, datum, is_a
     -- used to test 409 when admin tries to approve an already-enrolled student
     ('66666666-6666-6666-6666-666666666667', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', DATE '2026-04-24', FALSE),
     -- Pending request to TINF24B2 — for cross-course forbidden test
-    ('66666666-6666-6666-6666-666666666666', '22222222-2222-2222-2222-222222222221', '11111111-1111-1111-1111-111111111117', DATE '2026-04-23', FALSE);
+    ('66666666-6666-6666-6666-666666666666', '22222222-2222-2222-2222-222222222221', '11111111-1111-1111-1111-111111111117', DATE '2026-04-23', FALSE),
+    -- Anna approved in TINF24B1 — used for KursMitglieder endpoint tests
+    ('66666666-6666-6666-6666-666666666670', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111119', DATE '2026-03-05', TRUE),
+    -- Hans approved in TINF24B1 — second KURSADMIN for resign happy path test
+    ('66666666-6666-6666-6666-666666666671', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111120', DATE '2026-03-10', TRUE);
 
 -- Kurs-Erstellungsanfragen
 INSERT INTO kurs_erstellungs_anfrage (anfrage_id, student_id, kurs_name, jahrgang, anfrage_datum, is_approved, request_notes) VALUES

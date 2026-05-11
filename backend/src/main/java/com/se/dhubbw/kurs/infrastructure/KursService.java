@@ -71,6 +71,7 @@ public class KursService {
      *
      * @return list of all courses; may be empty
      */
+    @Transactional(readOnly = true)
     public List<KursYearDTO> retrieveKursNamesAndYears() {
         return kursRepository.findAll().stream()
             .map(k -> new KursYearDTO(

@@ -100,6 +100,15 @@ public class KursAdminControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "STUDENT")
+    public void givenStudent_whenApprove_thenReturns403()
+            throws Exception {
+        mockMvc.perform(patch(
+            "/kursadmin/anfragen/" + LENA_ANFRAGE_ID + "/approve"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
     @WithMockUser(username = ADMIN_MAIL, roles = {"KURSADMIN", "STUDENT"})
     public void givenOtherCourseRequest_whenApprove_thenReturns403()
             throws Exception {
@@ -130,6 +139,14 @@ public class KursAdminControllerTest {
             throws Exception {
         mockMvc.perform(delete("/kursadmin/anfragen/" + KARL_ANFRAGE_ID))
             .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "STUDENT")
+    public void givenStudent_whenDecline_thenReturns403()
+            throws Exception {
+        mockMvc.perform(delete("/kursadmin/anfragen/" + KARL_ANFRAGE_ID))
+            .andExpect(status().isForbidden());
     }
 
     @Test

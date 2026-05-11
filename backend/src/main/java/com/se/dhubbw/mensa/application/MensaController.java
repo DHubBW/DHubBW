@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,7 +70,7 @@ public class MensaController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             final LocalDate date) {
         if (date == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.badRequest().build();
         }
         List<MensaDTO> gerichte = mensaService.getMealsForDay(date).stream()
             .map(MensaDTO::from)

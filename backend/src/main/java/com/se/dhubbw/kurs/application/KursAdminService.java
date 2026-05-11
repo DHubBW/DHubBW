@@ -1,5 +1,6 @@
 package com.se.dhubbw.kurs.application;
 
+import com.se.dhubbw.kurs.application.dto.KursanfrageDTO;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -41,16 +42,18 @@ public class KursAdminService {
      * administered by the given KURSADMIN.
      *
      * @param dhbwMail the DHBW mail address of the course admin
-     * @return list of pending requests, may be empty
+     * @return list of pending requests as DTOs, may be empty
      * @throws NoSuchElementException if the admin student or their
      *     course assignment is not found
      */
     @Transactional(readOnly = true)
-    public List<KursBeitrittsAnfrage> retrieveKursbeitrittsanfragen(
+    public List<KursanfrageDTO> retrieveKursbeitrittsanfragen(
             final String dhbwMail) {
         Kurs kurs = getKursForAdmin(dhbwMail);
         return kursBeitrittsAnfrageRepository
-            .findByKursAndIsApprovedFalse(kurs);
+            .findByKursAndIsApprovedFalse(kurs).stream()
+            .map(KursAdminService::toDto)
+            .toList();
     }
 
     /**
@@ -169,5 +172,23 @@ public class KursAdminService {
             throw new IllegalStateException(
                 "Student is already enrolled in a course");
         }
+    }
+
+    /**
+     * Map a {@link KursBeitrittsAnfrage} entity to its DTO.
+     *
+     * @param anfrage the entity to convert
+     * @return the corresponding {@link KursanfrageDTO}
+     */
+    private static KursanfrageDTO toDto(
+            final KursBeitrittsAnfrage anfrage) {
+        return new KursanfrageDTO(
+            anfrage.getAnfrageID(),
+            anfrage.getKurs().getKursID(),
+            anfrage.getKurs().getKursName(),
+            anfrage.getStudent().getStudentID(),
+            anfrage.getStudent().getName(),
+            anfrage.getAnfrageDatum()
+        );
     }
 }

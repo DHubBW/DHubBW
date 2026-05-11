@@ -88,11 +88,11 @@ public class DevSecurityConfig {
             .roles("KURSADMIN", "STUDENT")
             .build();
 
-        UserDetails user = User.withUsername("systemadmin")
+        UserDetails sysAdmin = User.withUsername("systemadmin")
             .password(encoder.encode("systemadmin"))
             .roles("SYSTEMADMIN", "KURSADMIN", "STUDENT")
             .build();
 
-        return new InMemoryUserDetailsManager(student, admin, user);
+        return new InMemoryUserDetailsManager(student, admin, sysAdmin);
     }
 }

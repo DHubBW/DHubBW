@@ -6,9 +6,12 @@
  * (kurs_beitritts_anfrage) and course creation requests
  * (kurs_erstellungs_anfrage) data in the database.</p>
  *
- * <p>It also contains the {@link com.se.dhubbw.kurs.infrastructure.KursService}
+ * <p>It also contains the {@link
+ * com.se.dhubbw.kurs.infrastructure.KursService}
  * which implements the course-related use cases (retrieve courses,
- * open join requests, open creation requests).</p>
+ * open join requests, open creation requests), and the {@link
+ * com.se.dhubbw.kurs.infrastructure.KursMitgliederService}
+ * which implements member and role management use cases.</p>
  */
 package com.se.dhubbw.kurs.infrastructure;
 
