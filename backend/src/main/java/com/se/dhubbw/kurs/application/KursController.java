@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -79,7 +80,7 @@ public class KursController {
      *
      * @param kursId         the UUID of the course to join
      * @param authentication the current user's security context
-     * @return 200 if the request was created successfully
+     * @return 201 if the request was created successfully
      */
     @Operation(
             summary = "Open a course join request",
@@ -89,7 +90,7 @@ public class KursController {
                 + "enrolled or have an open join request."
     )
     @ApiResponse(
-            responseCode = "200",
+            responseCode = "201",
             description = "Join request created successfully")
     @ApiResponse(
             responseCode = "404",
@@ -110,7 +111,7 @@ public class KursController {
             final Authentication authentication) {
         kursService.openJoinKursRequest(
             kursId, authentication.getName());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -122,7 +123,7 @@ public class KursController {
      * @param request        request body containing course name,
      *     cohort year, and optional notes
      * @param authentication the current user's security context
-     * @return 200 if the creation request was submitted
+     * @return 201 if the creation request was submitted
      */
     @Operation(
             summary = "Open a course creation request",
@@ -131,7 +132,7 @@ public class KursController {
                 + "course name and cohort year must not exist."
     )
     @ApiResponse(
-            responseCode = "200",
+            responseCode = "201",
             description = "Course creation request submitted")
     @ApiResponse(
             responseCode = "409",
@@ -149,6 +150,6 @@ public class KursController {
             request.getAdditionalNotes(),
             authentication.getName()
         );
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

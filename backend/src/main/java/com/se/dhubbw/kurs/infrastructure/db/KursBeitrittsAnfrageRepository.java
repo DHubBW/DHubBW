@@ -49,4 +49,12 @@ public interface KursBeitrittsAnfrageRepository extends
      * @return {@code true} if a pending join request exists
      */
     boolean existsByStudentAndIsApprovedFalse(Student student);
+
+    /**
+     * Find all approved course enrollments for the given course.
+     *
+     * @param kurs the course whose approved members to retrieve
+     * @return list of approved enrollment requests (course members)
+     */
+    List<KursBeitrittsAnfrage> findByKursAndIsApprovedTrue(Kurs kurs);
 }

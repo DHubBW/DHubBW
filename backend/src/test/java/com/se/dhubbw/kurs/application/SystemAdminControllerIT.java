@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Profile("dev")
-public class KursSystemAdminControllerTest {
+public class SystemAdminControllerIT {
 
     private static final String KARL_ANFRAGE_ID =
         "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1";
