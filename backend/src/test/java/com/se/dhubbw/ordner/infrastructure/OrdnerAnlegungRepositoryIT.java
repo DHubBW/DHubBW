@@ -1,17 +1,19 @@
 package com.se.dhubbw.ordner.infrastructure;
 
-import lombok.RequiredArgsConstructor;
+import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 
-@SpringBootTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Profile("dev")
+@IntegrationTest
 public class OrdnerAnlegungRepositoryIT {
     private final OrdnerAnlegungRepository ordnerAnlegungRepository;
+
+    @Autowired
+    public OrdnerAnlegungRepositoryIT(
+            OrdnerAnlegungRepository ordnerAnlegungRepository) {
+        this.ordnerAnlegungRepository = ordnerAnlegungRepository;
+    }
 
     @Test
     public void givenDataSQL_whenApplicationStarts_thenOrdnerAnlegungAreInserted() {

@@ -1,8 +1,6 @@
-package com.se.dhubbw.mensa.application;
+package com.se.dhubbw.mensa.infrastructure;
 
-import com.se.dhubbw.mensa.infrastructure.Mensa;
-import com.se.dhubbw.mensa.infrastructure.MensaRepository;
-import com.se.dhubbw.mensa.infrastructure.MensaScraper;
+import com.se.dhubbw.mensa.domain.MensaService;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Application service for synchronising mensa meal data.
+ * Implementation of mensa service for synchronising meal data.
  *
  * <p>Runs a daily scheduled scrape of the Studierendenwerk Karlsruhe
  * meal plan and persists the results. Existing records for a given date
@@ -23,7 +21,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class MensaService {
+public class MensaServiceImpl implements MensaService {
 
     /**
      * Number of weeks after which old meal records are purged.
@@ -43,24 +41,19 @@ public class MensaService {
     /**
      * Logger instance.
      */
-    private final ColorLogger colorLogger = new ColorLogger(MensaService.class);
+    private final ColorLogger colorLogger =
+        new ColorLogger(MensaServiceImpl.class);
 
-    /**
-     * Trigger a mensa sync automatically every day at 11:00.
-     */
+    /** {@inheritDoc} */
+    @Override
     @Transactional
     @Scheduled(cron = "0 0 11 * * *", zone = "Europe/Berlin")
     public void scheduledSync() {
         sync();
     }
 
-    /**
-     * Fetch the current meal plan and persist it, overwriting any existing
-     * records for the same dates. Meals older than four weeks are removed.
-     *
-     * <p>Groups scraped meals by date and replaces each date's records
-     * atomically within a transaction.
-     */
+    /** {@inheritDoc} */
+    @Override
     @Transactional
     public void sync() {
         List<Mensa> scraped = mensaScraper.scrapeCurrentWeek();
@@ -86,12 +79,8 @@ public class MensaService {
             byDate.size());
     }
 
-    /**
-     * Retrieve all stored meals for the given date.
-     *
-     * @param datum the date to query
-     * @return list of meals, may be empty
-     */
+    /** {@inheritDoc} */
+    @Override
     public List<Mensa> getMealsForDay(final LocalDate datum) {
         return mensaRepository.findByDatum(datum);
     }

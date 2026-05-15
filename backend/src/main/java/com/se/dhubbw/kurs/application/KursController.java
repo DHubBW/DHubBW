@@ -2,7 +2,7 @@ package com.se.dhubbw.kurs.application;
 
 import com.se.dhubbw.kurs.application.dto.KursErstellungsAnfrageRequestDTO;
 import com.se.dhubbw.kurs.application.dto.KursYearDTO;
-import com.se.dhubbw.kurs.infrastructure.KursService;
+import com.se.dhubbw.kurs.infrastructure.KursServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -40,7 +40,7 @@ public class KursController {
     /**
      * Service containing all course-related business logic.
      */
-    private final KursService kursService;
+    private final KursServiceImpl kursService;
 
     /**
      * Retrieve all available courses with their identifier,
@@ -102,7 +102,7 @@ public class KursController {
                 + "or has an open join request",
             content = @Content(mediaType = "application/json"))
     @PreAuthorize("hasRole('STUDENT')")
-    @PostMapping("/kurse/{kursId}/beitreten")
+    @PostMapping("/kurse/beitreten/{kursId}")
     public ResponseEntity<Void> openJoinKursRequest(
             @Parameter(
                     description = "UUID of the course to join",

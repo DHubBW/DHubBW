@@ -1,6 +1,7 @@
-package com.se.dhubbw.kurs.application;
+package com.se.dhubbw.kurs.infrastructure;
 
 import com.se.dhubbw.kurs.application.dto.KursanfrageDTO;
+import com.se.dhubbw.kurs.domain.KursAdminService;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -15,7 +16,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
- * Service for course-admin enrollment request management.
+ * Implementation of course-admin enrollment request management.
  *
  * <p>Provides operations for a course administrator to list,
  * approve, or decline pending join requests for their course.
@@ -24,7 +25,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class KursAdminService {
+public class KursAdminServiceImpl implements KursAdminService {
 
     /**
      * Repository for student lookup by DHBW mail.
@@ -37,41 +38,20 @@ public class KursAdminService {
     private final KursBeitrittsAnfrageRepository
         kursBeitrittsAnfrageRepository;
 
-    /**
-     * Retrieve all pending join requests for the course
-     * administered by the given KURSADMIN.
-     *
-     * @param dhbwMail the DHBW mail address of the course admin
-     * @return list of pending requests as DTOs, may be empty
-     * @throws NoSuchElementException if the admin student or their
-     *     course assignment is not found
-     */
+    /** {@inheritDoc} */
+    @Override
     @Transactional(readOnly = true)
     public List<KursanfrageDTO> retrieveKursbeitrittsanfragen(
             final String dhbwMail) {
         Kurs kurs = getKursForAdmin(dhbwMail);
         return kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedFalse(kurs).stream()
-            .map(KursAdminService::toDto)
+            .map(KursAdminServiceImpl::toDto)
             .toList();
     }
 
-    /**
-     * Approve a pending join request, assigning the student to
-     * the admin's course.
-     *
-     * <p>The student must not already be enrolled in any course.
-     * A student may only belong to one course at a time.</p>
-     *
-     * @param anfrageId the ID of the request to approve
-     * @param dhbwMail the DHBW mail address of the course admin
-     * @throws NoSuchElementException if the request or the admin
-     *     is not found
-     * @throws IllegalArgumentException if the request does not
-     *     belong to the admin's course
-     * @throws IllegalStateException if the student is already
-     *     enrolled in another course
-     */
+    /** {@inheritDoc} */
+    @Override
     @Transactional
     public void approveKursbeitrittsanfrage(
             final UUID anfrageId,
@@ -84,16 +64,8 @@ public class KursAdminService {
         kursBeitrittsAnfrageRepository.save(anfrage);
     }
 
-    /**
-     * Decline and permanently delete a pending join request.
-     *
-     * @param anfrageId the ID of the request to decline
-     * @param dhbwMail the DHBW mail address of the course admin
-     * @throws NoSuchElementException if the request or the admin
-     *     is not found
-     * @throws IllegalArgumentException if the request does not
-     *     belong to the admin's course
-     */
+    /** {@inheritDoc} */
+    @Override
     @Transactional
     public void declineKursbeitrittsanfrage(
             final UUID anfrageId,

@@ -2,7 +2,7 @@ package com.se.dhubbw.kurs.application;
 
 import com.se.dhubbw.kurs.application.dto.KursAdminStatsDTO;
 import com.se.dhubbw.kurs.application.dto.KursmemberDTO;
-import com.se.dhubbw.kurs.infrastructure.KursMitgliederService;
+import com.se.dhubbw.kurs.infrastructure.KursMitgliederServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,7 +40,7 @@ public class KursMitgliederController {
     /**
      * Service handling member and role management logic.
      */
-    private final KursMitgliederService kursMitgliederService;
+    private final KursMitgliederServiceImpl kursMitgliederService;
 
     /**
      * Retrieve aggregated statistics for the admin's course.

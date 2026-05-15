@@ -1,12 +1,11 @@
 package com.se.dhubbw.kurs.infrastructure;
 
 import com.se.dhubbw.kurs.application.dto.KursYearDTO;
-import lombok.RequiredArgsConstructor;
+import com.se.dhubbw.kurs.domain.KursService;
+import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Integration tests for {@link KursService}.
+ * Integration tests for {@link KursServiceImpl}.
  *
  * <p>Runs against the H2 in-memory database seeded by
  * {@code data.sql}. Every test method rolls back automatically
@@ -27,29 +26,32 @@ import java.util.UUID;
  *   <li>Tom – has no requests at all</li>
  * </ul>
  */
-@SpringBootTest
+@IntegrationTest
 @Transactional
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@ActiveProfiles("dev")
 public class KursServiceIT {
 
     /** DHBW e-mail of a student who is already enrolled. */
     private static final String LINUS_MAIL =
-        "linus.kronenberger@dhbw-karlsruhe.de";
+        "kronenberger.linus.a24@student.dhbw-karlsruhe.de";
 
     /** DHBW e-mail of a student with a pending join request. */
     private static final String NICO_MAIL =
-        "nico.anonym@dhbw-karlsruhe.de";
+        "anonym.nico.a24@student.dhbw-karlsruhe.de";
 
     /** DHBW e-mail of a student with no requests at all. */
     private static final String TOM_MAIL =
-        "tom.random@dhbw-karlsruhe.de";
+        "anonym.tom.a24@student.dhbw-karlsruhe.de";
 
     /** UUID of TINF24B2 (see data.sql). */
     private static final UUID KURS_TINF24B2_ID =
         UUID.fromString("22222222-2222-2222-2222-222222222221");
 
     private final KursService kursService;
+
+    @Autowired
+    public KursServiceIT(KursService kursService) {
+        this.kursService = kursService;
+    }
 
     // ---- retrieveKursNamesAndYears ----
 
@@ -143,7 +145,7 @@ public class KursServiceIT {
         ResponseStatusException ex = Assertions.assertThrows(
             ResponseStatusException.class,
             () -> kursService.openJoinKursRequest(
-                KURS_TINF24B2_ID, "nobody@dhbw-karlsruhe.de"));
+                KURS_TINF24B2_ID, "nobody.user.test123@student.dhbw-karlsruhe.de"));
         Assertions.assertEquals(404, ex.getStatusCode().value());
     }
 
@@ -225,7 +227,7 @@ public class KursServiceIT {
         ResponseStatusException ex = Assertions.assertThrows(
             ResponseStatusException.class,
             () -> kursService.openCreateCourseRequest(
-                "WINF26A1", "2026", null, "nobody@dhbw-karlsruhe.de"));
+                "WINF26A1", "2026", null, "nobody.user.test123@student.dhbw-karlsruhe.de"));
         Assertions.assertEquals(404, ex.getStatusCode().value());
     }
 }

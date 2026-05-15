@@ -1,5 +1,6 @@
 package com.se.dhubbw.mensa.application;
 
+import com.se.dhubbw.mensa.domain.MensaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;

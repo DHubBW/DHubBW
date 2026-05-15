@@ -6,6 +6,8 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursRepository;
+import com.se.dhubbw.kurs.infrastructure.KursSystemAdminServiceImpl;
+import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 public class KursSystemAdminServiceTest {
 
@@ -46,7 +49,7 @@ public class KursSystemAdminServiceTest {
     private StudentRepository studentRepository;
 
     @InjectMocks
-    private KursSystemAdminService kursSystemAdminService;
+    private KursSystemAdminServiceImpl kursSystemAdminService;
 
     private Student student;
     private KursErstellungsAnfrage anfrage;
@@ -73,7 +76,7 @@ public class KursSystemAdminServiceTest {
             kursSystemAdminService.retrieveKursErstellungsanfragen();
 
         assertEquals(1, result.size());
-        assertEquals(anfrage, result.get(0));
+        assertEquals(anfrage, result.getFirst());
     }
 
     @Test

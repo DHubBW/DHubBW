@@ -75,7 +75,7 @@ backend/
     │   │       ├── application/            — PublicController, AdminController
     │   │       └── infrastructure/
     │   │           ├── config/
-    │   │           │   ├── security/       — DevSecurityConfig, ProdSecurityConfig
+    │   │           │   ├── security/       — DevSecurityConfiguration, ProdSecurityConfiguration, JwtService, JwtAuthenticationFilter
     │   │           │   └── modules/        — OpenApiConfig, SchedulingConfig
     │   │           ├── aspects/logging/    — AOP Repository-Logging
     │   │           └── logger/             — ColorLogger
@@ -100,18 +100,26 @@ Jedes Feature-Modul folgt dem gleichen Muster:
 
 ### Spring-Profile
 
-| Profil | Datei | Datenbank | Besonderheiten |
-|---|---|---|---|
-| `dev` (Standard) | `application-dev.yaml` | H2 in-memory | `data.sql` lädt Testdaten, Swagger aktiv, SQL-Logging |
-| `prod` | `application-prod.yaml` | PostgreSQL | Credentials via Umgebungsvariablen, Flyway-Migrationen, kein Swagger |
+| Profil | Datei | Datenbank | Auth-Methode | Besonderheiten |
+|---|---|---|---|---|
+| `dev` (Standard) | `application-dev.yaml` | H2 in-memory | JWT (Cookie) | `data.sql` lädt Testdaten, Swagger aktiv, SQL-Logging |
+| `prod` | `application-prod.yaml` | PostgreSQL | JWT (Cookie) | Credentials via Umgebungsvariablen, Flyway-Migrationen, kein Swagger |
 
-**Dev-Profil Zugangsdaten** (HTTP Basic Auth, in-memory):
+**Authentifizierung:**
 
-| Benutzer | Passwort | Rolle |
-|---|---|---|
-| `linus.student@dhbw-karlsruhe.de` | `student` | `STUDENT` |
-| `nico.kursadmin@dhbw-karlsruhe.de` | `kursadmin` | `KURSADMIN` |
-| `tom.systemadmin@dhbw-karlsruhe.de` | `systemadmin` | `SYSTEMADMIN` |
+Beide Profile nutzen JWT-basierte Authentifizierung mit Cookie-Storage:
+
+- **Login:** `POST /api/auth/login` mit `{"dhbwMail": "...", "password": "..."}`
+- **Registrierung:** `POST /api/auth/register` mit vollständigen Studentendaten
+- **JWT:** Wird als `HttpOnly` Cookie gesetzt (Dev: `Secure=false`, Prod: `Secure=true`)
+
+**Dev-Profil Umgebungsvariablen (optional):**
+
+```bash
+JWT_SECRET=dev-secret-key-minimum-256-bits-required-for-hs256-algorithm-security
+```
+
+Falls nicht gesetzt, wird der Standard-Dev-Secret verwendet.
 
 ### Prod-Profil Umgebungsvariablen
 
@@ -120,6 +128,7 @@ SPRING_PROFILES_ACTIVE=prod
 SPRING_DATASOURCE_URL=jdbc:postgresql://<host>:5432/<db>
 SPRING_DATASOURCE_USERNAME=<user>
 SPRING_DATASOURCE_PASSWORD=<password>
+JWT_SECRET=<secure-secret-key-minimum-256-bits>
 ```
 
 ### Checkstyle (`checkstyle.xml`)

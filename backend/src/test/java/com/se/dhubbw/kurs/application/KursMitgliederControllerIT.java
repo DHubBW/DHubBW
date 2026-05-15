@@ -1,13 +1,12 @@
 package com.se.dhubbw.kurs.application;
 
+import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -20,13 +19,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Profile("dev")
+@IntegrationTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class KursMitgliederControllerIT {
 
     private static final String FELIX_MAIL =
-        "felix.kursadmin@dhbw-karlsruhe.de";
+        "felix.kursadmin.inf22025@student.dhbw-karlsruhe.de";
 
     /** Felix's student ID (KURSADMIN of TINF24B1). */
     private static final String FELIX_ID =
@@ -38,7 +36,7 @@ public class KursMitgliederControllerIT {
 
     /** Hans's mail (second KURSADMIN of TINF24B1 for resign test). */
     private static final String HANS_MAIL =
-        "hans.resign@dhbw-karlsruhe.de";
+        "hans.resign.inf22025@student.dhbw-karlsruhe.de";
 
     /** Hans's student ID (promoted to KURSADMIN at Order 24). */
     private static final String HANS_ID =

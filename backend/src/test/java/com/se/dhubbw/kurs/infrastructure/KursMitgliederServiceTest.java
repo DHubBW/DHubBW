@@ -6,6 +6,7 @@ import com.se.dhubbw.kurs.application.dto.KursmemberDTO;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
+import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 public class KursMitgliederServiceTest {
 
@@ -42,7 +44,7 @@ public class KursMitgliederServiceTest {
     private DateiRepository dateiRepository;
 
     @InjectMocks
-    private KursMitgliederService kursMitgliederService;
+    private KursMitgliederServiceImpl kursMitgliederService;
 
     private Student admin;
     private Student member;

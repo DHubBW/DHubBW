@@ -3,6 +3,8 @@ package com.se.dhubbw.mensa.application;
 import com.se.dhubbw.mensa.infrastructure.Mensa;
 import com.se.dhubbw.mensa.infrastructure.MensaRepository;
 import com.se.dhubbw.mensa.infrastructure.MensaScraper;
+import com.se.dhubbw.mensa.infrastructure.MensaServiceImpl;
+import com.se.dhubbw.shared.testing.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +22,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 public class MensaServiceTest {
 
@@ -30,7 +33,7 @@ public class MensaServiceTest {
     private MensaScraper mensaScraper;
 
     @InjectMocks
-    private MensaService mensaService;
+    private MensaServiceImpl mensaService;
 
     @Test
     public void givenEmptyScrapedList_whenSync_thenSkipsAllRepoOperations() {

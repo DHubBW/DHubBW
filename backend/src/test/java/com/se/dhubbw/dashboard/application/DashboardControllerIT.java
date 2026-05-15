@@ -1,10 +1,8 @@
 package com.se.dhubbw.dashboard.application;
 
+import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -15,14 +13,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Profile("dev")
-public class DashboardControllerTest {
+@IntegrationTest
+public class DashboardControllerIT {
 
     private MockMvc mockMvc;
 
-    @Autowired
-    private WebApplicationContext context;
+    private final WebApplicationContext context;
+
+    public DashboardControllerIT(WebApplicationContext context) {
+        this.context = context;
+    }
+
+    private final String LINUS_MAIL = "kronenberger.linus.a24@student.dhbw-karlsruhe.de";
 
     @BeforeEach
     public void setup() {
@@ -56,7 +58,7 @@ public class DashboardControllerTest {
 
     @Test
     @WithMockUser(
-        username = "linus.kronenberger@dhbw-karlsruhe.de",
+        username = LINUS_MAIL,
         roles = "STUDENT"
     )
     public void givenApprovedStudent_whenRetrieveLatestDateien_thenReturns200WithFiles() throws Exception {
@@ -68,7 +70,7 @@ public class DashboardControllerTest {
 
     @Test
     @WithMockUser(
-        username = "nico.anonym@dhbw-karlsruhe.de",
+        username = "nico.anonym.inf22025@student.dhbw-karlsruhe.de",
         roles = "STUDENT"
     )
     public void givenUnapprovedStudent_whenRetrieveLatestDateien_thenReturns403() throws Exception {
@@ -78,7 +80,7 @@ public class DashboardControllerTest {
 
     @Test
     @WithMockUser(
-        username = "unknown@dhbw-karlsruhe.de",
+        username = "unbekannt.anonym.inf22025@student.dhbw-karlsruhe.de",
         roles = "STUDENT"
     )
     public void givenUnknownStudent_whenRetrieveLatestDateien_thenReturns403() throws Exception {

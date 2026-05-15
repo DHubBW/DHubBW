@@ -1,19 +1,21 @@
 package com.se.dhubbw.datei.infrastructure;
 
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegungRepository;
+import com.se.dhubbw.shared.testing.IntegrationTest;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 
-@SpringBootTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Profile("dev")
+@IntegrationTest
 public class DateiAnlegungRepositoryIT {
     private final DateiAnlegungRepository dateiAnlegungRepository;
+
+    @Autowired
+    public DateiAnlegungRepositoryIT(
+            DateiAnlegungRepository dateiAnlegungRepository) {
+        this.dateiAnlegungRepository = dateiAnlegungRepository;
+    }
 
     @Test
     public void givenDataSQL_whenApplicationStarts_thenDateiAnlegungAreInserted() {

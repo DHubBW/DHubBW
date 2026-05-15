@@ -1,6 +1,7 @@
 package com.se.dhubbw.kurs.infrastructure;
 
 import com.se.dhubbw.kurs.application.dto.KursYearDTO;
+import com.se.dhubbw.kurs.domain.KursService;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Application service for kurs-related use cases.
+ * Implementation of course-related business logic.
  *
  * <p>Implements the business rules for retrieving courses,
  * opening join requests, and opening course creation
@@ -36,7 +37,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class KursService {
+public class KursServiceImpl implements KursService {
 
     /**
      * Default notes value when no additional notes are provided.
@@ -94,8 +95,8 @@ public class KursService {
      *     already enrolled or has an open join request
      */
     @Transactional
-    public void openJoinKursRequest(
-        final UUID kursId, final String dhbwMail) {
+    @Override
+    public void openJoinKursRequest(final UUID kursId, final String dhbwMail) {
 
         Student student = findStudentOrThrow(dhbwMail);
 
@@ -146,11 +147,10 @@ public class KursService {
      *     cohort year already exists
      */
     @Transactional
-    public void openCreateCourseRequest(
-        final String kursName,
-        final String jahrgang,
-        final String additionalNotes,
-        final String dhbwMail) {
+    @Override
+    public void openCreateCourseRequest(final String kursName,
+            final String jahrgang, final String additionalNotes,
+            final String dhbwMail) {
 
         Student student = findStudentOrThrow(dhbwMail);
 

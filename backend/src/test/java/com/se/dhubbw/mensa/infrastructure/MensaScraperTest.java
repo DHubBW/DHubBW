@@ -1,6 +1,7 @@
 package com.se.dhubbw.mensa.infrastructure;
 
 import com.se.dhubbw.mensa.infrastructure.util.Ernaehrung;
+import com.se.dhubbw.shared.testing.UnitTest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@UnitTest
 public class MensaScraperTest {
 
     private static final String MOCK_HTML_WEEK_1 =
@@ -92,7 +94,7 @@ public class MensaScraperTest {
     @Test
     public void givenMockHtml_whenParsed_thenFleschMealHasCorrectFields() {
         Document doc = Jsoup.parse(MOCK_HTML_WEEK_1);
-        Mensa fleisch = scraper.parseDocument(doc).get(0);
+        Mensa fleisch = scraper.parseDocument(doc).getFirst();
 
         Assertions.assertEquals("Chili con Carne", fleisch.getEssensbezeichnung());
         Assertions.assertEquals("[We,So]", fleisch.getAllergene());
@@ -125,7 +127,7 @@ public class MensaScraperTest {
         result.forEach(m -> Assertions.assertNotNull(m.getDatum()));
         Assertions.assertEquals(
             LocalDate.of(2026, 5, 6),
-            result.get(0).getDatum()
+            result.getFirst().getDatum()
         );
     }
 
@@ -142,8 +144,8 @@ public class MensaScraperTest {
         Assertions.assertEquals(2, week2.size());
         Assertions.assertEquals(5, combined.size());
 
-        Assertions.assertEquals(LocalDate.of(2026, 5, 6), week1.get(0).getDatum());
-        Assertions.assertEquals(LocalDate.of(2026, 5, 13), week2.get(0).getDatum());
+        Assertions.assertEquals(LocalDate.of(2026, 5, 6), week1.getFirst().getDatum());
+        Assertions.assertEquals(LocalDate.of(2026, 5, 13), week2.getFirst().getDatum());
     }
 
     @Test
@@ -166,7 +168,7 @@ public class MensaScraperTest {
         List<Mensa> result = scraper.parseDocument(doc);
 
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals(Ernaehrung.FLEISCH, result.get(0).getErnaehrung());
+        Assertions.assertEquals(Ernaehrung.FLEISCH, result.getFirst().getErnaehrung());
     }
 
     @Test
@@ -190,7 +192,7 @@ public class MensaScraperTest {
         List<Mensa> result = scraper.parseDocument(doc);
 
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals(0.0, result.get(0).getPreis(), 0.001);
+        Assertions.assertEquals(0.0, result.getFirst().getPreis(), 0.001);
     }
 
     @Test
@@ -214,7 +216,7 @@ public class MensaScraperTest {
         List<Mensa> result = scraper.parseDocument(doc);
 
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals(0.0, result.get(0).getPreis(), 0.001);
+        Assertions.assertEquals(0.0, result.getFirst().getPreis(), 0.001);
     }
 
     @Test
@@ -238,8 +240,8 @@ public class MensaScraperTest {
         List<Mensa> result = scraper.parseDocument(doc);
 
         Assertions.assertEquals(1, result.size());
-        Assertions.assertNotNull(result.get(0).getEssensbezeichnung());
-        Assertions.assertFalse(result.get(0).getEssensbezeichnung().isEmpty());
+        Assertions.assertNotNull(result.getFirst().getEssensbezeichnung());
+        Assertions.assertFalse(result.getFirst().getEssensbezeichnung().isEmpty());
     }
 
     @Test
@@ -263,7 +265,7 @@ public class MensaScraperTest {
         List<Mensa> result = scraper.parseDocument(doc);
 
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals("", result.get(0).getAllergene());
+        Assertions.assertEquals("", result.getFirst().getAllergene());
     }
 
     @Test
@@ -298,6 +300,6 @@ public class MensaScraperTest {
         List<Mensa> result = scraper.parseDocument(doc);
 
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals(LocalDate.of(2026, 5, 7), result.get(0).getDatum());
+        Assertions.assertEquals(LocalDate.of(2026, 5, 7), result.getFirst().getDatum());
     }
 }

@@ -1,10 +1,8 @@
 package com.se.dhubbw.kurs.application;
 
+import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -17,12 +15,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Profile("dev")
-public class KursAdminControllerTest {
+@IntegrationTest
+public class KursAdminControllerIT {
 
     private static final String ADMIN_MAIL =
-        "felix.kursadmin@dhbw-karlsruhe.de";
+        "felix.kursadmin.inf22025@student.dhbw-karlsruhe.de";
 
     private static final String LENA_ANFRAGE_ID =
         "66666666-6666-6666-6666-666666666664";
@@ -38,8 +35,11 @@ public class KursAdminControllerTest {
 
     private MockMvc mockMvc;
 
-    @Autowired
-    private WebApplicationContext context;
+    private final WebApplicationContext context;
+
+    public KursAdminControllerIT(WebApplicationContext context) {
+        this.context = context;
+    }
 
     @BeforeEach
     public void setup() {
