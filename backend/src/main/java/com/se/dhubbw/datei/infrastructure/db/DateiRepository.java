@@ -1,6 +1,8 @@
 package com.se.dhubbw.datei.infrastructure.db;
 
+import com.se.dhubbw.student.infrastructure.db.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -42,5 +44,16 @@ public interface DateiRepository extends JpaRepository<Datei, UUID> {
      */
     @Query("SELECT COALESCE(SUM(d.fileSize), 0.0) FROM Datei d")
     double findTotalFileSizeInMb();
+
+    /**
+     * Set the uploader field to null for all files uploaded by
+     * the given student.
+     *
+     * @param uploader the student whose upload references to clear
+     */
+    @Modifying
+    @Query("UPDATE Datei d SET d.uploader = NULL WHERE d.uploader = :uploader")
+    void setUploaderToNullByUploader(@Param("uploader") Student uploader);
 }
+
 
