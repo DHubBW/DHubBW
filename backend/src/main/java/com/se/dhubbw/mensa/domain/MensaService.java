@@ -4,6 +4,7 @@ import com.se.dhubbw.mensa.infrastructure.Mensa;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service interface for mensa meal data management.
@@ -34,4 +35,24 @@ public interface MensaService {
      * @return list of meals, may be empty
      */
     List<Mensa> getMealsForDay(LocalDate datum);
+
+    /**
+     * Retrieve meals for the current calendar week.
+     *
+     * <p>Returns a map where keys are weekday abbreviations
+     * ("Mo", "Di", "Mi", "Do", "Fr") and values are lists of meals.</p>
+     *
+     * @return map of weekdays to meal lists
+     */
+    Map<String, List<Mensa>> getMealsForCurrentWeek();
+
+    /**
+     * Retrieve meals for the next calendar week.
+     *
+     * <p>Returns a map where keys are weekday abbreviations
+     * ("Mo", "Di", "Mi", "Do", "Fr") and values are lists of meals.</p>
+     *
+     * @return map of weekdays to meal lists
+     */
+    Map<String, List<Mensa>> getMealsForNextWeek();
 }

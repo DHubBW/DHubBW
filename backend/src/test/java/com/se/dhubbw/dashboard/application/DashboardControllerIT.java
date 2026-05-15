@@ -70,7 +70,7 @@ public class DashboardControllerIT {
 
     @Test
     @WithMockUser(
-        username = "nico.anonym.inf22025@student.dhbw-karlsruhe.de",
+        username = "",
         roles = "STUDENT"
     )
     public void givenUnapprovedStudent_whenRetrieveLatestDateien_thenReturns403() throws Exception {

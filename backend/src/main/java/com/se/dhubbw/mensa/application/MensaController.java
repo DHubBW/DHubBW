@@ -19,11 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * REST Controller for retrieving mensa-related data.
  *
- * <p>This controller provides an endpoint for students to retrieve meals.</p>
+ * <p>This controller provides endpoints for students to
+ * retrieve meals for specific days or entire weeks.</p>
  */
 @RestController
 @RequestMapping("/public")
@@ -77,6 +80,75 @@ public class MensaController {
             .map(MensaDTO::from)
             .toList();
         return ResponseEntity.ok(gerichte);
+    }
+
+    /**
+     * Retrieve meals for the current calendar week.
+     *
+     * <p>Returns a map where keys are weekday abbreviations
+     * ("Mo", "Di", "Mi", "Do", "Fr") and values are lists of meals.</p>
+     *
+     * @return map of weekdays to meal lists (200 OK)
+     */
+    @Operation(
+            summary = "retrieve meals for current week",
+            description = "returns map of weekdays to meal lists "
+                    + "for the current calendar week (Monday-Friday)."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "current week meals successfully loaded",
+            content = @Content(mediaType = "application/json")
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/meals/current-week")
+    public ResponseEntity<Map<String, List<MensaDTO>>>
+            retrieveCurrentWeek() {
+        Map<String, List<MensaDTO>> weekMeals = mensaService
+                .getMealsForCurrentWeek()
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(MensaDTO::from)
+                                .toList()
+                ));
+        return ResponseEntity.ok(weekMeals);
+    }
+
+    /**
+     * Retrieve meals for the next calendar week.
+     *
+     * <p>Returns a map where keys are weekday abbreviations
+     * ("Mo", "Di", "Mi", "Do", "Fr") and values are lists of meals.</p>
+     *
+     * @return map of weekdays to meal lists (200 OK)
+     */
+    @Operation(
+            summary = "retrieve meals for next week",
+            description = "returns map of weekdays to meal lists "
+                    + "for the next calendar week (Monday-Friday)."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "next week meals successfully loaded",
+            content = @Content(mediaType = "application/json")
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/meals/next-week")
+    public ResponseEntity<Map<String, List<MensaDTO>>> retrieveNextWeek() {
+        Map<String, List<MensaDTO>> weekMeals = mensaService
+                .getMealsForNextWeek()
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(MensaDTO::from)
+                                .toList()
+                ));
+        return ResponseEntity.ok(weekMeals);
     }
 }
 
