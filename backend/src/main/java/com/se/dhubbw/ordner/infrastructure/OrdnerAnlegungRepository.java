@@ -3,9 +3,22 @@ package com.se.dhubbw.ordner.infrastructure;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Spring Data repository for {@link OrdnerAnlegung} entities.
+ */
 @Repository
 public interface OrdnerAnlegungRepository extends
     JpaRepository<OrdnerAnlegung, UUID> {
+
+    /**
+     * Find the creation record for the given folder.
+     *
+     * @param ordner the folder whose creation record to look up
+     * @return the matching creation record, or empty if not found
+     */
+    Optional<OrdnerAnlegung> findByOrdner(Ordner ordner);
 }
+
