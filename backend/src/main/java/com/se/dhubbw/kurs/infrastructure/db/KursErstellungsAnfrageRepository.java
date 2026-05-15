@@ -37,5 +37,12 @@ public interface KursErstellungsAnfrageRepository extends
      * @return number of pending creation requests
      */
     long countByIsApprovedFalse();
+
+    /**
+     * Delete all course creation requests for the given student.
+     *
+     * @param student the student whose creation requests to delete
+     */
+    void deleteByStudent(Student student);
 }
 

@@ -1,5 +1,6 @@
 package com.se.dhubbw.ordner.infrastructure;
 
+import com.se.dhubbw.student.infrastructure.db.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,5 +21,12 @@ public interface OrdnerAnlegungRepository extends
      * @return the matching creation record, or empty if not found
      */
     Optional<OrdnerAnlegung> findByOrdner(Ordner ordner);
+
+    /**
+     * Delete all folder creation records for the given student.
+     *
+     * @param student the student whose creation records to delete
+     */
+    void deleteByStudent(Student student);
 }
 
