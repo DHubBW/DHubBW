@@ -1,19 +1,22 @@
 package com.se.dhubbw.kurs.infrastructure;
 
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
+import com.se.dhubbw.shared.testing.IntegrationTest;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 
-@SpringBootTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Profile("dev")
+@IntegrationTest
 public class KursErstellungsAnfrageRepositoryIT {
-    private final KursErstellungsAnfrageRepository kursErstellungsAnfrageRepository;
+    private final KursErstellungsAnfrageRepository
+            kursErstellungsAnfrageRepository;
+
+    @Autowired
+    public KursErstellungsAnfrageRepositoryIT(
+            KursErstellungsAnfrageRepository kursErstellungsAnfrageRepository) {
+        this.kursErstellungsAnfrageRepository = kursErstellungsAnfrageRepository;
+    }
 
     @Test
     public void givenDataSQL_whenApplicationStarts_thenKursErstellungsAnfrageDataIsInserted() {

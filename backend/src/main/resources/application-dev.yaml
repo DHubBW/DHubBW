@@ -30,4 +30,8 @@ spring:
 logging:
   level:
     com.se.dhubbw: DEBUG
-
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-minimum-256-bits-required-for-hs256-algorithm-security}
+  expiration: 86400000
+  cookie:
+    secure: false

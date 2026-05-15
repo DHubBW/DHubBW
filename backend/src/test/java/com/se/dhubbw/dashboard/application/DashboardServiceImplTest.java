@@ -5,8 +5,9 @@ import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
-import com.se.dhubbw.mensa.application.MensaService;
+import com.se.dhubbw.mensa.domain.MensaService;
 import com.se.dhubbw.mensa.infrastructure.Mensa;
+import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 public class DashboardServiceImplTest {
 

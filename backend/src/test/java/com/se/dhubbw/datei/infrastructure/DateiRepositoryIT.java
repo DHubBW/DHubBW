@@ -2,21 +2,22 @@ package com.se.dhubbw.datei.infrastructure;
 
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
+import com.se.dhubbw.shared.testing.IntegrationTest;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
-@SpringBootTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Profile("dev")
+@IntegrationTest
 public class DateiRepositoryIT {
     private final DateiRepository dateiRepository;
+
+    @Autowired
+    public DateiRepositoryIT(DateiRepository dateiRepository) {
+        this.dateiRepository = dateiRepository;
+    }
 
     @Test
     public void givenDataSQL_whenApplicationStarts_thenMealsAreInserted() {
@@ -31,8 +32,6 @@ public class DateiRepositoryIT {
         // DESCRIBE & ACT
         List<Datei> actual = dateiRepository.findAll();
         // ASSERT
-        actual.forEach(file -> {
-            Assertions.assertNotNull(file.getData());
-        });
+        actual.forEach(file -> Assertions.assertNotNull(file.getData()));
     }
 }

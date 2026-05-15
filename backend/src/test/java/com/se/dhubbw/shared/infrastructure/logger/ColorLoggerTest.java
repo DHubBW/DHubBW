@@ -1,9 +1,11 @@
 package com.se.dhubbw.shared.infrastructure.logger;
 
+import com.se.dhubbw.shared.testing.UnitTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+@UnitTest
 public class ColorLoggerTest {
 
     private final ColorLogger colorLogger = new ColorLogger(ColorLoggerTest.class);

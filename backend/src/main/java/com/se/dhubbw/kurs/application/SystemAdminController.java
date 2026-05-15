@@ -1,6 +1,7 @@
 package com.se.dhubbw.kurs.application;
 
 import com.se.dhubbw.kurs.application.dto.KursErstellungsAnfrageDTO;
+import com.se.dhubbw.kurs.domain.KursSystemAdminService;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

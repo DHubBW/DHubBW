@@ -1,9 +1,11 @@
 package com.se.dhubbw.kurs.application;
 
 import com.se.dhubbw.kurs.application.dto.KursanfrageDTO;
+import com.se.dhubbw.kurs.infrastructure.KursAdminServiceImpl;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
+import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 public class KursAdminServiceTest {
 
@@ -34,7 +37,7 @@ public class KursAdminServiceTest {
     private KursBeitrittsAnfrageRepository kursBeitrittsAnfrageRepository;
 
     @InjectMocks
-    private KursAdminService kursAdminService;
+    private KursAdminServiceImpl kursAdminService;
 
     private Student admin;
     private Kurs kurs;
@@ -78,7 +81,7 @@ public class KursAdminServiceTest {
             kursAdminService.retrieveKursbeitrittsanfragen("admin@dhbw.de");
 
         assertEquals(1, result.size());
-        assertEquals(pendingAnfrage.getAnfrageID(), result.get(0).getAnfrageID());
+        assertEquals(pendingAnfrage.getAnfrageID(), result.getFirst().getAnfrageID());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.se.dhubbw.mensa.application;
 
 import com.se.dhubbw.mensa.application.dto.MensaDTO;
+import com.se.dhubbw.mensa.domain.MensaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

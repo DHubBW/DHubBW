@@ -1,5 +1,6 @@
-package com.se.dhubbw.kurs.application;
+package com.se.dhubbw.kurs.infrastructure;
 
+import com.se.dhubbw.kurs.domain.KursSystemAdminService;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -19,7 +20,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
- * Service for system-admin course creation request management.
+ * Implementation of system-admin course creation request management.
  *
  * <p>Provides operations for a system administrator to list,
  * approve, or decline pending course creation requests.
@@ -29,7 +30,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class KursSystemAdminService {
+public class KursSystemAdminServiceImpl implements KursSystemAdminService {
 
     /**
      * Repository for course creation request operations.
@@ -53,32 +54,16 @@ public class KursSystemAdminService {
      */
     private final StudentRepository studentRepository;
 
-    /**
-     * Retrieve all pending (not yet approved) course creation
-     * requests.
-     *
-     * @return list of pending creation requests; may be empty
-     */
+    /** {@inheritDoc} */
+    @Override
     @Transactional(readOnly = true)
     public List<KursErstellungsAnfrage>
             retrieveKursErstellungsanfragen() {
         return erstellungsAnfrageRepository.findByIsApprovedFalse();
     }
 
-    /**
-     * Approve a pending course creation request.
-     *
-     * <p>Creates the new course, promotes the requesting student
-     * to {@code KURSADMIN}, and logs course membership via an
-     * approved {@link KursBeitrittsAnfrage}.</p>
-     *
-     * @param anfrageId the ID of the request to approve
-     * @throws NoSuchElementException if the request is not found
-     * @throws IllegalStateException if the requesting student is
-     *     already enrolled in a course
-     * @throws IllegalArgumentException if a course with the same
-     *     name and cohort year already exists
-     */
+    /** {@inheritDoc} */
+    @Override
     @Transactional
     public void approveKursErstellungsanfrage(
             final UUID anfrageId) {
@@ -118,13 +103,8 @@ public class KursSystemAdminService {
         erstellungsAnfrageRepository.save(anfrage);
     }
 
-    /**
-     * Decline and permanently delete a pending course creation
-     * request.
-     *
-     * @param anfrageId the ID of the request to decline
-     * @throws NoSuchElementException if the request is not found
-     */
+    /** {@inheritDoc} */
+    @Override
     @Transactional
     public void declineKursErstellungsanfrage(
             final UUID anfrageId) {

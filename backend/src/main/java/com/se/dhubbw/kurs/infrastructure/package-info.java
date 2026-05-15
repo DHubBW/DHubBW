@@ -7,10 +7,10 @@
  * (kurs_erstellungs_anfrage) data in the database.</p>
  *
  * <p>It also contains the {@link
- * com.se.dhubbw.kurs.infrastructure.KursService}
+ * com.se.dhubbw.kurs.infrastructure.KursServiceImpl}
  * which implements the course-related use cases (retrieve courses,
  * open join requests, open creation requests), and the {@link
- * com.se.dhubbw.kurs.infrastructure.KursMitgliederService}
+ * com.se.dhubbw.kurs.infrastructure.KursMitgliederServiceImpl}
  * which implements member and role management use cases.</p>
  */
 package com.se.dhubbw.kurs.infrastructure;

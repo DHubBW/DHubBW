@@ -3,6 +3,7 @@ package com.se.dhubbw.kurs.infrastructure;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
 import com.se.dhubbw.kurs.application.dto.KursAdminStatsDTO;
 import com.se.dhubbw.kurs.application.dto.KursmemberDTO;
+import com.se.dhubbw.kurs.domain.KursMitgliederService;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -36,7 +37,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class KursMitgliederService {
+public class KursMitgliederServiceImpl implements KursMitgliederService {
 
     /**
      * Repository for student lookup and role updates.
@@ -58,7 +59,7 @@ public class KursMitgliederService {
      * Color-coded logger for error reporting.
      */
     private final ColorLogger colorLogger =
-        new ColorLogger(KursMitgliederService.class);
+        new ColorLogger(KursMitgliederServiceImpl.class);
 
     /**
      * Retrieve aggregated statistics for the admin's course.

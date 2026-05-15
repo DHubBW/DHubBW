@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  */
 @Aspect
 @Component
-public final class RepositoryLoggingAspect {
+public class RepositoryLoggingAspect {
 
     /**
      * Logger instance for colored output.

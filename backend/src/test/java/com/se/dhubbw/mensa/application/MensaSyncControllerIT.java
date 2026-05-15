@@ -1,10 +1,8 @@
 package com.se.dhubbw.mensa.application;
 
+import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -14,14 +12,16 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Profile("dev")
-public class MensaSyncControllerTest {
+@IntegrationTest
+public class MensaSyncControllerIT {
 
     private MockMvc mockMvc;
 
-    @Autowired
-    private WebApplicationContext context;
+    private final WebApplicationContext context;
+
+    public MensaSyncControllerIT(WebApplicationContext context) {
+        this.context = context;
+    }
 
     @BeforeEach
     public void setup() {
@@ -32,10 +32,17 @@ public class MensaSyncControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "SYSTEMADMIN")
+    @WithMockUser(username = "admin", roles = {"SYSTEMADMIN", "STUDENT"})
     public void givenSystemAdmin_whenTriggerSync_thenReturns200() throws Exception {
         mockMvc.perform(post("/sysadmin/mensa/sync"))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "KURSADMIN")
+    public void givenKursadmin_whenTriggerSync_thenReturns403() throws Exception {
+        mockMvc.perform(post("/sysadmin/mensa/sync"))
+            .andExpect(status().isForbidden());
     }
 
     @Test
@@ -46,7 +53,7 @@ public class MensaSyncControllerTest {
     }
 
     @Test
-    public void givenUnauthenticatedUser_whenTriggerSync_thenReturns401() throws Exception {
+    public void givenUnauthenticated_whenTriggerSync_thenReturns401() throws Exception {
         mockMvc.perform(post("/sysadmin/mensa/sync"))
             .andExpect(status().isUnauthorized());
     }

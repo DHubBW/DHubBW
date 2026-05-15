@@ -1,24 +1,25 @@
 package com.se.dhubbw.kurs.infrastructure;
 
 import com.se.dhubbw.kurs.infrastructure.db.KursRepository;
+import com.se.dhubbw.shared.testing.IntegrationTest;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 
-@SpringBootTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Profile("dev")
+@IntegrationTest
 public class KursRepositoryIT {
     private final KursRepository kursRepository;
+
+    @Autowired
+    public KursRepositoryIT(KursRepository kursRepository) {
+        this.kursRepository = kursRepository;
+    }
 
     @Test
     public void givenDataSQL_whenApplicationStarts_thenKurseAreInserted() {
         // DESCRIBE & ACT
-        Long actual = kursRepository.count();
+        long actual = kursRepository.count();
         // ASSERT
         Assertions.assertTrue(actual > 0);
     }
