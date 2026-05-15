@@ -8,5 +8,13 @@ spring:
     name: dhubbw
   profiles:
     active: dev
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
 mensa:
   url: https://www.sw-ka.de/de/hochschulgastronomie/speiseplan/mensa_erzberger/
+dhubbw:
+  storage:
+    max-mb: 1000.0

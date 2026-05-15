@@ -33,4 +33,13 @@ public interface DateiRepository extends JpaRepository<Datei, UUID> {
         + "WHERE k.kursID = :kursId ORDER BY d.zuletztBearbeitet DESC")
     List<Datei> findByKursIdOrderByZuletztBearbeitetDesc(
         @Param("kursId") UUID kursId);
+
+    /**
+     * Compute the sum of all file sizes stored on the platform.
+     *
+     * @return total file size in megabytes, or 0.0 if no files
+     *     exist
+     */
+    @Query("SELECT COALESCE(SUM(d.fileSize), 0.0) FROM Datei d")
+    double findTotalFileSizeInMb();
 }
