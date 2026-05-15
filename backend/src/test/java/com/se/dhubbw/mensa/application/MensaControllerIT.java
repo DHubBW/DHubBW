@@ -71,4 +71,46 @@ public class MensaControllerIT {
         mockMvc.perform(get("/public/meals"))
             .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @WithMockUser(roles = "STUDENT")
+    public void givenStudent_whenRetrieveCurrentWeek_thenReturns200() throws Exception {
+        mockMvc.perform(get("/public/meals/current-week"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isMap());
+    }
+
+    @Test
+    @WithMockUser(roles = "STUDENT")
+    public void givenStudent_whenRetrieveNextWeek_thenReturns200() throws Exception {
+        mockMvc.perform(get("/public/meals/next-week"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isMap());
+    }
+
+    @Test
+    public void givenUnauthenticated_whenRetrieveCurrentWeek_thenReturns401() throws Exception {
+        mockMvc.perform(get("/public/meals/current-week"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void givenUnauthenticated_whenRetrieveNextWeek_thenReturns401() throws Exception {
+        mockMvc.perform(get("/public/meals/next-week"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "KURSADMIN")
+    public void givenKursadmin_whenRetrieveCurrentWeek_thenReturns403() throws Exception {
+        mockMvc.perform(get("/public/meals/current-week"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "KURSADMIN")
+    public void givenKursadmin_whenRetrieveNextWeek_thenReturns403() throws Exception {
+        mockMvc.perform(get("/public/meals/next-week"))
+            .andExpect(status().isForbidden());
+    }
 }

@@ -139,4 +139,26 @@ public class AuthenticationControllerIT {
         mockMvc.perform(get("/api/auth/test"))
             .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    public void givenValidCredentials_whenLogin_thenReturns200AndSetsCookie() throws Exception {
+        String loginMail = "test.login.t99@student.dhbw-karlsruhe.de";
+        String loginPassword = "LoginTestPassword123!";
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new RegisterRequestDTO(
+                    loginMail, "Test", "Login", loginPassword))))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(
+                    new LoginRequestDTO(loginMail, loginPassword))))
+            .andExpect(status().isOk())
+            .andExpect(cookie().exists("jwt"))
+            .andExpect(cookie().httpOnly("jwt", true))
+            .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                "Successfully logged in student with email")));
+    }
 }

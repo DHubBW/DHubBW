@@ -73,9 +73,6 @@ public class MensaController {
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             final LocalDate date) {
-        if (date == null) {
-            return ResponseEntity.badRequest().build();
-        }
         List<MensaDTO> gerichte = mensaService.getMealsForDay(date).stream()
             .map(MensaDTO::from)
             .toList();
