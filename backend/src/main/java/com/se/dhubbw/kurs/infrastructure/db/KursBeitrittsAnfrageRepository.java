@@ -57,4 +57,14 @@ public interface KursBeitrittsAnfrageRepository extends
      * @return list of approved enrollment requests (course members)
      */
     List<KursBeitrittsAnfrage> findByKursAndIsApprovedTrue(Kurs kurs);
+
+    /**
+     * Find all enrollment requests (approved and pending) for the
+     * given course.
+     *
+     * @param kurs the course whose enrollment records to retrieve
+     * @return list of all enrollment requests for the course
+     */
+    List<KursBeitrittsAnfrage> findByKurs(Kurs kurs);
 }
+

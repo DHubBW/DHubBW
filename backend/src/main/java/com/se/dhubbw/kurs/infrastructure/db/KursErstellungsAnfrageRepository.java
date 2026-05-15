@@ -29,4 +29,13 @@ public interface KursErstellungsAnfrageRepository extends
      * @return list of pending creation requests, may be empty
      */
     List<KursErstellungsAnfrage> findByIsApprovedFalse();
+
+    /**
+     * Count all pending (not yet approved) course creation
+     * requests.
+     *
+     * @return number of pending creation requests
+     */
+    long countByIsApprovedFalse();
 }
+

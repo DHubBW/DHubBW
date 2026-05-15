@@ -1,5 +1,6 @@
 package com.se.dhubbw.student.infrastructure.db;
 
+import com.se.dhubbw.student.infrastructure.util.StudentType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,4 +21,13 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
      *     empty if not found
      */
     Optional<Student> findByDhbwMail(String dhbwMail);
+
+    /**
+     * Count the number of students with the given role.
+     *
+     * @param studentType the role to count
+     * @return number of students with that role
+     */
+    long countByStudentType(StudentType studentType);
 }
+

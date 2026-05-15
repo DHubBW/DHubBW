@@ -43,3 +43,4 @@ public interface DateiRepository extends JpaRepository<Datei, UUID> {
     @Query("SELECT COALESCE(SUM(d.fileSize), 0.0) FROM Datei d")
     double findTotalFileSizeInMb();
 }
+
