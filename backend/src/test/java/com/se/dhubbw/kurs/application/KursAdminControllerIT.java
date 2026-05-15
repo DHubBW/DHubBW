@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class KursAdminControllerIT {
 
     private static final String ADMIN_MAIL =
-        "felix.kursadmin.inf22025@student.dhbw-karlsruhe.de";
+        "anonym.felix.a24@student.dhbw-karlsruhe.de";
 
     private static final String LENA_ANFRAGE_ID =
         "66666666-6666-6666-6666-666666666664";

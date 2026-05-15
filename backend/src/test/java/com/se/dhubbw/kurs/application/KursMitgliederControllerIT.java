@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class KursMitgliederControllerIT {
 
     private static final String FELIX_MAIL =
-        "felix.kursadmin.inf22025@student.dhbw-karlsruhe.de";
+        "anonym.felix.a24@student.dhbw-karlsruhe.de";
 
     /** Felix's student ID (KURSADMIN of TINF24B1). */
     private static final String FELIX_ID =
@@ -36,7 +36,7 @@ public class KursMitgliederControllerIT {
 
     /** Hans's mail (second KURSADMIN of TINF24B1 for resign test). */
     private static final String HANS_MAIL =
-        "hans.resign.inf22025@student.dhbw-karlsruhe.de";
+        "resign.hans.a24@student.dhbw-karlsruhe.de";
 
     /** Hans's student ID (promoted to KURSADMIN at Order 24). */
     private static final String HANS_ID =
