@@ -4,6 +4,8 @@ import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegung;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegungRepository;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
+import com.se.dhubbw.datei.application.dto.DateiDTO;
+import com.se.dhubbw.datei.application.dto.DateiDownloadDTO;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -26,11 +28,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -489,5 +494,286 @@ public class DateiServiceTest {
                 datei.getDateiID(), "unknown@dhbw.de"));
 
         assertEquals(404, ex.getStatusCode().value());
+    }
+
+    // --- retrieveDateienForOrdner tests ---
+
+    @Test
+    public void givenMember_whenRetrieveDateienForOrdner_thenReturnsDtos() {
+        KursBeitrittsAnfrage enrollment =
+            new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+        UUID ordnerId = ordnerWithKurs.getOrdnerID();
+
+        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
+            .thenReturn(Optional.of(kursAdmin));
+        when(ordnerRepository.findById(ordnerId))
+            .thenReturn(Optional.of(ordnerWithKurs));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(dateiRepository
+            .findByOrdnerIdOrderByNameAsc(ordnerId))
+            .thenReturn(List.of(datei));
+
+        List<DateiDTO> result =
+            dateiService.retrieveDateienForOrdner(
+                ordnerId, "admin@dhbw.de");
+
+        assertEquals(1, result.size());
+        assertEquals(
+            datei.getDateiID(),
+            result.get(0).getDateiID());
+    }
+
+    @Test
+    public void givenSysAdmin_whenRetrieveDateienForOrdner_thenSucceeds() {
+        UUID ordnerId = ordnerWithKurs.getOrdnerID();
+
+        when(studentRepository.findByDhbwMail("sys@dhbw.de"))
+            .thenReturn(Optional.of(sysAdmin));
+        when(ordnerRepository.findById(ordnerId))
+            .thenReturn(Optional.of(ordnerWithKurs));
+        when(dateiRepository
+            .findByOrdnerIdOrderByNameAsc(ordnerId))
+            .thenReturn(List.of(datei));
+
+        List<DateiDTO> result =
+            dateiService.retrieveDateienForOrdner(
+                ordnerId, "sys@dhbw.de");
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void givenOrdnerNotFound_whenRetrieveDateienForOrdner_thenThrows404() {
+        UUID unknownId = UUID.randomUUID();
+        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
+            .thenReturn(Optional.of(kursAdmin));
+        when(ordnerRepository.findById(unknownId))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.retrieveDateienForOrdner(
+                unknownId, "admin@dhbw.de"));
+
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenNonMember_whenRetrieveDateienForOrdner_thenThrows403() {
+        UUID ordnerId = ordnerWithKurs.getOrdnerID();
+        when(studentRepository.findByDhbwMail("student@dhbw.de"))
+            .thenReturn(Optional.of(regularStudent));
+        when(ordnerRepository.findById(ordnerId))
+            .thenReturn(Optional.of(ordnerWithKurs));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(regularStudent))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.retrieveDateienForOrdner(
+                ordnerId, "student@dhbw.de"));
+
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenStudentNotFound_whenRetrieveDateienForOrdner_thenThrows404() {
+        UUID ordnerId = ordnerWithKurs.getOrdnerID();
+        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.retrieveDateienForOrdner(
+                ordnerId, "unknown@dhbw.de"));
+
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenOrdnerNoKurs_whenRetrieveDateienForOrdner_thenAllowed() {        UUID ordnerId = ordnerWithoutKurs.getOrdnerID();
+        when(studentRepository.findByDhbwMail("student@dhbw.de"))
+            .thenReturn(Optional.of(regularStudent));
+        when(ordnerRepository.findById(ordnerId))
+            .thenReturn(Optional.of(ordnerWithoutKurs));
+        when(dateiRepository
+            .findByOrdnerIdOrderByNameAsc(ordnerId))
+            .thenReturn(List.of());
+
+        List<DateiDTO> result =
+            dateiService.retrieveDateienForOrdner(
+                ordnerId, "student@dhbw.de");
+
+        assertTrue(result.isEmpty());
+    }
+
+    // --- retrieveAllFiles tests ---
+
+    @Test
+    public void givenMember_whenRetrieveAllFiles_thenReturnsKursDtos() {
+        KursBeitrittsAnfrage enrollment =
+            new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+
+        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
+            .thenReturn(Optional.of(kursAdmin));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(dateiRepository
+            .findByKursIdOrderByNameAsc(
+                kurs.getKursID()))
+            .thenReturn(List.of(datei));
+
+        List<DateiDTO> result =
+            dateiService.retrieveAllFiles("admin@dhbw.de");
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void givenNoEnrollment_whenRetrieveAllFiles_thenReturnsEmpty() {
+        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
+            .thenReturn(Optional.of(kursAdmin));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.empty());
+
+        List<DateiDTO> result =
+            dateiService.retrieveAllFiles("admin@dhbw.de");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void givenSysAdmin_whenRetrieveAllFiles_thenReturnsAllFiles() {
+        when(studentRepository.findByDhbwMail("sys@dhbw.de"))
+            .thenReturn(Optional.of(sysAdmin));
+        when(dateiRepository
+            .findAllOrderByNameAsc())
+            .thenReturn(List.of(datei));
+
+        List<DateiDTO> result =
+            dateiService.retrieveAllFiles("sys@dhbw.de");
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void givenStudentNotFound_whenRetrieveAllFiles_thenThrows404() {
+        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.retrieveAllFiles("unknown@dhbw.de"));
+
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
+    // --- downloadDatei tests ---
+
+    @Test
+    public void givenMember_whenDownloadDatei_thenReturnsDto() {
+        KursBeitrittsAnfrage enrollment =
+            new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+        datei.setData(new byte[]{1, 2, 3});
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
+            .thenReturn(Optional.of(kursAdmin));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+
+        DateiDownloadDTO result = dateiService.downloadDatei(
+            datei.getDateiID(), "admin@dhbw.de");
+
+        assertNotNull(result);
+        assertEquals("test.pdf", result.getName());
+    }
+
+    @Test
+    public void givenSysAdmin_whenDownloadDatei_thenSucceeds() {
+        datei.setData(new byte[]{1, 2, 3});
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentRepository.findByDhbwMail("sys@dhbw.de"))
+            .thenReturn(Optional.of(sysAdmin));
+
+        DateiDownloadDTO result = dateiService.downloadDatei(
+            datei.getDateiID(), "sys@dhbw.de");
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void givenNonMember_whenDownloadDatei_thenThrows403() {
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentRepository.findByDhbwMail("student@dhbw.de"))
+            .thenReturn(Optional.of(regularStudent));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(regularStudent))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.downloadDatei(
+                datei.getDateiID(), "student@dhbw.de"));
+
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenDateiNotFound_whenDownloadDatei_thenThrows404() {
+        UUID unknownId = UUID.randomUUID();
+        when(dateiRepository.findById(unknownId))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.downloadDatei(
+                unknownId, "admin@dhbw.de"));
+
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenStudentNotFound_whenDownloadDatei_thenThrows404() {
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.downloadDatei(
+                datei.getDateiID(), "unknown@dhbw.de"));
+
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenOrdnerNoKurs_whenDownloadDatei_thenAllowed() {
+        datei.setOrdner(ordnerWithoutKurs);
+        datei.setData(new byte[]{1, 2, 3});
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentRepository.findByDhbwMail("student@dhbw.de"))
+            .thenReturn(Optional.of(regularStudent));
+
+        DateiDownloadDTO result = dateiService.downloadDatei(
+            datei.getDateiID(), "student@dhbw.de");
+
+        assertNotNull(result);
     }
 }

@@ -17,22 +17,44 @@ import java.util.UUID;
 public interface DateiRepository extends JpaRepository<Datei, UUID> {
 
     /**
-     * Retrieve all files ordered by last modification date descending.
+     * Retrieve all files ordered by name ascending.
+     *
+     * @return all files across all courses, sorted by name
+     */
+    @Query("SELECT d FROM Datei d ORDER BY d.name ASC")
+    List<Datei> findAllOrderByNameAsc();
+
+    /**
+     * Retrieve all files ordered by last-modified date descending.
      *
      * @return all files across all courses, newest first
      */
-    @Query("SELECT d FROM Datei d ORDER BY d.zuletztBearbeitet DESC")
+    @Query("SELECT d FROM Datei d "
+        + "ORDER BY d.zuletztBearbeitet DESC")
     List<Datei> findAllOrderByZuletztBearbeitetDesc();
 
     /**
-     * Retrieve all files belonging to a course, ordered by last
-     * modification date descending.
+     * Retrieve all files belonging to a course, ordered by name
+     * ascending.
+     *
+     * @param kursId the course identifier to filter by
+     * @return list of files for the given course, sorted by name
+     */
+    @Query("SELECT d FROM Datei d JOIN d.ordner o JOIN o.kurs k "
+        + "WHERE k.kursID = :kursId ORDER BY d.name ASC")
+    List<Datei> findByKursIdOrderByNameAsc(
+        @Param("kursId") UUID kursId);
+
+    /**
+     * Retrieve all files belonging to a course, ordered by
+     * last-modified date descending.
      *
      * @param kursId the course identifier to filter by
      * @return list of files for the given course, newest first
      */
     @Query("SELECT d FROM Datei d JOIN d.ordner o JOIN o.kurs k "
-        + "WHERE k.kursID = :kursId ORDER BY d.zuletztBearbeitet DESC")
+        + "WHERE k.kursID = :kursId "
+        + "ORDER BY d.zuletztBearbeitet DESC")
     List<Datei> findByKursIdOrderByZuletztBearbeitetDesc(
         @Param("kursId") UUID kursId);
 
@@ -46,14 +68,27 @@ public interface DateiRepository extends JpaRepository<Datei, UUID> {
     double findTotalFileSizeInMb();
 
     /**
+     * Retrieve all files in a specific folder, ordered by name
+     * ascending.
+     *
+     * @param ordnerId the folder identifier to filter by
+     * @return list of files in the given folder, sorted by name
+     */
+    @Query("SELECT d FROM Datei d "
+        + "WHERE d.ordner.ordnerID = :ordnerId "
+        + "ORDER BY d.name ASC")
+    List<Datei> findByOrdnerIdOrderByNameAsc(
+        @Param("ordnerId") UUID ordnerId);
+
+    /**
      * Set the uploader field to null for all files uploaded by
      * the given student.
      *
      * @param uploader the student whose upload references to clear
      */
     @Modifying
-    @Query("UPDATE Datei d SET d.uploader = NULL WHERE d.uploader = :uploader")
-    void setUploaderToNullByUploader(@Param("uploader") Student uploader);
+    @Query("UPDATE Datei d SET d.uploader = NULL "
+        + "WHERE d.uploader = :uploader")
+    void setUploaderToNullByUploader(
+        @Param("uploader") Student uploader);
 }
-
-

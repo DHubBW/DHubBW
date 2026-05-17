@@ -1,5 +1,7 @@
 package com.se.dhubbw.datei.infrastructure;
 
+import com.se.dhubbw.datei.application.dto.DateiDTO;
+import com.se.dhubbw.datei.application.dto.DateiDownloadDTO;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegung;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegungRepository;
@@ -23,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -44,7 +47,8 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class DateiService {
+public class DateiService
+    implements com.se.dhubbw.datei.domain.DateiService {
 
     /**
      * Conversion factor from bytes to megabytes.
@@ -110,6 +114,7 @@ public class DateiService {
      * @throws ResponseStatusException 500 if reading the file
      *     content fails
      */
+    @Override
     @Transactional
     public UUID uploadDatei(
             final MultipartFile file,
@@ -164,6 +169,7 @@ public class DateiService {
      * @throws ResponseStatusException 403 if the user is not
      *     authorised to modify the file
      */
+    @Override
     @Transactional
     public void renameDatei(
             final UUID dateiId,
@@ -191,6 +197,7 @@ public class DateiService {
      * @throws ResponseStatusException 403 if the user is not
      *     authorised to delete the file
      */
+    @Override
     @Transactional
     public void deleteDatei(
             final UUID dateiId,
@@ -307,6 +314,153 @@ public class DateiService {
             .map(a -> a.getKurs().getKursID()
                 .equals(kurs.getKursID()))
             .orElse(false);
+    }
+
+    /**
+     * Retrieve all files in the given folder as DTOs.
+     *
+     * <p>Only a member of the folder's course or a SYSTEMADMIN
+     * may list files. If the folder has no assigned course, the
+     * restriction is waived.</p>
+     *
+     * @param ordnerId the UUID of the folder
+     * @param dhbwMail the DHBW mail of the authenticated user
+     * @return list of file metadata DTOs, newest first
+     * @throws ResponseStatusException 404 if the folder or
+     *     student is not found
+     * @throws ResponseStatusException 403 if the user is not
+     *     authorised to read files in this folder
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<DateiDTO> retrieveDateienForOrdner(
+            final UUID ordnerId,
+            final String dhbwMail) {
+        Student student = findStudentOrThrow(dhbwMail);
+        Ordner ordner = findOrdnerOrThrow(ordnerId);
+        verifyReadAuthorized(ordner, student);
+        return dateiRepository
+            .findByOrdnerIdOrderByNameAsc(ordnerId)
+            .stream()
+            .map(this::toDateiDto)
+            .toList();
+    }
+
+    /**
+     * Retrieve all files of the authenticated user's course.
+     *
+     * <p>SYSTEMADMIN receives all files across all courses.
+     * Regular users see only files within their own approved
+     * course. Users without an approved course enrollment
+     * receive an empty list.</p>
+     *
+     * @param dhbwMail the DHBW mail of the authenticated user
+     * @return list of file metadata DTOs, newest first
+     * @throws ResponseStatusException 404 if the student is
+     *     not found
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<DateiDTO> retrieveAllFiles(
+            final String dhbwMail) {
+        Student student = findStudentOrThrow(dhbwMail);
+        if (student.getStudentType()
+                == StudentType.SYSTEMADMIN) {
+            return dateiRepository
+                .findAllOrderByNameAsc()
+                .stream()
+                .map(this::toDateiDto)
+                .toList();
+        }
+        return kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(student)
+            .map(anfrage -> dateiRepository
+                .findByKursIdOrderByNameAsc(
+                    anfrage.getKurs().getKursID())
+                .stream()
+                .map(this::toDateiDto)
+                .toList())
+            .orElse(List.of());
+    }
+
+    /**
+     * Retrieve the binary content of a file for download.
+     *
+     * <p>The caller must be a member of the file's course or a
+     * SYSTEMADMIN. If the file's folder has no assigned course,
+     * the restriction is waived.</p>
+     *
+     * @param dateiId  the UUID of the file to download
+     * @param dhbwMail the DHBW mail of the authenticated user
+     * @return DTO containing file name and raw bytes
+     * @throws ResponseStatusException 404 if the file or
+     *     student is not found
+     * @throws ResponseStatusException 403 if the user is not
+     *     authorised to download the file
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public DateiDownloadDTO downloadDatei(
+            final UUID dateiId,
+            final String dhbwMail) {
+        Datei datei = findDateiOrThrow(dateiId);
+        Student student = findStudentOrThrow(dhbwMail);
+        verifyReadAuthorized(datei.getOrdner(), student);
+        return new DateiDownloadDTO(
+            datei.getName(), datei.getData());
+    }
+
+    /**
+     * Assert that the student is allowed to read files in the
+     * given folder.
+     *
+     * @param ordner  the folder whose files are being accessed
+     * @param student the authenticated student
+     * @throws ResponseStatusException 403 if not authorised
+     */
+    private void verifyReadAuthorized(
+            final Ordner ordner,
+            final Student student) {
+        if (student.getStudentType()
+                == StudentType.SYSTEMADMIN) {
+            return;
+        }
+        if (ordner.getKurs() == null) {
+            return;
+        }
+        if (isMemberOfKurs(student, ordner.getKurs())) {
+            return;
+        }
+        ResponseStatusException ex = new ResponseStatusException(
+            HttpStatus.FORBIDDEN,
+            "Kein Zugriff auf diesen Ordner");
+        colorLogger.colorError(
+            "Read rejected for {} in folder {}: {}",
+            student.getDhbwMail(),
+            ordner.getOrdnerID(),
+            ex.getMessage(), ex);
+        throw ex;
+    }
+
+    /**
+     * Map a {@link Datei} entity to a {@link DateiDTO}.
+     *
+     * @param datei the entity to map
+     * @return a DTO containing the file's metadata
+     */
+    private DateiDTO toDateiDto(final Datei datei) {
+        String uploaderName = null;
+        if (datei.getUploader() != null) {
+            uploaderName = datei.getUploader().getName();
+        }
+        return new DateiDTO(
+            datei.getDateiID(),
+            datei.getName(),
+            datei.getZuletztBearbeitet(),
+            datei.getFileSize(),
+            uploaderName,
+            datei.getOrdner().getOrdnerID(),
+            datei.getOrdner().getName());
     }
 
     /**

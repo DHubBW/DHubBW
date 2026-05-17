@@ -1,18 +1,25 @@
 package com.se.dhubbw.datei.application;
 
-import com.se.dhubbw.datei.infrastructure.DateiService;
+import com.se.dhubbw.datei.application.dto.DateiDTO;
+import com.se.dhubbw.datei.application.dto.DateiDownloadDTO;
+import com.se.dhubbw.datei.domain.DateiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -106,6 +115,143 @@ public class DateiController {
             name,
             authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(dateiId);
+    }
+
+    /**
+     * Retrieve all files in a folder.
+     *
+     * <p>Requires at least the {@code STUDENT} role. The caller
+     * must be a member of the folder's course, or
+     * SYSTEMADMIN.</p>
+     *
+     * @param ordnerId       the UUID of the target folder
+     * @param authentication the current user's security context
+     * @return 200 with the list of file metadata DTOs
+     */
+    @Operation(
+            summary = "List files in a folder",
+            description = "Returns file metadata for all files "
+                + "in the given folder. Caller must be a "
+                + "member of the folder's course or SYSTEMADMIN."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Files retrieved successfully"
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Not authorised to view this folder",
+            content = @Content(mediaType = "application/json")
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Folder or student not found",
+            content = @Content(mediaType = "application/json")
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/ordner/{ordnerId}")
+    public ResponseEntity<List<DateiDTO>> retrieveDateienForOrdner(
+            @Parameter(
+                    description = "UUID of the target folder",
+                    required = true)
+            @PathVariable final UUID ordnerId,
+            final Authentication authentication) {
+        List<DateiDTO> dateien = dateiService
+            .retrieveDateienForOrdner(
+                ordnerId,
+                authentication.getName());
+        return ResponseEntity.ok(dateien);
+    }
+
+    /**
+     * Retrieve all files of the caller's course.
+     *
+     * <p>Requires at least the {@code STUDENT} role. Only files
+     * belonging to the authenticated user's own course are
+     * returned. SYSTEMADMIN receives all files across all
+     * courses.</p>
+     *
+     * @param authentication the current user's security context
+     * @return 200 with the list of file metadata DTOs
+     */
+    @Operation(
+            summary = "List all files for the current course",
+            description = "Returns file metadata for all files "
+                + "in the caller's course. SYSTEMADMIN sees "
+                + "all files across all courses."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Files retrieved successfully"
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Student not found",
+            content = @Content(mediaType = "application/json")
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping
+    public ResponseEntity<List<DateiDTO>> retrieveAllFiles(
+            final Authentication authentication) {
+        List<DateiDTO> dateien = dateiService
+            .retrieveAllFiles(authentication.getName());
+        return ResponseEntity.ok(dateien);
+    }
+
+    /**
+     * Download a file.
+     *
+     * <p>Requires at least the {@code STUDENT} role. The caller
+     * must be a member of the file's course, or SYSTEMADMIN. If
+     * the folder has no course, the restriction is waived.</p>
+     *
+     * @param dateiId        the UUID of the file to download
+     * @param authentication the current user's security context
+     * @return 200 with the file bytes, correct Content-Type and
+     *     Content-Disposition header
+     */
+    @Operation(
+            summary = "Download a file",
+            description = "Streams a file's raw bytes with the "
+                + "correct Content-Type and Content-Disposition "
+                + "headers. Caller must be a member of the "
+                + "file's course or SYSTEMADMIN."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "File content"
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Not authorised to download this file",
+            content = @Content(mediaType = "application/json")
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "File or student not found",
+            content = @Content(mediaType = "application/json")
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/{dateiId}/download")
+    public ResponseEntity<Resource> downloadDatei(
+            @Parameter(
+                    description = "UUID of the file to download",
+                    required = true)
+            @PathVariable final UUID dateiId,
+            final Authentication authentication) {
+        DateiDownloadDTO dto = dateiService.downloadDatei(
+            dateiId, authentication.getName());
+        MediaType contentType = MediaTypeFactory
+            .getMediaType(dto.getName())
+            .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        return ResponseEntity.ok()
+            .contentType(contentType)
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\""
+                    + dto.getName() + "\"")
+            .body(new InputStreamResource(
+                new ByteArrayInputStream(dto.getData())));
     }
 
     /**
