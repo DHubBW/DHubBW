@@ -89,7 +89,7 @@ public class KursMitgliederServiceTest {
             .findByKursAndIsApprovedTrue(kurs))
             .thenReturn(List.of(adminAnfrage, memberAnfrage));
         when(dateiRepository
-            .findByKursIdOrderByZuletztBearbeitetDesc(
+            .findByKursIdOrderByNameAsc(
                 kurs.getKursID()))
             .thenReturn(Collections.emptyList());
         when(kursBeitrittsAnfrageRepository

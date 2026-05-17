@@ -77,7 +77,7 @@ public class KursMitgliederServiceImpl implements KursMitgliederService {
         int anzahlMitglieder = kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedTrue(kurs).size();
         int anzahlDateien = dateiRepository
-            .findByKursIdOrderByZuletztBearbeitetDesc(
+            .findByKursIdOrderByNameAsc(
                 kurs.getKursID()).size();
         int anzahlAnfragen = kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedFalse(kurs).size();

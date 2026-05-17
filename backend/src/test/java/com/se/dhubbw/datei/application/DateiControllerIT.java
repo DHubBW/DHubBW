@@ -19,6 +19,8 @@ import static org.springframework.security.test.web.servlet.setup
 import static org.springframework.test.web.servlet.request
     .MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request
+    .MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request
     .MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request
     .MockMvcRequestBuilders.patch;
@@ -44,6 +46,10 @@ public class DateiControllerIT {
     /** Folder belonging to TINF24B1, Felix is KURSADMIN. */
     private static final String TINF24B1_ORDNER_ID =
         "44444444-4444-4444-4444-444444444443";
+
+    /** Folder belonging to TINF24B2 (Mathematik), Linus is member. */
+    private static final String TINF24B2_ORDNER_ID =
+        "44444444-4444-4444-4444-444444444442";
 
     /** File uploaded by Nico in TINF24B2 folder. */
     private static final String DATEI_1_ID =
@@ -256,5 +262,110 @@ public class DateiControllerIT {
             throws Exception {
         mockMvc.perform(delete("/dateien/" + UNKNOWN_ID))
             .andExpect(status().isNotFound());
+    }
+
+    // --- RetrieveDateienForOrdner tests ---
+
+    @Test
+    @Order(30)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenMember_whenGetDateienForOrdner_thenReturns200()
+            throws Exception {
+        mockMvc.perform(
+            get("/dateien/ordner/" + TINF24B2_ORDNER_ID))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(31)
+    public void givenNoAuth_whenGetDateienForOrdner_thenReturns401()
+            throws Exception {
+        mockMvc.perform(
+            get("/dateien/ordner/" + TINF24B2_ORDNER_ID))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Order(32)
+    @WithMockUser(
+            username = FELIX_MAIL,
+            roles = {"KURSADMIN", "STUDENT"})
+    public void givenNonMember_whenGetDateienForOrdner_thenReturns403()
+            throws Exception {
+        mockMvc.perform(
+            get("/dateien/ordner/" + TINF24B2_ORDNER_ID))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Order(33)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenUnknownId_whenGetDateienForOrdner_thenReturns404()
+            throws Exception {
+        mockMvc.perform(
+            get("/dateien/ordner/" + UNKNOWN_ID))
+            .andExpect(status().isNotFound());
+    }
+
+    // --- RetrieveAllFiles tests ---
+
+    @Test
+    @Order(40)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenMember_whenGetAllFiles_thenReturns200()
+            throws Exception {
+        mockMvc.perform(get("/dateien"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(41)
+    public void givenNoAuth_whenGetAllFiles_thenReturns401()
+            throws Exception {
+        mockMvc.perform(get("/dateien"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    // --- DownloadDatei tests ---
+
+    @Test
+    @Order(50)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenMember_whenDownloadDatei_thenReturns200()
+            throws Exception {
+        mockMvc.perform(
+            get("/dateien/" + DATEI_1_ID + "/download"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(51)
+    public void givenNoAuth_whenDownloadDatei_thenReturns401()
+            throws Exception {
+        mockMvc.perform(
+            get("/dateien/" + DATEI_1_ID + "/download"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Order(52)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenUnknownId_whenDownloadDatei_thenReturns404()
+            throws Exception {
+        mockMvc.perform(
+            get("/dateien/" + UNKNOWN_ID + "/download"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Order(53)
+    @WithMockUser(
+            username = FELIX_MAIL,
+            roles = {"KURSADMIN", "STUDENT"})
+    public void givenNonMember_whenDownloadDatei_thenReturns403()
+            throws Exception {
+        mockMvc.perform(
+            get("/dateien/" + DATEI_1_ID + "/download"))
+            .andExpect(status().isForbidden());
     }
 }
