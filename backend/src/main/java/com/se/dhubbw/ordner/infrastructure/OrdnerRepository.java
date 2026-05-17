@@ -20,5 +20,21 @@ public interface OrdnerRepository extends JpaRepository<Ordner, UUID> {
      * @return list of folders for the given course, may be empty
      */
     List<Ordner> findByKurs(Kurs kurs);
+
+    /**
+     * Find all root-level folders for the given course.
+     *
+     * @param kurs the course whose root folders to retrieve
+     * @return list of root folders, may be empty
+     */
+    List<Ordner> findByKursAndUeberOrdnerIsNull(Kurs kurs);
+
+    /**
+     * Find all direct child folders of the given parent folder.
+     *
+     * @param ueberOrdner the parent folder
+     * @return list of direct child folders, may be empty
+     */
+    List<Ordner> findChildrenByUeberOrdner(Ordner ueberOrdner);
 }
 
