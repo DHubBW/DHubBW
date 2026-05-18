@@ -6,7 +6,7 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
     hibernate:
       ddl-auto: validate
     defer-datasource-initialization: true
@@ -20,6 +20,10 @@ springdoc:
     enabled: false
   api-docs:
     enabled: false
+
+logging:
+  level:
+    org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
 
 jwt:
   secret: ${JWT_SECRET}
