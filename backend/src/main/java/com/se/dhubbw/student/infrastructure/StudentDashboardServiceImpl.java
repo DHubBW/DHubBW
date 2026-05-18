@@ -8,6 +8,7 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
 import com.se.dhubbw.ordner.infrastructure.OrdnerAnlegungRepository;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
+import com.se.dhubbw.student.application.dto.StudentProfileDTO;
 import com.se.dhubbw.student.domain.StudentDashboardService;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
@@ -91,6 +92,7 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
      * @throws IllegalStateException if the student is the last
      *     KURSADMIN in their course
      */
+    @Override
     @Transactional
     public void leaveKurs(final String dhbwMail) {
         Student student = findStudentOrThrow(dhbwMail);
@@ -127,6 +129,7 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
      * @throws IllegalStateException if the student is the last
      *     SYSTEMADMIN globally or the last KURSADMIN in their course
      */
+    @Override
     @Transactional
     public void deleteAccount(final String dhbwMail) {
         Student student = findStudentOrThrow(dhbwMail);
@@ -227,5 +230,44 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
                 ex);
             throw ex;
         }
+    }
+
+    /**
+     * Retrieve the profile information for the given student.
+     *
+     * @param dhbwMail the DHBW mail address of the student
+     * @return the student's profile data including name, email,
+     *     role, and course name (if enrolled)
+     * @throws NoSuchElementException if the student is not found
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public StudentProfileDTO retrieveProfile(final String dhbwMail) {
+        Student student = findStudentOrThrow(dhbwMail);
+        String kursName = kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(student)
+            .map(enrollment -> enrollment.getKurs().getKursName())
+            .orElse(null);
+
+        return new StudentProfileDTO(
+            student.getName(),
+            student.getDhbwMail(),
+            student.getStudentType(),
+            kursName
+        );
+    }
+
+    /**
+     * Retrieve the course name for the given student.
+     *
+     * @param dhbwMail the DHBW mail address of the student
+     * @return the course name, or null if the student has no
+     *     course enrollment
+     * @throws NoSuchElementException if the student is not found
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public String retrieveKursForUser(final String dhbwMail) {
+        return retrieveProfile(dhbwMail).getKursName();
     }
 }

@@ -176,6 +176,14 @@ public class KursServiceImpl implements KursService {
                     + " bereits");
         }
 
+        if (!kursName.matches("[A-Z]{2,4}[0-9]{2}[A-Z][0-9]")) {
+            throw new ResponseStatusException(
+                HttpStatus.UNPROCESSABLE_CONTENT,
+                "Der gewählte Name folgt nicht dem erforderlichen"
+                    + " Format (z.B. 'TINF24B2')"
+            );
+        }
+
         String notes = additionalNotes != null
             ? additionalNotes : DEFAULT_NOTES;
 

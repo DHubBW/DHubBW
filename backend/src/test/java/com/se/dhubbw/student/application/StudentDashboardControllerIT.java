@@ -12,7 +12,10 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -142,6 +145,109 @@ public class StudentDashboardControllerIT {
     public void givenNoRole_whenDeleteAccount_thenReturns403()
             throws Exception {
         mockMvc.perform(delete("/dashboard/delete-account"))
+            .andExpect(status().isForbidden());
+    }
+
+    // ==================== retrieveProfile Tests ====================
+
+    @Test
+    @WithMockUser(username = STUDENT_MAIL, roles = {"STUDENT"})
+    public void givenAuthenticatedStudent_whenRetrieveProfile_thenReturns200WithProfile()
+            throws Exception {
+        mockMvc.perform(get("/dashboard/profile"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Linus Kronenberger"))
+            .andExpect(jsonPath("$.dhbwMail").value(STUDENT_MAIL))
+            .andExpect(jsonPath("$.studentType").value("STUDENT"))
+            .andExpect(jsonPath("$.kursName").value("TINF24B2"));
+    }
+
+    @Test
+    @WithMockUser(username = "anonym.max.a24@student.dhbw-karlsruhe.de",
+        roles = {"STUDENT"})
+    public void givenStudentWithoutEnrollment_whenRetrieveProfile_thenReturnsProfileWithNullKurs()
+            throws Exception {
+        mockMvc.perform(get("/dashboard/profile"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Max"))
+            .andExpect(jsonPath("$.kursName").isEmpty());
+    }
+
+    @Test
+    public void givenUnauthenticated_whenRetrieveProfile_thenReturns401()
+            throws Exception {
+        mockMvc.perform(get("/dashboard/profile"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = STUDENT_MAIL, roles = {})
+    public void givenNoRole_whenRetrieveProfile_thenReturns403()
+            throws Exception {
+        mockMvc.perform(get("/dashboard/profile"))
+            .andExpect(status().isForbidden());
+    }
+
+    // ==================== logout Tests ====================
+
+    @Test
+    @WithMockUser(username = STUDENT_MAIL, roles = {"STUDENT"})
+    public void givenAuthenticatedStudent_whenLogout_thenReturns200AndInvalidatesCookie()
+            throws Exception {
+        mockMvc.perform(post("/dashboard/logout"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("Successfully logged out."))
+            .andExpect(cookie().maxAge("jwt", 0));
+    }
+
+    @Test
+    public void givenUnauthenticated_whenLogout_thenReturns401()
+            throws Exception {
+        mockMvc.perform(post("/dashboard/logout"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = STUDENT_MAIL, roles = {})
+    public void givenNoRole_whenLogout_thenReturns403()
+            throws Exception {
+        mockMvc.perform(post("/dashboard/logout"))
+            .andExpect(status().isForbidden());
+    }
+
+    // ==================== retrieveKursForUser Tests ====================
+
+    @Test
+    @WithMockUser(username = STUDENT_MAIL, roles = {"STUDENT"})
+    public void givenStudentWithEnrollment_whenRetrieveKursForUser_thenReturnsKursName()
+            throws Exception {
+        mockMvc.perform(get("/dashboard/kurs"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("TINF24B2"));
+    }
+
+    @Test
+    @WithMockUser(username = "anonym.max.a24@student.dhbw-karlsruhe.de",
+        roles = {"STUDENT"})
+    public void givenStudentWithoutEnrollment_whenRetrieveKursForUser_thenReturnsKeinKurs()
+            throws Exception {
+        mockMvc.perform(get("/dashboard/kurs"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("Kein Kurs"));
+    }
+
+    @Test
+    public void givenUnauthenticated_whenRetrieveKursForUser_thenReturns401()
+            throws Exception {
+        mockMvc.perform(get("/dashboard/kurs"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = STUDENT_MAIL, roles = {})
+    public void givenNoRole_whenRetrieveKursForUser_thenReturns403()
+            throws Exception {
+        mockMvc.perform(get("/dashboard/kurs"))
             .andExpect(status().isForbidden());
     }
 }

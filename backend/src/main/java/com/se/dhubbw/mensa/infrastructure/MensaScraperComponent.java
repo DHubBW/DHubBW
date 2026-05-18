@@ -1,5 +1,6 @@
 package com.se.dhubbw.mensa.infrastructure;
 
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import com.se.dhubbw.mensa.infrastructure.util.Ernaehrung;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import org.jsoup.Jsoup;
@@ -45,7 +46,7 @@ import java.util.List;
  * (LAB) tierisches Lab, (GEL) Gelatine.
  */
 @Component
-public class MensaScraper {
+public class MensaScraperComponent {
 
     /**
      * CSS selector for day navigation anchors.
@@ -95,14 +96,15 @@ public class MensaScraper {
     /**
      * Logger instance.
      */
-    private final ColorLogger colorLogger = new ColorLogger(MensaScraper.class);
+    private final ColorLogger colorLogger =
+        new ColorLogger(MensaScraperComponent.class);
 
     /**
      * Construct the scraper with the configured mensa URL.
      *
      * @param url the mensa plan URL injected from {@code mensa.url}
      */
-    public MensaScraper(@Value("${mensa.url}") final String url) {
+    public MensaScraperComponent(@Value("${mensa.url}") final String url) {
         this.mensaUrl = url;
     }
 

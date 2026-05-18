@@ -1,12 +1,13 @@
 package com.se.dhubbw.dashboard.application;
 
+import com.se.dhubbw.dashboard.infrastructure.DashboardServiceImpl;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.mensa.domain.MensaService;
-import com.se.dhubbw.mensa.infrastructure.Mensa;
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;

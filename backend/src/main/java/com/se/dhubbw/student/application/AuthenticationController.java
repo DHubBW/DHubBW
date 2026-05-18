@@ -1,5 +1,6 @@
 package com.se.dhubbw.student.application;
 
+import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import com.se.dhubbw.student.application.dto.LoginRequestDTO;
 import com.se.dhubbw.student.application.dto.RegisterRequestDTO;
 import com.se.dhubbw.student.domain.AuthenticationService;
@@ -22,6 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     /**
+     * ColorLogger for errors / log messages.
+     */
+    private final ColorLogger colorLogger = new ColorLogger(this.getClass());
+
+    /**
      * HTTP status code for conflict (email already exists).
      */
     private static final int HTTP_CONFLICT = 409;
@@ -32,9 +38,9 @@ public class AuthenticationController {
     private static final int HTTP_UNAUTHORIZED = 401;
 
     /**
-     * HTTP status code for bad request.
+     * HTTP status code for wrong format of mail / name.
      */
-    private static final int HTTP_BAD_REQUEST = 404;
+    private static final int HTTP_UNPROCESSABLE_ENTITY = 422;
 
     /**
      * Milliseconds per second conversion factor.
@@ -81,11 +87,23 @@ public class AuthenticationController {
         final HttpServletResponse response) {
         if (!request.getDhbwMail().matches(
             "^[a-z]+\\.[a-z]+\\.[a-z0-9]+@student\\.dhbw-karlsruhe\\.de$")) {
-            return ResponseEntity.status(HTTP_BAD_REQUEST)
+            colorLogger.colorError("The dhbw mail format "
+                + "of the student doesn't match the required format.");
+            return ResponseEntity.status(HTTP_UNPROCESSABLE_ENTITY)
                 .body("Invalid DHBW Mail Format");
+        } else if (!request.getName()
+            .matches("^[A-ZÄÖÜ][a-zäöüß]+(?:[- ][A-ZÄÖÜ]"
+                + "[a-zäöüß]+)*\\s+[A-ZÄÖÜ][a-zäöüß]"
+                + "+(?:[- ][A-ZÄÖÜ][a-zäöüß]+)*$")) {
+            colorLogger.colorError("The name of the student "
+                + "doesn't match the required format 'FirstName LastName'.");
+            return ResponseEntity.status(HTTP_UNPROCESSABLE_ENTITY)
+                .body("Invalid Name format. "
+                    + "The name has to be in the following format: "
+                    + "'FirstName LastName'");
         }
         try {
-            String token = authenticationService.register(request);
+            String token = authenticationService.registerStudent(request);
             addJwtCookie(response, token);
             return ResponseEntity.ok(
                 "Successfully registered student with email: '"

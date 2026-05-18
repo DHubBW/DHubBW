@@ -1,4 +1,4 @@
-package com.se.dhubbw.mensa.infrastructure;
+package com.se.dhubbw.mensa.infrastructure.db;
 
 import com.se.dhubbw.mensa.infrastructure.util.Ernaehrung;
 import jakarta.persistence.Column;

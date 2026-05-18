@@ -2,7 +2,7 @@ package com.se.dhubbw.dashboard.application;
 
 import com.se.dhubbw.dashboard.domain.DashboardService;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
-import com.se.dhubbw.mensa.infrastructure.Mensa;
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

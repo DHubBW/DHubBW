@@ -1,5 +1,6 @@
 package com.se.dhubbw.mensa.infrastructure;
 
+import com.se.dhubbw.mensa.infrastructure.db.MensaRepository;
 import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

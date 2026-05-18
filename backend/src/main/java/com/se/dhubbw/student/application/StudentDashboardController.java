@@ -1,15 +1,22 @@
 package com.se.dhubbw.student.application;
 
+import com.se.dhubbw.student.application.dto.StudentProfileDTO;
 import com.se.dhubbw.student.domain.StudentDashboardService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +38,12 @@ public class StudentDashboardController {
      * Service handling dashboard operations.
      */
     private final StudentDashboardService studentDashboardService;
+
+    /**
+     * Whether cookies should be secure (HTTPS only).
+     */
+    @Value("${jwt.cookie.secure:true}")
+    private boolean cookieSecure;
 
     /**
      * Remove the authenticated student from their current course.
@@ -122,5 +135,94 @@ public class StudentDashboardController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
         }
+    }
+
+    /**
+     * Retrieve the authenticated student's profile information.
+     *
+     * @param authentication the current user's security context
+     * @return 200 with StudentProfileDTO containing name, email,
+     *     role, and course name
+     */
+    @Operation(
+            summary = "Retrieve student profile",
+            description = "Returns the authenticated student's "
+                + "profile information including name, email, "
+                + "role, and course name (if enrolled)."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Profile successfully retrieved",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = StudentProfileDTO.class)
+            )
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/profile")
+    public ResponseEntity<StudentProfileDTO> retrieveProfile(
+            final Authentication authentication) {
+        StudentProfileDTO profile = studentDashboardService.retrieveProfile(
+            authentication.getName());
+        return ResponseEntity.ok(profile);
+    }
+
+    /**
+     * Log out the authenticated student.
+     *
+     * <p>Invalidates the JWT cookie by setting its max age to 0.</p>
+     *
+     * @param response the HTTP response to add the invalidated cookie to
+     * @return 200 with confirmation message
+     */
+    @Operation(
+            summary = "Log out student",
+            description = "Invalidates the JWT session cookie "
+                + "and logs out the student."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successfully logged out"
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(
+            final HttpServletResponse response) {
+        Cookie jwtCookie = new Cookie("jwt", null);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(cookieSecure);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(0);
+        response.addCookie(jwtCookie);
+        return ResponseEntity.ok("Successfully logged out.");
+    }
+
+    /**
+     * Retrieve the course name for the authenticated student.
+     *
+     * @param authentication the current user's security context
+     * @return 200 with course name, or "Kein Kurs" if not enrolled
+     */
+    @Operation(
+            summary = "Retrieve course for user",
+            description = "Returns the course name for the "
+                + "authenticated student, or 'Kein Kurs' if "
+                + "the student has no course enrollment."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Course information retrieved"
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/kurs")
+    public ResponseEntity<String> retrieveKursForUser(
+            final Authentication authentication) {
+        String kursName = studentDashboardService.retrieveKursForUser(
+            authentication.getName());
+        if (kursName == null) {
+            return ResponseEntity.ok("Kein Kurs");
+        }
+        return ResponseEntity.ok(kursName);
     }
 }

@@ -61,7 +61,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     /** {@inheritDoc} */
     @Override
     @Transactional
-    public String register(final RegisterRequestDTO request) {
+    public String registerStudent(final RegisterRequestDTO request) {
         if (studentRepository.findByDhbwMail(request.getDhbwMail())
             .isPresent()) {
             colorLogger.colorError(
@@ -71,13 +71,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 "Email already registered");
         }
 
-        Student student = new Student();
-        student.setDhbwMail(request.getDhbwMail());
-        student.setName(request.getVorname() + " " + request.getNachname());
-        student.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        student.setStudentType(StudentType.STUDENT);
+        // generate the new registered student
+        Student registeredStudent = new Student();
+        registeredStudent.setDhbwMail(request.getDhbwMail());
+        registeredStudent.setName(request.getName());
+        registeredStudent.setPasswordHash(
+            passwordEncoder.encode(request.getPassword()));
+        registeredStudent.setStudentType(StudentType.STUDENT);
 
-        studentRepository.save(student);
+        // save the new student
+        studentRepository.save(registeredStudent);
+
         colorLogger.colorInfo(
             "Successfully registered new student with email: '{}'",
             request.getDhbwMail());

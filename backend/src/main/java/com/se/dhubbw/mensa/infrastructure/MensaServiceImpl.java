@@ -1,6 +1,8 @@
 package com.se.dhubbw.mensa.infrastructure;
 
 import com.se.dhubbw.mensa.domain.MensaService;
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
+import com.se.dhubbw.mensa.infrastructure.db.MensaRepository;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,7 +46,7 @@ public class MensaServiceImpl implements MensaService {
     /**
      * Scraper that fetches meals from the external mensa website.
      */
-    private final MensaScraper mensaScraper;
+    private final MensaScraperComponent mensaScraperComponent;
 
     /**
      * Logger instance.
@@ -64,7 +66,7 @@ public class MensaServiceImpl implements MensaService {
     @Override
     @Transactional
     public void sync() {
-        List<Mensa> scraped = mensaScraper.scrapeCurrentWeek();
+        List<Mensa> scraped = mensaScraperComponent.scrapeCurrentWeek();
         if (scraped.isEmpty()) {
             colorLogger.colorError("No meals scraped - skipping sync");
             return;
