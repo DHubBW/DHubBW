@@ -8,6 +8,7 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
 import com.se.dhubbw.ordner.infrastructure.OrdnerAnlegungRepository;
 import com.se.dhubbw.shared.testing.UnitTest;
+import com.se.dhubbw.student.application.dto.StudentProfileDTO;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
@@ -25,6 +26,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -339,5 +342,97 @@ public class StudentDashboardServiceImplTest {
         verify(kursBeitrittsAnfrageRepository).delete(enrollment);
         verify(kursBeitrittsAnfrageRepository).deleteAll(List.of(pendingRequest));
         verify(studentRepository).delete(student);
+    }
+
+    // ==================== retrieveProfile Tests ====================
+
+    @Test
+    public void givenStudentWithEnrollment_whenRetrieveProfile_thenReturnsProfileWithKurs() {
+        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
+            .thenReturn(Optional.of(student));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(student))
+            .thenReturn(Optional.of(enrollment));
+
+        StudentProfileDTO profile =
+            studentDashboardService.retrieveProfile(STUDENT_MAIL);
+
+        assertNotNull(profile);
+        assertEquals("Max Mustermann", profile.getName());
+        assertEquals(STUDENT_MAIL, profile.getDhbwMail());
+        assertEquals(StudentType.STUDENT, profile.getStudentType());
+        assertEquals("TINF24B2", profile.getKursName());
+    }
+
+    @Test
+    public void givenStudentWithoutEnrollment_whenRetrieveProfile_thenReturnsProfileWithNullKurs() {
+        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
+            .thenReturn(Optional.of(student));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(student))
+            .thenReturn(Optional.empty());
+
+        StudentProfileDTO profile =
+            studentDashboardService.retrieveProfile(STUDENT_MAIL);
+
+        assertNotNull(profile);
+        assertEquals("Max Mustermann", profile.getName());
+        assertEquals(STUDENT_MAIL, profile.getDhbwMail());
+        assertEquals(StudentType.STUDENT, profile.getStudentType());
+        assertNull(profile.getKursName());
+    }
+
+    @Test
+    public void givenStudentNotFound_whenRetrieveProfile_thenThrowsException() {
+        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
+            .thenReturn(Optional.empty());
+
+        NoSuchElementException exception = assertThrows(
+            NoSuchElementException.class,
+            () -> studentDashboardService.retrieveProfile(STUDENT_MAIL)
+        );
+
+        assertEquals("Student not found: " + STUDENT_MAIL, exception.getMessage());
+    }
+
+    // ==================== retrieveKursForUser Tests ====================
+
+    @Test
+    public void givenStudentWithEnrollment_whenRetrieveKursForUser_thenReturnsKursName() {
+        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
+            .thenReturn(Optional.of(student));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(student))
+            .thenReturn(Optional.of(enrollment));
+
+        String kursName = studentDashboardService.retrieveKursForUser(STUDENT_MAIL);
+
+        assertEquals("TINF24B2", kursName);
+    }
+
+    @Test
+    public void givenStudentWithoutEnrollment_whenRetrieveKursForUser_thenReturnsNull() {
+        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
+            .thenReturn(Optional.of(student));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(student))
+            .thenReturn(Optional.empty());
+
+        String kursName = studentDashboardService.retrieveKursForUser(STUDENT_MAIL);
+
+        assertNull(kursName);
+    }
+
+    @Test
+    public void givenStudentNotFound_whenRetrieveKursForUser_thenThrowsException() {
+        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
+            .thenReturn(Optional.empty());
+
+        NoSuchElementException exception = assertThrows(
+            NoSuchElementException.class,
+            () -> studentDashboardService.retrieveKursForUser(STUDENT_MAIL)
+        );
+
+        assertEquals("Student not found: " + STUDENT_MAIL, exception.getMessage());
     }
 }

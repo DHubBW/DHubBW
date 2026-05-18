@@ -1,5 +1,7 @@
-package com.se.dhubbw.mensa.infrastructure;
+package com.se.dhubbw.mensa.infrastructure.db.initializer;
 
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
+import com.se.dhubbw.mensa.infrastructure.db.MensaRepository;
 import com.se.dhubbw.mensa.infrastructure.util.Ernaehrung;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +52,8 @@ public class MensaTestDataInitializer implements CommandLineRunner {
 
     /**
      * Run method executed on application startup.
+     *
+     * <p>Initializes mensa test data for current and next week.</p>
      *
      * @param args command line arguments
      */

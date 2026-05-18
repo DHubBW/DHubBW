@@ -1,8 +1,8 @@
 package com.se.dhubbw.mensa.application;
 
-import com.se.dhubbw.mensa.infrastructure.Mensa;
-import com.se.dhubbw.mensa.infrastructure.MensaRepository;
-import com.se.dhubbw.mensa.infrastructure.MensaScraper;
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
+import com.se.dhubbw.mensa.infrastructure.db.MensaRepository;
+import com.se.dhubbw.mensa.infrastructure.MensaScraperComponent;
 import com.se.dhubbw.mensa.infrastructure.MensaServiceImpl;
 import com.se.dhubbw.shared.testing.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -35,14 +35,14 @@ public class MensaServiceTest {
     private MensaRepository mensaRepository;
 
     @Mock
-    private MensaScraper mensaScraper;
+    private MensaScraperComponent mensaScraperComponent;
 
     @InjectMocks
     private MensaServiceImpl mensaService;
 
     @Test
     public void givenEmptyScrapedList_whenSync_thenSkipsAllRepoOperations() {
-        when(mensaScraper.scrapeCurrentWeek())
+        when(mensaScraperComponent.scrapeCurrentWeek())
                 .thenReturn(Collections.emptyList());
 
         mensaService.sync();
@@ -56,7 +56,7 @@ public class MensaServiceTest {
     public void givenScrapedMeals_whenSync_thenDeletesOldCutoffAndSavesNew() {
         Mensa meal = new Mensa();
         meal.setDatum(LocalDate.of(2026, 5, 6));
-        when(mensaScraper.scrapeCurrentWeek()).thenReturn(List.of(meal));
+        when(mensaScraperComponent.scrapeCurrentWeek()).thenReturn(List.of(meal));
 
         mensaService.sync();
 
@@ -73,7 +73,7 @@ public class MensaServiceTest {
         meal2.setDatum(LocalDate.of(2026, 5, 6));
         Mensa meal3 = new Mensa();
         meal3.setDatum(LocalDate.of(2026, 5, 7));
-        when(mensaScraper.scrapeCurrentWeek())
+        when(mensaScraperComponent.scrapeCurrentWeek())
             .thenReturn(List.of(meal1, meal2, meal3));
 
         mensaService.sync();
@@ -96,12 +96,12 @@ public class MensaServiceTest {
 
     @Test
     public void givenScheduledSync_whenCalled_thenDelegatesToSync() {
-        when(mensaScraper.scrapeCurrentWeek())
+        when(mensaScraperComponent.scrapeCurrentWeek())
                 .thenReturn(Collections.emptyList());
 
         mensaService.scheduledSync();
 
-        verify(mensaScraper).scrapeCurrentWeek();
+        verify(mensaScraperComponent).scrapeCurrentWeek();
     }
 
     @Test

@@ -89,7 +89,7 @@ public class KursControllerIT {
     )
     public void givenStudent_whenOpenCreateCourseRequest_thenReturns201Or409() throws Exception {
         KursErstellungsAnfrageRequestDTO request = new KursErstellungsAnfrageRequestDTO(
-            "TINF99Z",
+            "TINF99Z1",
             "2099",
             "Test notes"
         );

@@ -1,4 +1,4 @@
-package com.se.dhubbw.mensa.infrastructure;
+package com.se.dhubbw.mensa.infrastructure.db;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

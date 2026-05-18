@@ -1,5 +1,6 @@
 package com.se.dhubbw.mensa.infrastructure;
 
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import com.se.dhubbw.mensa.infrastructure.util.Ernaehrung;
 import com.se.dhubbw.shared.testing.UnitTest;
 import org.jsoup.Jsoup;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @UnitTest
-public class MensaScraperTest {
+public class MensaScraperComponentTest {
 
     private static final String MOCK_HTML_WEEK_1 =
         "<html><body>"
@@ -77,11 +78,11 @@ public class MensaScraperTest {
         + "<div id=\"canteen_day_2\" class=\"canteen-day\"></div>"
         + "</body></html>";
 
-    private MensaScraper scraper;
+    private MensaScraperComponent scraper;
 
     @BeforeEach
     public void setUp() {
-        scraper = new MensaScraper("http://localhost");
+        scraper = new MensaScraperComponent("http://localhost");
     }
 
     @Test

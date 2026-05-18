@@ -19,14 +19,10 @@ public class RegisterRequestDTO {
     private String dhbwMail;
 
     /**
-     * First name.
+     * Name of the student. Has to match the following format:
+     * "FirstName LastName"
      */
-    private String vorname;
-
-    /**
-     * Last name.
-     */
-    private String nachname;
+    private String name;
 
     /**
      * Password.

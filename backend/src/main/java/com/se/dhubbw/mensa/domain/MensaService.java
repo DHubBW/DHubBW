@@ -1,6 +1,6 @@
 package com.se.dhubbw.mensa.domain;
 
-import com.se.dhubbw.mensa.infrastructure.Mensa;
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 
 import java.time.LocalDate;
 import java.util.List;

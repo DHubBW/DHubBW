@@ -1,6 +1,6 @@
 package com.se.dhubbw.mensa.application.dto;
 
-import com.se.dhubbw.mensa.infrastructure.Mensa;
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import com.se.dhubbw.mensa.infrastructure.util.Ernaehrung;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

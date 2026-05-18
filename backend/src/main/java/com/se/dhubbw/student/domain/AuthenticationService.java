@@ -19,7 +19,7 @@ public interface AuthenticationService {
      * @return JWT token for the newly registered student
      * @throws IllegalArgumentException if the email is already registered
      */
-    String register(RegisterRequestDTO request);
+    String registerStudent(RegisterRequestDTO request);
 
     /**
      * Login a student.

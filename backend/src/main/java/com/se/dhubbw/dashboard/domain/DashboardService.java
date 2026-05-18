@@ -1,7 +1,7 @@
 package com.se.dhubbw.dashboard.domain;
 
 import com.se.dhubbw.datei.infrastructure.db.Datei;
-import com.se.dhubbw.mensa.infrastructure.Mensa;
+import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 
 import java.util.List;
 import java.util.Optional;

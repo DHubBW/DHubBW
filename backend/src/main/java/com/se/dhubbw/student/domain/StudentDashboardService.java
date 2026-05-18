@@ -1,10 +1,12 @@
 package com.se.dhubbw.student.domain;
 
+import com.se.dhubbw.student.application.dto.StudentProfileDTO;
+
 /**
  * Service interface for student dashboard operations.
  *
  * <p>Provides operations for students to manage their own
- * course membership and account.</p>
+ * course membership, account, and profile information.</p>
  */
 public interface StudentDashboardService {
 
@@ -39,4 +41,24 @@ public interface StudentDashboardService {
      *     SYSTEMADMIN globally or the last KURSADMIN in their course
      */
     void deleteAccount(String dhbwMail);
+
+    /**
+     * Retrieve the profile information for the given student.
+     *
+     * @param dhbwMail the DHBW mail address of the student
+     * @return the student's profile data including name, email,
+     *     role, and course name (if enrolled)
+     * @throws java.util.NoSuchElementException if the student is not found
+     */
+    StudentProfileDTO retrieveProfile(String dhbwMail);
+
+    /**
+     * Retrieve the course name for the given student.
+     *
+     * @param dhbwMail the DHBW mail address of the student
+     * @return the course name, or null if the student has no
+     *     course enrollment
+     * @throws java.util.NoSuchElementException if the student is not found
+     */
+    String retrieveKursForUser(String dhbwMail);
 }

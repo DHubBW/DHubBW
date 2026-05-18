@@ -47,8 +47,7 @@ public class AuthenticationControllerIT {
     public void givenValidRegistration_whenRegister_thenReturns200AndSetsCookie() throws Exception {
         RegisterRequestDTO request = new RegisterRequestDTO(
             "nachname.vorname.a24@student.dhbw-karlsruhe.de",
-            "Test",
-            "Student",
+            "Test Student",
             "SecurePassword123!"
         );
 
@@ -63,26 +62,24 @@ public class AuthenticationControllerIT {
     }
 
     @Test
-    public void givenMailWithoutdhbwKarlsruhe_whenRegister_thenReturns404() throws Exception {
+    public void givenMailWithoutdhbwKarlsruhe_whenRegister_thenReturns422() throws Exception {
         RegisterRequestDTO request = new RegisterRequestDTO(
             "nachname.vorname.a24@wrong.de",
-            "Linus",
-            "Kronenberger",
+            "Linus Kronenberger",
             "password"
         );
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().is4xxClientError());
+            .andExpect(status().is(422));
     }
 
     @Test
     public void givenExistingEmail_whenRegister_thenReturns409() throws Exception {
         RegisterRequestDTO request = new RegisterRequestDTO(
             "kronenberger.linus.a24@student.dhbw-karlsruhe.de",
-            "Duplicate",
-            "Name",
+            "Duplicate Kronenberger",
             "password"
         );
 
@@ -142,13 +139,13 @@ public class AuthenticationControllerIT {
 
     @Test
     public void givenValidCredentials_whenLogin_thenReturns200AndSetsCookie() throws Exception {
-        String loginMail = "test.login.t99@student.dhbw-karlsruhe.de";
+        String loginMail = "test.login.a24@student.dhbw-karlsruhe.de";
         String loginPassword = "LoginTestPassword123!";
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new RegisterRequestDTO(
-                    loginMail, "Test", "Login", loginPassword))))
+                    loginMail, "Linus Kronenberger", loginPassword))))
             .andExpect(status().isOk());
 
         mockMvc.perform(post("/api/auth/login")
