@@ -20,13 +20,13 @@ import java.util.UUID;
  */
 @Table
 @Entity
+@Getter
+@Setter
 public class DateiAnlegung {
 
     /**
      * Creation tracking identifier.
      */
-    @Getter
-    @Setter
     @Id
     @Column(name = "anlegung_id")
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,8 +35,6 @@ public class DateiAnlegung {
     /**
      * Student who created the file.
      */
-    @Getter
-    @Setter
     @OneToOne
     @JoinColumn(name = "student_id")
     private Student student;
@@ -44,8 +42,6 @@ public class DateiAnlegung {
     /**
      * Created file reference.
      */
-    @Getter
-    @Setter
     @OneToOne
     @JoinColumn(name = "datei_id")
     private Datei datei;
@@ -53,8 +49,6 @@ public class DateiAnlegung {
     /**
      * Creation date.
      */
-    @Getter
-    @Setter
     @Column(name = "datum")
     private LocalDate datum;
 }

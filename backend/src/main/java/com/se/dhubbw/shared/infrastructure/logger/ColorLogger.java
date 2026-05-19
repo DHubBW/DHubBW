@@ -29,7 +29,7 @@ public final class ColorLogger {
      * @param arguments the message arguments
      */
     public void colorDebug(final String msg, final Object... arguments) {
-        String colorMsg = "\u001B[34m" + msg + "\u001B[0m";
+        String colorMsg = "[34m" + msg + "[0m";
         logger.debug(colorMsg, arguments);
     }
 
@@ -40,7 +40,7 @@ public final class ColorLogger {
      * @param arguments the message arguments
      */
     public void colorError(final String msg, final Object... arguments) {
-        String colorMsg = "\u001B[31m" + msg + "\u001B[0m";
+        String colorMsg = "[31m" + msg + "[0m";
         logger.error(colorMsg, arguments);
     }
 
@@ -51,7 +51,18 @@ public final class ColorLogger {
      * @param arguments the message arguments
      */
     public void colorInfo(final String msg, final Object... arguments) {
-        String colorMsg = "\u001B[32m" + msg + "\u001B[0m";
+        String colorMsg = "[32m" + msg + "[0m";
         logger.info(colorMsg, arguments);
+    }
+
+    /**
+     * Log a warning message with orange color.
+     *
+     * @param msg       the message format
+     * @param arguments the message arguments
+     */
+    public void colorNewAdmin(final String msg, final Object... arguments) {
+        String colorMsg = "[33m" + msg + "[0m";
+        logger.warn(colorMsg, arguments);
     }
 }
