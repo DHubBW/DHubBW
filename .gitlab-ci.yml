@@ -150,9 +150,13 @@ pages:
             <div class="card-title">JaCoCo – Test Coverage</div>
             <div class="card-desc">Testabdeckungsreport des Spring Boot Backends</div>
           </a>
+          <a class="card" href="http://se-vm553.dhbw.softengineering.de:8080/swagger-ui.html" target="_blank">
+            <div class="card-title">Swagger UI – API Dokumentation</div>
+            <div class="card-desc">Interaktive REST-API-Dokumentation auf der VM (Backend Port 8080)</div>
+          </a>
           <a class="card" href="openapi.json">
             <div class="card-title">OpenAPI Spec</div>
-            <div class="card-desc">REST-API-Spezifikation als JSON</div>
+            <div class="card-desc">REST-API-Spezifikation als JSON-Datei</div>
           </a>
           <footer>Automatisch generiert · DHubBW CI/CD Pipeline</footer>
         </div>
