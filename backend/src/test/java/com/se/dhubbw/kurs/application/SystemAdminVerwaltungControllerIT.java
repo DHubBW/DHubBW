@@ -1,5 +1,6 @@
 package com.se.dhubbw.kurs.application;
 
+import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -46,12 +47,19 @@ public class SystemAdminVerwaltungControllerIT {
     @Autowired
     private WebApplicationContext context;
 
+    @Autowired
+    private StudentRepository studentRepository;
+
     @BeforeEach
     public void setup() {
         mockMvc = MockMvcBuilders
             .webAppContextSetup(context)
             .apply(springSecurity())
             .build();
+
+        // Remove auto-generated sysadmin to ensure tests work with exact data.sql fixture
+        studentRepository.findByDhbwMail("system.administrator.a24@student.dhbw-karlsruhe.de")
+            .ifPresent(studentRepository::delete);
     }
 
     // --- GET /systemadmin/stats ---
@@ -333,7 +341,7 @@ public class SystemAdminVerwaltungControllerIT {
     @Test
     @Order(27)
     @WithMockUser(roles = {"SYSTEMADMIN", "KURSADMIN", "STUDENT"})
-    public void givenStudent_whenAddSysAdmin_thenReturns200()
+    public void givenStudent_whenAddSysAdminPaul_thenReturns200()
             throws Exception {
         mockMvc.perform(patch(
             "/systemadmin/studenten/" + PAUL_STUDENT_ID

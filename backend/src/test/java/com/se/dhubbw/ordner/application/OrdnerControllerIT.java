@@ -1,6 +1,7 @@
 package com.se.dhubbw.ordner.application;
 
 import com.se.dhubbw.shared.testing.IntegrationTest;
+import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -101,6 +102,9 @@ public class OrdnerControllerIT {
     @Autowired
     private WebApplicationContext context;
 
+    @Autowired
+    private StudentRepository studentRepository;
+
     /**
      * Build the MockMvc instance with Spring Security before
      * each test.
@@ -111,6 +115,10 @@ public class OrdnerControllerIT {
             .webAppContextSetup(context)
             .apply(springSecurity())
             .build();
+
+        // Remove auto-generated sysadmin to ensure tests work with exact data.sql fixture
+        studentRepository.findByDhbwMail("system.administrator.a24@student.dhbw-karlsruhe.de")
+            .ifPresent(studentRepository::delete);
     }
 
     // --- GET /ordner (retrieveRootFolders) ---

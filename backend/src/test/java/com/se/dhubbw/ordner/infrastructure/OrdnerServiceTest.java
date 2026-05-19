@@ -114,7 +114,7 @@ public class OrdnerServiceTest {
 
         sysAdmin = new Student();
         sysAdmin.setStudentID(UUID.randomUUID());
-        sysAdmin.setDhbwMail("sysadmin@dhbw.de");
+        sysAdmin.setDhbwMail("system.administrator.a24@student.dhbw-karlsruhe.de");
         sysAdmin.setStudentType(StudentType.SYSTEMADMIN);
 
         anfrage = new KursBeitrittsAnfrage();
@@ -144,7 +144,7 @@ public class OrdnerServiceTest {
             .thenReturn(Optional.of(student));
         when(studentRepository.findByDhbwMail("kursadmin@dhbw.de"))
             .thenReturn(Optional.of(kursAdmin));
-        when(studentRepository.findByDhbwMail("sysadmin@dhbw.de"))
+        when(studentRepository.findByDhbwMail("system.administrator.a24@student.dhbw-karlsruhe.de"))
             .thenReturn(Optional.of(sysAdmin));
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
@@ -420,7 +420,7 @@ public class OrdnerServiceTest {
             .thenReturn(Optional.empty());
 
         ordnerService.deleteOrdner(
-            rootOrdner.getOrdnerID(), "sysadmin@dhbw.de");
+            rootOrdner.getOrdnerID(), "system.administrator.a24@student.dhbw-karlsruhe.de");
 
         verify(ordnerRepository).delete(rootOrdner);
     }
@@ -437,7 +437,7 @@ public class OrdnerServiceTest {
         assertThrows(
             ResponseStatusException.class,
             () -> ordnerService.deleteOrdner(
-                unknown, "sysadmin@dhbw.de"));
+                unknown, "system.administrator.a24@student.dhbw-karlsruhe.de"));
     }
 
     /**

@@ -21,14 +21,14 @@ import java.util.UUID;
  */
 @Table(name = "kurs_beitritts_anfrage")
 @Entity
+@Getter
+@Setter
 public class KursBeitrittsAnfrage {
 
     /**
      * Request identifier.
      */
     @Id
-    @Getter
-    @Setter
     @Column(name = "anfrage_id")
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID anfrageID;
@@ -36,8 +36,6 @@ public class KursBeitrittsAnfrage {
     /**
      * Target course.
      */
-    @Getter
-    @Setter
     @ManyToOne
     @JoinColumn(name = "kurs_id")
     private Kurs kurs;
@@ -45,8 +43,6 @@ public class KursBeitrittsAnfrage {
     /**
      * Student requesting enrollment.
      */
-    @Getter
-    @Setter
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
@@ -54,16 +50,12 @@ public class KursBeitrittsAnfrage {
     /**
      * Request submission date.
      */
-    @Getter
-    @Setter
     @Column(name = "datum")
     private LocalDate anfrageDatum;
 
     /**
      * Approval status.
      */
-    @Getter
-    @Setter
     @Column(name = "is_approved")
     @ColumnDefault("false")
     private boolean isApproved;

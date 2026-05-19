@@ -56,10 +56,10 @@ public class CustomUserDetailsServiceTest {
 
     @Test
     public void givenSystemAdmin_whenLoadByUsername_thenReturnsAllThreeRoles() {
-        when(studentRepository.findByDhbwMail("sysadmin@dhbw.de"))
-            .thenReturn(Optional.of(buildStudent("sysadmin@dhbw.de", StudentType.SYSTEMADMIN)));
+        when(studentRepository.findByDhbwMail("system.administrator.a24@student.dhbw-karlsruhe.de"))
+            .thenReturn(Optional.of(buildStudent("system.administrator.a24@student.dhbw-karlsruhe.de", StudentType.SYSTEMADMIN)));
 
-        UserDetails result = customUserDetailsService.loadUserByUsername("sysadmin@dhbw.de");
+        UserDetails result = customUserDetailsService.loadUserByUsername("system.administrator.a24@student.dhbw-karlsruhe.de");
 
         assertThat(result.getAuthorities())
             .extracting(GrantedAuthority::getAuthority)

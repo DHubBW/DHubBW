@@ -160,7 +160,7 @@ public class KursServiceIT {
         // ACT + ASSERT
         Assertions.assertDoesNotThrow(() ->
             kursService.openCreateCourseRequest(
-                "WINF26A1", "2026", "Bitte erstellen!", TOM_MAIL));
+                "TINF26A1", "2026", "Bitte erstellen!", TOM_MAIL));
     }
 
     /**
@@ -170,7 +170,7 @@ public class KursServiceIT {
     public void givenOpenCreation_whenOpenCreateCourseRequest_thenConflict() {
         // Create a first creation request for Tom (no existing requests)
         kursService.openCreateCourseRequest(
-            "WINF99A1", "2099", null, TOM_MAIL);
+            "TINF25A1", "2099", null, TOM_MAIL);
         // Second request must be rejected (409)
         ResponseStatusException ex = Assertions.assertThrows(
             ResponseStatusException.class,
@@ -215,7 +215,7 @@ public class KursServiceIT {
         // ACT + ASSERT
         Assertions.assertDoesNotThrow(() ->
             kursService.openCreateCourseRequest(
-                "MINF26A1", "2026", null, TOM_MAIL));
+                "TINF26A1", "2026", null, TOM_MAIL));
     }
 
     /**
@@ -227,7 +227,7 @@ public class KursServiceIT {
         ResponseStatusException ex = Assertions.assertThrows(
             ResponseStatusException.class,
             () -> kursService.openCreateCourseRequest(
-                "WINF26A1", "2026", null, "nobody.user.test123@student.dhbw-karlsruhe.de"));
+                "TINF26A1", "2026", null, "nobody.user.test123@student.dhbw-karlsruhe.de"));
         Assertions.assertEquals(404, ex.getStatusCode().value());
     }
 }
