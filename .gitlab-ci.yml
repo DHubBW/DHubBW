@@ -150,7 +150,7 @@ pages:
             <div class="card-title">JaCoCo – Test Coverage</div>
             <div class="card-desc">Testabdeckungsreport des Spring Boot Backends</div>
           </a>
-          <a class="card" href="http://se-vm553.dhbw.softengineering.de:8080/swagger-ui.html" target="_blank">
+          <a class="card" href="http://vm553.ipp-vps.net:8080/swagger-ui.html" target="_blank">
             <div class="card-title">Swagger UI – API Dokumentation</div>
             <div class="card-desc">Interaktive REST-API-Dokumentation auf der VM (Backend Port 8080)</div>
           </a>
