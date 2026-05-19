@@ -21,7 +21,7 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     enabled: true
-    path: /api-docs
+    path: /v3/api-docs
 
 logging:
   level:

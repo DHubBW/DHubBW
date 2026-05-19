@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Profile;
  * <p>Configures the OpenAPI specification for the DHubBW Backend API,
  * enabling interactive API documentation through Swagger UI.
  */
-@Profile("dev")
+@Profile({"dev", "prod"})
 @Configuration
 public class OpenApiConfig {
 
