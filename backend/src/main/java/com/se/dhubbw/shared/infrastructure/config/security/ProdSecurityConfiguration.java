@@ -95,7 +95,7 @@ public class ProdSecurityConfiguration {
                         .ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                 .contentSecurityPolicy(csp -> csp
                     .policyDirectives("default-src 'self'; "
-                        + "script-src 'self'; "
+                        + "script-src 'self' 'unsafe-inline'; "
                         + "style-src 'self' 'unsafe-inline'; "
                         + "img-src 'self' data:; "
                         + "font-src 'self'; "
@@ -105,6 +105,8 @@ public class ProdSecurityConfiguration {
                 .requestMatchers("/api/auth/register",
                     "/api/auth/login").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/swagger-ui/**",
+                    "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated())
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
