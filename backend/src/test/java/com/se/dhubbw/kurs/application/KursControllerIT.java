@@ -26,6 +26,9 @@ public class KursControllerIT {
 
     private final String LINUS_MAIL = "kronenberger.linus.a24@student.dhbw-karlsruhe.de";
 
+    private static final String PAUL_MAIL =
+        "plain.paul.a24@student.dhbw-karlsruhe.de";
+
     private ObjectMapper objectMapper;
 
     public KursControllerIT(WebApplicationContext context) {
@@ -130,5 +133,17 @@ public class KursControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(
+        username = PAUL_MAIL,
+        roles = "STUDENT"
+    )
+    public void givenUnenrolledStudent_whenOpenJoinKursRequest_thenReturns201()
+            throws Exception {
+        mockMvc.perform(post(
+            "/public/kurse/beitreten/22222222-2222-2222-2222-222222222230"))
+            .andExpect(status().isCreated());
     }
 }

@@ -15,7 +15,7 @@ INSERT INTO student (student_id, student_type, name, password_hash, dhbw_mail) V
     ('11111111-1111-1111-1111-111111111120', 'STUDENT', 'Hans', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'resign.hans.a24@student.dhbw-karlsruhe.de'),
     -- SystemAdmin endpoint test users
     ('11111111-1111-1111-1111-111111111121', 'SYSTEMADMIN', 'Eva', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'eva.sysadmin.inf22025@student.dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111122', 'STUDENT', 'Paul', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'paul.plain.inf22025@student.dhbw-karlsruhe.de');
+    ('11111111-1111-1111-1111-111111111122', 'STUDENT', 'Paul', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'plain.paul.a24@student.dhbw-karlsruhe.de');
 
 -- Kurse
 INSERT INTO kurs (kurs_id, kurs_name, jahrgang) VALUES

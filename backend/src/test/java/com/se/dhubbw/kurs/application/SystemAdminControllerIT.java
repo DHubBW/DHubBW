@@ -4,6 +4,7 @@ import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -16,7 +17,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @IntegrationTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class SystemAdminControllerIT {
+
+    private static final String LENA_ANFRAGE_ID =
+        "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2";
+
+    private static final String KARL_ANFRAGE_ID =
+        "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1";
+
+    private static final String LINUS_ANFRAGE_ID =
+        "99999999-9999-9999-9999-999999999992";
 
     private MockMvc mockMvc;
 
@@ -114,5 +125,32 @@ public class SystemAdminControllerIT {
     public void givenUnauthenticated_whenDeclineRequest_thenReturns401() throws Exception {
         mockMvc.perform(delete("/systemadmin/anfragen/00000000-0000-0000-0000-000000000000"))
             .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"SYSTEMADMIN", "STUDENT"})
+    public void givenValidPendingRequest_whenDeclineKursErstellungsanfrage_thenReturns204()
+            throws Exception {
+        mockMvc.perform(delete(
+            "/systemadmin/anfragen/" + LENA_ANFRAGE_ID))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"SYSTEMADMIN", "STUDENT"})
+    public void givenValidPendingRequest_whenApproveKursErstellungsanfrage_thenReturns200()
+            throws Exception {
+        mockMvc.perform(patch(
+            "/systemadmin/anfragen/" + KARL_ANFRAGE_ID + "/approve"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"SYSTEMADMIN", "STUDENT"})
+    public void givenAlreadyEnrolledStudent_whenApproveKursErstellungsanfrage_thenReturns409()
+            throws Exception {
+        mockMvc.perform(patch(
+            "/systemadmin/anfragen/" + LINUS_ANFRAGE_ID + "/approve"))
+            .andExpect(status().isConflict());
     }
 }
