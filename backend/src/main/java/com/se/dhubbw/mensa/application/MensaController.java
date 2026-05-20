@@ -74,7 +74,7 @@ public class MensaController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             final LocalDate date) {
         List<MensaDTO> gerichte = mensaService.getMealsForDay(date).stream()
-            .map(MensaDTO::from)
+            .map(MensaDTO::convertEntityToMensaDTO)
             .toList();
         return ResponseEntity.ok(gerichte);
     }
@@ -108,7 +108,7 @@ public class MensaController {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> entry.getValue().stream()
-                                .map(MensaDTO::from)
+                                .map(MensaDTO::convertEntityToMensaDTO)
                                 .toList()
                 ));
         return ResponseEntity.ok(weekMeals);
@@ -142,7 +142,7 @@ public class MensaController {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> entry.getValue().stream()
-                                .map(MensaDTO::from)
+                                .map(MensaDTO::convertEntityToMensaDTO)
                                 .toList()
                 ));
         return ResponseEntity.ok(weekMeals);
