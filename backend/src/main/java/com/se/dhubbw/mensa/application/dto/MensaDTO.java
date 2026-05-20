@@ -52,7 +52,7 @@ public class MensaDTO {
      * @param mensa the entity to convert
      * @return the corresponding {@link MensaDTO}
      */
-    public static MensaDTO from(final Mensa mensa) {
+    public static MensaDTO convertEntityToMensaDTO(final Mensa mensa) {
         return new MensaDTO(
             mensa.getGerichtID(),
             mensa.getDatum(),

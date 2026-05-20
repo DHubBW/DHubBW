@@ -65,7 +65,7 @@ public class DashboardController {
     @GetMapping("/meals/today")
     public ResponseEntity<List<MensaDTO>> retrieveMealsForToday() {
         List<MensaDTO> gerichte = dashboardService.getMealsForToday().stream()
-            .map(MensaDTO::from)
+            .map(MensaDTO::convertEntityToMensaDTO)
             .toList();
         return ResponseEntity.ok(gerichte);
     }

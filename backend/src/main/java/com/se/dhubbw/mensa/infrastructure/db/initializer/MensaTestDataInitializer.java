@@ -121,7 +121,7 @@ public class MensaTestDataInitializer implements CommandLineRunner {
         Mensa meal = new Mensa();
         meal.setDatum(date);
         meal.setErnaehrung(ernaehrung);
-        meal.setEssensbezeichnung(baseName + " Tag " + (dayOffset + 1));
+        meal.setEssensbezeichnung(baseName);
         meal.setAllergene("Test-Allergene");
         meal.setPreis(BASE_PRICE + dayOffset * PRICE_INCREMENT);
         return meal;
