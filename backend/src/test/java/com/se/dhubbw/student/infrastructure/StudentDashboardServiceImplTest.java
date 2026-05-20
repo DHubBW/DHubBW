@@ -6,7 +6,7 @@ import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
-import com.se.dhubbw.ordner.infrastructure.OrdnerAnlegungRepository;
+import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
 import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.application.dto.StudentProfileDTO;
 import com.se.dhubbw.student.infrastructure.db.Student;

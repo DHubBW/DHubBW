@@ -2,7 +2,7 @@ package com.se.dhubbw.ordner.application;
 
 import com.se.dhubbw.ordner.application.dto.OrdnerDTO;
 import com.se.dhubbw.ordner.domain.OrdnerService;
-import com.se.dhubbw.ordner.util.OrdnerFarbe;
+import com.se.dhubbw.ordner.domain.OrdnerFarbe;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

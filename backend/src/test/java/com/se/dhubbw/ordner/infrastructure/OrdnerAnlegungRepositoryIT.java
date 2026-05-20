@@ -1,5 +1,6 @@
 package com.se.dhubbw.ordner.infrastructure;
 
+import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
 import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.se.dhubbw.ordner.infrastructure;
+package com.se.dhubbw.ordner.infrastructure.db;
 
 import com.se.dhubbw.student.infrastructure.db.Student;
 import jakarta.persistence.Column;

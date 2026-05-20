@@ -1,4 +1,4 @@
-package com.se.dhubbw.ordner.infrastructure;
+package com.se.dhubbw.ordner.infrastructure.db;
 
 import com.se.dhubbw.student.infrastructure.db.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,4 +29,3 @@ public interface OrdnerAnlegungRepository extends
      */
     void deleteByStudent(Student student);
 }
-

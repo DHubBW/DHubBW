@@ -9,8 +9,8 @@ import com.se.dhubbw.datei.application.dto.DateiDownloadDTO;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
-import com.se.dhubbw.ordner.infrastructure.Ordner;
-import com.se.dhubbw.ordner.infrastructure.OrdnerRepository;
+import com.se.dhubbw.ordner.infrastructure.db.Ordner;
+import com.se.dhubbw.ordner.infrastructure.db.OrdnerRepository;
 import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
@@ -63,7 +63,7 @@ public class DateiServiceTest {
         kursBeitrittsAnfrageRepository;
 
     @InjectMocks
-    private DateiService dateiService;
+    private DateiServiceImpl dateiService;
 
     @Mock
     private MultipartFile mockFile;

@@ -1,6 +1,6 @@
 package com.se.dhubbw.ordner.application.dto;
 
-import com.se.dhubbw.ordner.util.OrdnerFarbe;
+import com.se.dhubbw.ordner.domain.OrdnerFarbe;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package com.se.dhubbw.ordner.util;
+package com.se.dhubbw.ordner.domain;
 
 /**
  * Folder color enumeration.
