@@ -1,6 +1,6 @@
 package com.se.dhubbw.datei.infrastructure.db;
 
-import com.se.dhubbw.ordner.infrastructure.Ordner;
+import com.se.dhubbw.ordner.infrastructure.db.Ordner;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

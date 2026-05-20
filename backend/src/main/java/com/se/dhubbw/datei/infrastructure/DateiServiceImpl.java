@@ -8,8 +8,8 @@ import com.se.dhubbw.datei.infrastructure.db.DateiAnlegungRepository;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
-import com.se.dhubbw.ordner.infrastructure.Ordner;
-import com.se.dhubbw.ordner.infrastructure.OrdnerRepository;
+import com.se.dhubbw.ordner.infrastructure.db.Ordner;
+import com.se.dhubbw.ordner.infrastructure.db.OrdnerRepository;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
@@ -47,7 +47,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class DateiService
+public class DateiServiceImpl
     implements com.se.dhubbw.datei.domain.DateiService {
 
     /**
@@ -91,7 +91,7 @@ public class DateiService
      * Color-coded logger for error reporting.
      */
     private final ColorLogger colorLogger =
-        new ColorLogger(DateiService.class);
+        new ColorLogger(DateiServiceImpl.class);
 
     /**
      * Upload a file and store it in the given folder.

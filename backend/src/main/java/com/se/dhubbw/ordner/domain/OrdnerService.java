@@ -1,7 +1,6 @@
 package com.se.dhubbw.ordner.domain;
 
 import com.se.dhubbw.ordner.application.dto.OrdnerDTO;
-import com.se.dhubbw.ordner.util.OrdnerFarbe;
 
 import java.util.List;
 import java.util.UUID;

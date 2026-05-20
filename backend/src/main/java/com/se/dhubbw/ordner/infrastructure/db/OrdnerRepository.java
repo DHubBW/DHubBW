@@ -1,4 +1,4 @@
-package com.se.dhubbw.ordner.infrastructure;
+package com.se.dhubbw.ordner.infrastructure.db;
 
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,4 +37,3 @@ public interface OrdnerRepository extends JpaRepository<Ordner, UUID> {
      */
     List<Ordner> findChildrenByUeberOrdner(Ordner ueberOrdner);
 }
-

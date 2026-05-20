@@ -1,8 +1,8 @@
-package com.se.dhubbw.ordner.infrastructure;
+package com.se.dhubbw.ordner.infrastructure.db;
 
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
-import com.se.dhubbw.ordner.util.OrdnerFarbe;
+import com.se.dhubbw.ordner.domain.OrdnerFarbe;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
