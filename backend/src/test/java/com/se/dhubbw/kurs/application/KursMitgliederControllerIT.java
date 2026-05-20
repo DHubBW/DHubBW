@@ -42,6 +42,10 @@ public class KursMitgliederControllerIT {
     private static final String HANS_ID =
         "11111111-1111-1111-1111-111111111120";
 
+    /** Nico's mail (KURSADMIN with no approved course enrollment). */
+    private static final String NICO_MAIL =
+        "anonym.nico.a24@student.dhbw-karlsruhe.de";
+
     private static final String BASE_URL = "/kursadmin/mitglieder";
 
     private MockMvc mockMvc;
@@ -306,5 +310,50 @@ public class KursMitgliederControllerIT {
             throws Exception {
         mockMvc.perform(patch(BASE_URL + "/resign"))
             .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @Order(27)
+    @WithMockUser(username = NICO_MAIL, roles = {"KURSADMIN", "STUDENT"})
+    public void givenKursadminWithNoCourse_whenRetrieveStats_thenReturns404()
+            throws Exception {
+        mockMvc.perform(get(BASE_URL + "/stats"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Order(28)
+    @WithMockUser(username = NICO_MAIL, roles = {"KURSADMIN", "STUDENT"})
+    public void givenKursadminWithNoCourse_whenRetrieveMembers_thenReturns404()
+            throws Exception {
+        mockMvc.perform(get(BASE_URL))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Order(29)
+    @WithMockUser(username = NICO_MAIL, roles = {"KURSADMIN", "STUDENT"})
+    public void givenKursadminWithNoCourse_whenResign_thenReturns404()
+            throws Exception {
+        mockMvc.perform(patch(BASE_URL + "/resign"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Order(30)
+    @WithMockUser(username = FELIX_MAIL, roles = {"KURSADMIN", "STUDENT"})
+    public void givenStudentTarget_whenRemoveKursadmin_thenReturns400()
+            throws Exception {
+        mockMvc.perform(patch(BASE_URL + "/remove-kursadmin/" + HANS_ID))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(31)
+    @WithMockUser(username = FELIX_MAIL, roles = {"KURSADMIN", "STUDENT"})
+    public void givenOnlyKA_whenRemoveKursadmin_thenReturns409()
+            throws Exception {
+        mockMvc.perform(patch(BASE_URL + "/remove-kursadmin/" + FELIX_ID))
+            .andExpect(status().isConflict());
     }
 }

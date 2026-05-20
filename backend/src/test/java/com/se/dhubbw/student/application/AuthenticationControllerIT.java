@@ -138,6 +138,21 @@ public class AuthenticationControllerIT {
     }
 
     @Test
+    public void givenInvalidNameFormat_whenRegister_thenReturns422()
+            throws Exception {
+        RegisterRequestDTO request = new RegisterRequestDTO(
+            "nachname.vorname.a24@student.dhbw-karlsruhe.de",
+            "linus kronenberger",
+            "password"
+        );
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().is(422));
+    }
+
+    @Test
     public void givenValidCredentials_whenLogin_thenReturns200AndSetsCookie() throws Exception {
         String loginMail = "test.login.a24@student.dhbw-karlsruhe.de";
         String loginPassword = "LoginTestPassword123!";

@@ -76,6 +76,13 @@ public class CustomUserDetailsServiceTest {
             .hasMessageContaining("User not found with email: unknown@dhbw.de");
     }
 
+    @Test
+    public void givenNullUsername_whenLoadByUsername_thenThrowsNullPointerException() {
+        assertThatThrownBy(
+            () -> customUserDetailsService.loadUserByUsername(null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
     private Student buildStudent(final String mail, final StudentType type) {
         Student student = new Student();
         student.setDhbwMail(mail);

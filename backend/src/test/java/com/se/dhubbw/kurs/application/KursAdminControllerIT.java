@@ -21,6 +21,9 @@ public class KursAdminControllerIT {
     private static final String ADMIN_MAIL =
         "anonym.felix.a24@student.dhbw-karlsruhe.de";
 
+    private static final String NICO_MAIL =
+        "anonym.nico.a24@student.dhbw-karlsruhe.de";
+
     private static final String LENA_ANFRAGE_ID =
         "66666666-6666-6666-6666-666666666664";
 
@@ -156,5 +159,22 @@ public class KursAdminControllerIT {
         mockMvc.perform(patch(
             "/kursadmin/anfragen/" + LINUS_ANFRAGE_ID + "/approve"))
             .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = NICO_MAIL, roles = {"KURSADMIN", "STUDENT"})
+    public void givenAdminWithNoCourse_whenRetrieveKursbeitrittsanfragen_thenReturns404()
+            throws Exception {
+        mockMvc.perform(get("/kursadmin/anfragen"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = ADMIN_MAIL, roles = {"KURSADMIN", "STUDENT"})
+    public void givenRequestForOtherCourse_whenDeclineKursbeitrittsanfrage_thenReturns403()
+            throws Exception {
+        mockMvc.perform(delete(
+            "/kursadmin/anfragen/" + MAX_ANFRAGE_ID))
+            .andExpect(status().isForbidden());
     }
 }
