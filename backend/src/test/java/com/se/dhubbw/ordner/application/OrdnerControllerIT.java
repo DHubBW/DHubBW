@@ -149,6 +149,23 @@ public class OrdnerControllerIT {
             .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tom (SYSTEMADMIN) can retrieve all root folders across all
+     * courses without a course enrollment.
+     */
+    @Test
+    @Order(3)
+    @WithMockUser(
+        username = TOM_MAIL,
+        roles = {"SYSTEMADMIN", "KURSADMIN", "STUDENT"})
+    public void givenSysAdmin_whenGetRootFolders_thenReturns200()
+            throws Exception {
+        mockMvc.perform(get("/ordner")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
     // --- GET /ordner/{id}/upper ---
 
     /**
@@ -308,6 +325,25 @@ public class OrdnerControllerIT {
                     .param("isPublic", "true")
                     .param("farbe", "DEFAULT"))
             .andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tom (SYSTEMADMIN) can create a root-level folder without
+     * a course enrollment.
+     */
+    @Test
+    @Order(34)
+    @WithMockUser(
+        username = TOM_MAIL,
+        roles = {"SYSTEMADMIN", "KURSADMIN", "STUDENT"})
+    public void givenSysAdmin_whenCreateRootFolder_thenReturns201()
+            throws Exception {
+        mockMvc.perform(
+                put("/ordner")
+                    .param("name", "Admin Ordner")
+                    .param("isPublic", "true")
+                    .param("farbe", "DEFAULT"))
+            .andExpect(status().isCreated());
     }
 
     // --- PATCH /ordner/{id} (renameFolder) ---

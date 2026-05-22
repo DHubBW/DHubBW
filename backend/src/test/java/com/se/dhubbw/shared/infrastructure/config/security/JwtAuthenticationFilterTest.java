@@ -175,4 +175,122 @@ public class JwtAuthenticationFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication())
             .isEqualTo(existingAuth);
     }
+
+    @Test
+    public void givenNoCookieButValidBearerHeader_whenDoFilter_thenSetsAuthentication()
+        throws Exception {
+        String jwtToken = "valid.jwt.token";
+        String username = "user@dhbw.de";
+        UserDetails userDetails = new User(username, "password",
+            List.of(new SimpleGrantedAuthority("ROLE_STUDENT")));
+
+        when(request.getRequestURI()).thenReturn("/api/some-endpoint");
+        when(request.getCookies()).thenReturn(null);
+        when(request.getHeader("Authorization"))
+            .thenReturn("Bearer " + jwtToken);
+        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+        when(request.getSession(false)).thenReturn(null);
+        when(jwtService.extractUsername(jwtToken)).thenReturn(username);
+        when(userDetailsService.loadUserByUsername(username))
+            .thenReturn(userDetails);
+        when(jwtService.validateToken(jwtToken, userDetails)).thenReturn(true);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        Authentication auth =
+            SecurityContextHolder.getContext().getAuthentication();
+        assertThat(auth).isNotNull();
+        assertThat(auth.getName()).isEqualTo(username);
+    }
+
+    @Test
+    public void givenNonBearerAuthorizationHeader_whenDoFilter_thenNoAuthentication()
+        throws Exception {
+        when(request.getRequestURI()).thenReturn("/api/some-endpoint");
+        when(request.getCookies()).thenReturn(null);
+        when(request.getHeader("Authorization"))
+            .thenReturn("Basic dXNlcjpwYXNz");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        assertThat(
+            SecurityContextHolder.getContext().getAuthentication()
+        ).isNull();
+    }
+
+    @Test
+    public void givenBearerHeaderWithInvalidJwt_whenDoFilter_thenNoAuthentication()
+        throws Exception {
+        String jwtToken = "invalid.jwt.token";
+        String username = "user@dhbw.de";
+        UserDetails userDetails = new User(username, "password",
+            List.of(new SimpleGrantedAuthority("ROLE_STUDENT")));
+
+        when(request.getRequestURI()).thenReturn("/api/some-endpoint");
+        when(request.getCookies()).thenReturn(null);
+        when(request.getHeader("Authorization"))
+            .thenReturn("Bearer " + jwtToken);
+        when(jwtService.extractUsername(jwtToken)).thenReturn(username);
+        when(userDetailsService.loadUserByUsername(username))
+            .thenReturn(userDetails);
+        when(jwtService.validateToken(jwtToken, userDetails))
+            .thenReturn(false);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        assertThat(
+            SecurityContextHolder.getContext().getAuthentication()
+        ).isNull();
+    }
+
+    @Test
+    public void givenBearerHeaderWithMalformedJwt_whenDoFilter_thenNoAuthentication()
+        throws Exception {
+        String jwtToken = "malformed.jwt.token";
+
+        when(request.getRequestURI()).thenReturn("/api/some-endpoint");
+        when(request.getCookies()).thenReturn(null);
+        when(request.getHeader("Authorization"))
+            .thenReturn("Bearer " + jwtToken);
+        when(jwtService.extractUsername(jwtToken))
+            .thenThrow(new RuntimeException("Invalid token"));
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        assertThat(
+            SecurityContextHolder.getContext().getAuthentication()
+        ).isNull();
+    }
+
+    @Test
+    public void givenBothCookieAndBearerHeader_whenDoFilter_thenCookieTakesPrecedence()
+        throws Exception {
+        String cookieToken = "cookie.jwt.token";
+        String username = "user@dhbw.de";
+        UserDetails userDetails = new User(username, "password",
+            List.of(new SimpleGrantedAuthority("ROLE_STUDENT")));
+
+        when(request.getRequestURI()).thenReturn("/api/some-endpoint");
+        when(request.getCookies())
+            .thenReturn(new Cookie[]{new Cookie("jwt", cookieToken)});
+        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+        when(request.getSession(false)).thenReturn(null);
+        when(jwtService.extractUsername(cookieToken)).thenReturn(username);
+        when(userDetailsService.loadUserByUsername(username))
+            .thenReturn(userDetails);
+        when(jwtService.validateToken(cookieToken, userDetails))
+            .thenReturn(true);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        Authentication auth =
+            SecurityContextHolder.getContext().getAuthentication();
+        assertThat(auth).isNotNull();
+        assertThat(auth.getName()).isEqualTo(username);
+    }
 }

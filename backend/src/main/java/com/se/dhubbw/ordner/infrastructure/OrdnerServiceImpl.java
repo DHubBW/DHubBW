@@ -97,6 +97,14 @@ public class OrdnerServiceImpl implements OrdnerService {
             final String dhbwMail) {
         Student student = studentLookupHelper
             .findStudentByEmail(dhbwMail);
+        if (student.getStudentType()
+                == StudentType.SYSTEMADMIN) {
+            return ordnerRepository
+                .findByUeberOrdnerIsNull()
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+        }
         Kurs kurs = findKursOrThrow(student);
         return ordnerRepository
             .findByKursAndUeberOrdnerIsNull(kurs)
@@ -168,6 +176,9 @@ public class OrdnerServiceImpl implements OrdnerService {
             verifyCourseAccess(ueberOrdner, student);
             kurs = ueberOrdner.getKurs();
             level = ueberOrdner.getLevel() + 1;
+        } else if (student.getStudentType()
+                == StudentType.SYSTEMADMIN) {
+            kurs = null;
         } else {
             kurs = findKursOrThrow(student);
         }
