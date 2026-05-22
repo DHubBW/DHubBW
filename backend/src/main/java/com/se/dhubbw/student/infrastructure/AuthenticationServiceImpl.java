@@ -62,21 +62,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public String registerStudent(final RegisterRequestDTO request) {
-        if (studentRepository.findByDhbwMail(request.getDhbwMail())
+        if (studentRepository.findByDhbwMail(request.dhbwMail())
             .isPresent()) {
             colorLogger.colorError(
                 "Registration failed: Email '{}' already registered",
-                request.getDhbwMail());
+                request.dhbwMail());
             throw new IllegalArgumentException(
                 "Email already registered");
         }
 
         // generate the new registered student
         Student registeredStudent = new Student();
-        registeredStudent.setDhbwMail(request.getDhbwMail());
-        registeredStudent.setName(request.getName());
+        registeredStudent.setDhbwMail(request.dhbwMail());
+        registeredStudent.setName(request.name());
         registeredStudent.setPasswordHash(
-            passwordEncoder.encode(request.getPassword()));
+            passwordEncoder.encode(request.password()));
         registeredStudent.setStudentType(StudentType.STUDENT);
 
         // save the new student
@@ -84,10 +84,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         colorLogger.colorInfo(
             "Successfully registered new student with email: '{}'",
-            request.getDhbwMail());
+            request.dhbwMail());
 
         UserDetails userDetails = userDetailsService
-            .loadUserByUsername(request.getDhbwMail());
+            .loadUserByUsername(request.dhbwMail());
         return jwtService.generateToken(userDetails);
     }
 
@@ -96,17 +96,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public String login(final LoginRequestDTO request) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                request.getDhbwMail(),
-                request.getPassword()
+                request.dhbwMail(),
+                request.password()
             )
         );
 
         colorLogger.colorInfo(
             "Successfully authenticated student with email: '{}'",
-            request.getDhbwMail());
+            request.dhbwMail());
 
         UserDetails userDetails = userDetailsService
-            .loadUserByUsername(request.getDhbwMail());
+            .loadUserByUsername(request.dhbwMail());
         return jwtService.generateToken(userDetails);
     }
 }

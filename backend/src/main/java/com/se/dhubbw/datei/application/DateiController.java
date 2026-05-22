@@ -2,7 +2,10 @@ package com.se.dhubbw.datei.application;
 
 import com.se.dhubbw.datei.application.dto.DateiDTO;
 import com.se.dhubbw.datei.application.dto.DateiDownloadDTO;
+import com.se.dhubbw.datei.application.dto.DateiUploadDTO;
 import com.se.dhubbw.datei.domain.DateiService;
+import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -97,7 +100,7 @@ public class DateiController {
             value = "/upload",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<UUID> uploadDatei(
+    public ResponseEntity<DateiUploadDTO> uploadDatei(
             @Parameter(description = "File to upload", required = true)
             @RequestParam("file") final MultipartFile file,
             @Parameter(
@@ -114,7 +117,9 @@ public class DateiController {
             ueberordnerId,
             name,
             authentication.getName());
-        return ResponseEntity.status(HttpStatus.CREATED).body(dateiId);
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(new DateiUploadDTO(dateiId));
     }
 
     /**
@@ -288,7 +293,7 @@ public class DateiController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @PatchMapping("/{dateiId}")
-    public ResponseEntity<Void> renameDatei(
+    public ResponseEntity<RequestStatusResponseDTO> renameDatei(
             @Parameter(
                     description = "UUID of the file to rename",
                     required = true)
@@ -300,7 +305,9 @@ public class DateiController {
             final Authentication authentication) {
         dateiService.renameDatei(
             dateiId, newName, authentication.getName());
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+            .status(HttpStatus.OK).body(new RequestStatusResponseDTO(
+            "Datei renamed successfully.", PersistenceOperation.UPDATE));
     }
 
     /**
@@ -336,13 +343,15 @@ public class DateiController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @DeleteMapping("/{dateiId}")
-    public ResponseEntity<Void> deleteDatei(
+    public ResponseEntity<RequestStatusResponseDTO> deleteDatei(
             @Parameter(
                     description = "UUID of the file to delete",
                     required = true)
             @PathVariable final UUID dateiId,
             final Authentication authentication) {
         dateiService.deleteDatei(dateiId, authentication.getName());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            new RequestStatusResponseDTO("Datei deleted succesfully.",
+                PersistenceOperation.DELETE));
     }
 }

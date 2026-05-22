@@ -73,7 +73,7 @@ public class KursAdminServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(
-            pendingAnfrage.getAnfrageID(), result.getFirst().getAnfrageID());
+            pendingAnfrage.getAnfrageID(), result.getFirst().anfrageID());
     }
 
     @Test

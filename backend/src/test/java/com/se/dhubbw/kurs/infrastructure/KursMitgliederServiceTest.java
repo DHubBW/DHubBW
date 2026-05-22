@@ -100,9 +100,9 @@ public class KursMitgliederServiceTest {
                 .retrieveKursAdminStats("admin@dhbw.de");
 
         assertNotNull(stats);
-        assertEquals(2, stats.getAnzahlMitglieder());
-        assertEquals(0, stats.getAnzahlDateien());
-        assertEquals(0, stats.getAnzahlAnfragen());
+        assertEquals(2, stats.anzahlMitglieder());
+        assertEquals(0, stats.anzahlDateien());
+        assertEquals(0, stats.anzahlAnfragen());
     }
 
     @Test

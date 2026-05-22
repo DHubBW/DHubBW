@@ -3,6 +3,7 @@ package com.se.dhubbw.ordner.application;
 import com.se.dhubbw.ordner.application.dto.OrdnerDTO;
 import com.se.dhubbw.ordner.domain.OrdnerService;
 import com.se.dhubbw.ordner.domain.OrdnerFarbe;
+import com.se.dhubbw.shared.application.dto.SmallResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -256,7 +257,7 @@ public class OrdnerController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @PatchMapping("/{ordnerId}")
-    public ResponseEntity<Void> renameFolder(
+    public ResponseEntity<SmallResponseDTO> renameFolder(
             @Parameter(
                 description = "UUID of the folder to rename",
                 required = true)
@@ -268,7 +269,8 @@ public class OrdnerController {
             final Authentication authentication) {
         ordnerService.renameFolder(
             ordnerId, newName, authentication.getName());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(new SmallResponseDTO("Folder renamed successfully"));
     }
 
     /**
@@ -300,7 +302,7 @@ public class OrdnerController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @DeleteMapping("/{ordnerId}")
-    public ResponseEntity<Void> deleteOrdner(
+    public ResponseEntity<SmallResponseDTO> deleteOrdner(
             @Parameter(
                 description = "UUID of the folder to delete",
                 required = true)
@@ -308,6 +310,7 @@ public class OrdnerController {
             final Authentication authentication) {
         ordnerService.deleteOrdner(
             ordnerId, authentication.getName());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .body(new SmallResponseDTO("Folder deleted successfully"));
     }
 }

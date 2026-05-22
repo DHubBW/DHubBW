@@ -3,6 +3,8 @@ package com.se.dhubbw.kurs.application;
 import com.se.dhubbw.kurs.application.dto.KursErstellungsAnfrageDTO;
 import com.se.dhubbw.kurs.domain.KursSystemAdminService;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrage;
+import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -101,13 +103,17 @@ public class KursErstellungsAnfrageController {
     )
     @PreAuthorize("hasRole('SYSTEMADMIN')")
     @PatchMapping("/{id}/approve")
-    public ResponseEntity<Void> approveKursErstellungsanfrage(
+    public ResponseEntity
+        <RequestStatusResponseDTO> approveKursErstellungsanfrage(
             @PathVariable final UUID id) {
         try {
             kursSystemAdminService.approveKursErstellungsanfrage(id);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new RequestStatusResponseDTO(
+                    "KursErstellungsAnfrage approved successfully",
+                    PersistenceOperation.UPDATE));
         }
     }
 
@@ -133,10 +139,14 @@ public class KursErstellungsAnfrageController {
     )
     @PreAuthorize("hasRole('SYSTEMADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> declineKursErstellungsanfrage(
+    public ResponseEntity
+        <RequestStatusResponseDTO> declineKursErstellungsanfrage(
             @PathVariable final UUID id) {
         kursSystemAdminService.declineKursErstellungsanfrage(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            new RequestStatusResponseDTO(
+                "KursErstellungsanfrage declined successfully",
+                PersistenceOperation.DELETE));
     }
 
     /**

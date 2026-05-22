@@ -76,9 +76,9 @@ public class KursServiceIT {
         List<KursYearDTO> result = kursService.retrieveKursNamesAndYears();
         // ASSERT
         for (KursYearDTO dto : result) {
-            Assertions.assertNotNull(dto.getKursID());
-            Assertions.assertNotNull(dto.getKursName());
-            Assertions.assertNotNull(dto.getJahrgang());
+            Assertions.assertNotNull(dto.kursID());
+            Assertions.assertNotNull(dto.kursName());
+            Assertions.assertNotNull(dto.jahrgang());
         }
     }
 

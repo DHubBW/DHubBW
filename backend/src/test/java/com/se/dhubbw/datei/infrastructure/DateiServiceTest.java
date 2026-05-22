@@ -521,7 +521,7 @@ public class DateiServiceTest {
         assertEquals(1, result.size());
         assertEquals(
             datei.getDateiID(),
-            result.get(0).getDateiID());
+            result.get(0).dateiID());
     }
 
     @Test

@@ -1,72 +1,26 @@
 package com.se.dhubbw.mensa.application.dto;
 
-import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import com.se.dhubbw.mensa.infrastructure.util.Ernaehrung;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * Data Transfer Object for Mensa meal information.
+ *
+ * @param gerichtID The id of the meal.
+ * @param datum The date when the meal is served.
+ * @param essensbezeichnung The description of the meal.
+ * @param allergene Potential allergens of the meal.
+ * @param preis The price of the meal.
+ * @param ernaehrung The type of the meal (veggie, vegan or carnivore)
+ * @param linie The serving line or category (e.g. "Wahlessen 1")
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-public class MensaDTO {
-    /**
-     * Unique identifier of the meal.
-     */
-    private UUID gerichtID;
-
-    /**
-     * Date of the meal.
-     */
-    private LocalDate datum;
-
-    /**
-     * Name of the meal.
-     */
-    private String essensbezeichnung;
-
-    /**
-     * Allergen information.
-     */
-    private String allergene;
-
-    /**
-     * Price of the meal.
-     */
-    private double preis;
-
-    /**
-     * Dietary classification.
-     */
-    private Ernaehrung ernaehrung;
-
-    /**
-     * Serving line or category (e.g. "Wahlessen 1").
-     */
-    private String linie;
-
-    /**
-     * Create a DTO from a {@link Mensa} entity.
-     *
-     * @param mensa the entity to convert
-     * @return the corresponding {@link MensaDTO}
-     */
-    public static MensaDTO convertEntityToMensaDTO(final Mensa mensa) {
-        return new MensaDTO(
-            mensa.getGerichtID(),
-            mensa.getDatum(),
-            mensa.getEssensbezeichnung(),
-            mensa.getAllergene(),
-            mensa.getPreis(),
-            mensa.getErnaehrung(),
-            mensa.getLinie()
-        );
-    }
+public record MensaDTO(UUID gerichtID,
+                       LocalDate datum,
+                       String essensbezeichnung,
+                       String allergene,
+                       double preis,
+                       Ernaehrung ernaehrung,
+                       String linie) {
 }
 
