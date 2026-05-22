@@ -55,7 +55,7 @@ public class JwtAuthenticationFilterTest {
 
     @Test
     public void givenRegisterEndpoint_whenDoFilter_thenSkipsJwtValidation() throws Exception {
-        when(request.getRequestURI()).thenReturn("/api/auth/register");
+        when(request.getRequestURI()).thenReturn("/public/auth/register");
 
         filter.doFilterInternal(request, response, filterChain);
 
@@ -65,7 +65,7 @@ public class JwtAuthenticationFilterTest {
 
     @Test
     public void givenLoginEndpoint_whenDoFilter_thenSkipsJwtValidation() throws Exception {
-        when(request.getRequestURI()).thenReturn("/api/auth/login");
+        when(request.getRequestURI()).thenReturn("/public/auth/login");
 
         filter.doFilterInternal(request, response, filterChain);
 

@@ -1,21 +1,21 @@
 -- Students
--- note: test data students use the same string for their username and password (bcrypt encoded)
+-- note: test data students use the same string for their username and password (bcrypt encoded -> The password is always 'dhubbw')
 INSERT INTO student (student_id, student_type, name, password_hash, dhbw_mail) VALUES
-    ('11111111-1111-1111-1111-111111111111', 'STUDENT', 'Linus Kronenberger', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'kronenberger.linus.a24@student.dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111112', 'KURSADMIN', 'Nico Anonym', '$2a$10$EU3zuRnSvnl4m/sX8AWiCeILm.oKvm6Y5ySuq.Ycvp84tmIxxnYz6', 'anonym.nico.a24@student.dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111113', 'SYSTEMADMIN', 'Tom Anonym', '$2a$10$B0cbDwnXAoS0PQLSc8tiYeGXXZi25wtMqQTQ0KRCSZjCPC2QodlJe', 'anonym.tom.a24@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111111', 'STUDENT', 'Linus Kronenberger', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'kronenberger.linus.a24@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111112', 'KURSADMIN', 'Nico Anonym', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'anonym.nico.a24@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111113', 'SYSTEMADMIN', 'Tom Anonym', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'anonym.tom.a24@student.dhbw-karlsruhe.de'),
     -- KursAdmin endpoint test users
-    ('11111111-1111-1111-1111-111111111114', 'KURSADMIN', 'Felix', '$2a$10$EU3zuRnSvnl4m/sX8AWiCeILm.oKvm6Y5ySuq.Ycvp84tmIxxnYz6', 'anonym.felix.a24@student.dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111115', 'STUDENT', 'Lena', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'anonym.lena.a24@student.dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111116', 'STUDENT', 'Karl', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'anonym.karl.a24@student.dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111117', 'STUDENT', 'Max', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'anonym.max.a24@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111114', 'KURSADMIN', 'Felix', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'anonym.felix.a24@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111115', 'STUDENT', 'Lena', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'anonym.lena.a24@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111116', 'STUDENT', 'Karl', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'anonym.karl.a24@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111117', 'STUDENT', 'Max', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'anonym.max.a24@student.dhbw-karlsruhe.de'),
     -- KursMitglieder test users
-    ('11111111-1111-1111-1111-111111111119', 'STUDENT', 'Anna', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'member.anna.a24@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111119', 'STUDENT', 'Anna', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'member.anna.a24@student.dhbw-karlsruhe.de'),
     -- Enrolled in TINF24B1 as STUDENT; promoted to KURSADMIN during tests for resign happy path
-    ('11111111-1111-1111-1111-111111111120', 'STUDENT', 'Hans', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'resign.hans.a24@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111120', 'STUDENT', 'Hans', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'resign.hans.a24@student.dhbw-karlsruhe.de'),
     -- SystemAdmin endpoint test users
-    ('11111111-1111-1111-1111-111111111121', 'SYSTEMADMIN', 'Eva', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'eva.sysadmin.inf22025@student.dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111122', 'STUDENT', 'Paul', '$2a$10$hIJrX3Gm2GvsdG.RCk8d4uI3lqdS3OhcohSa/rsMQzCgcBckrnKom', 'plain.paul.a24@student.dhbw-karlsruhe.de');
+    ('11111111-1111-1111-1111-111111111121', 'SYSTEMADMIN', 'Eva', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'sysadmin.eva.a23@student.dhbw-karlsruhe.de'),
+    ('11111111-1111-1111-1111-111111111122', 'STUDENT', 'Paul', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'plain.paul.a24@student.dhbw-karlsruhe.de');
 
 -- Kurse
 INSERT INTO kurs (kurs_id, kurs_name, jahrgang) VALUES

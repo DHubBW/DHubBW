@@ -33,7 +33,7 @@ import java.util.NoSuchElementException;
  * authentication as a STUDENT.</p>
  */
 @RestController
-@RequestMapping("/dashboard")
+@RequestMapping("/student/dashboard")
 @RequiredArgsConstructor
 public class StudentDashboardController {
 

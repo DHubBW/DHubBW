@@ -102,8 +102,8 @@ public class ProdSecurityConfiguration {
                         + "connect-src 'self'; "
                         + "frame-ancestors 'none'")))
             .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/api/auth/register",
-                    "/api/auth/login").permitAll()
+                .requestMatchers("/public/auth/register",
+                    "/public/auth/login").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/swagger-ui/**",
                     "/swagger-ui.html", "/v3/api-docs/**").permitAll()

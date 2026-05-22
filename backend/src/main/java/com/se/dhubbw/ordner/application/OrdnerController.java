@@ -34,7 +34,7 @@ import java.util.UUID;
  * layer based on the caller's role and course membership.</p>
  */
 @RestController
-@RequestMapping("/ordner")
+@RequestMapping("/student/ordner")
 @RequiredArgsConstructor
 public class OrdnerController {
 

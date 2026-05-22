@@ -90,7 +90,7 @@ public class DateiControllerIT {
             "test content".getBytes());
 
         mockMvc.perform(
-            multipart(HttpMethod.PUT, "/dateien/upload")
+            multipart(HttpMethod.PUT, "/student/dateien/upload")
                 .file(file)
                 .param("ueberordnerId", TINF24B1_ORDNER_ID)
                 .param("name", "test.pdf"))
@@ -107,7 +107,7 @@ public class DateiControllerIT {
             "test content".getBytes());
 
         mockMvc.perform(
-            multipart(HttpMethod.PUT, "/dateien/upload")
+            multipart(HttpMethod.PUT, "/student/dateien/upload")
                 .file(file)
                 .param("ueberordnerId", TINF24B1_ORDNER_ID)
                 .param("name", "test.pdf"))
@@ -125,7 +125,7 @@ public class DateiControllerIT {
             "test content".getBytes());
 
         mockMvc.perform(
-            multipart(HttpMethod.PUT, "/dateien/upload")
+            multipart(HttpMethod.PUT, "/student/dateien/upload")
                 .file(file)
                 .param("ueberordnerId", TINF24B1_ORDNER_ID)
                 .param("name", "test.pdf"))
@@ -145,7 +145,7 @@ public class DateiControllerIT {
             "test content".getBytes());
 
         mockMvc.perform(
-            multipart(HttpMethod.PUT, "/dateien/upload")
+            multipart(HttpMethod.PUT, "/student/dateien/upload")
                 .file(file)
                 .param("ueberordnerId", UNKNOWN_ID)
                 .param("name", "test.pdf"))
@@ -165,7 +165,7 @@ public class DateiControllerIT {
             "test content".getBytes());
 
         mockMvc.perform(
-            multipart(HttpMethod.PUT, "/dateien/upload")
+            multipart(HttpMethod.PUT, "/student/dateien/upload")
                 .file(file)
                 .param("ueberordnerId", TINF24B1_ORDNER_ID)
                 .param("name", "test.pdf"))
@@ -180,7 +180,7 @@ public class DateiControllerIT {
     public void givenMember_whenRename_thenReturns200()
             throws Exception {
         mockMvc.perform(
-            patch("/dateien/" + DATEI_1_ID)
+            patch("/student/dateien/" + DATEI_1_ID)
                 .param("newName", "umbenennt.pdf"))
             .andExpect(status().isOk());
     }
@@ -190,7 +190,7 @@ public class DateiControllerIT {
     public void givenUnauthenticated_whenRename_thenReturns401()
             throws Exception {
         mockMvc.perform(
-            patch("/dateien/" + DATEI_1_ID)
+            patch("/student/dateien/" + DATEI_1_ID)
                 .param("newName", "new.pdf"))
             .andExpect(status().isUnauthorized());
     }
@@ -203,7 +203,7 @@ public class DateiControllerIT {
     public void givenNonMember_whenRename_thenReturns403()
             throws Exception {
         mockMvc.perform(
-            patch("/dateien/" + DATEI_1_ID)
+            patch("/student/dateien/" + DATEI_1_ID)
                 .param("newName", "new.pdf"))
             .andExpect(status().isForbidden());
     }
@@ -216,7 +216,7 @@ public class DateiControllerIT {
     public void givenUnknownId_whenRename_thenReturns404()
             throws Exception {
         mockMvc.perform(
-            patch("/dateien/" + UNKNOWN_ID)
+            patch("/student/dateien/" + UNKNOWN_ID)
                 .param("newName", "new.pdf"))
             .andExpect(status().isNotFound());
     }
@@ -230,7 +230,7 @@ public class DateiControllerIT {
             roles = {"KURSADMIN", "STUDENT"})
     public void givenMember_whenDelete_thenReturns204()
             throws Exception {
-        mockMvc.perform(delete("/dateien/" + DATEI_2_ID))
+        mockMvc.perform(delete("/student/dateien/" + DATEI_2_ID))
             .andExpect(status().isNoContent());
     }
 
@@ -238,7 +238,7 @@ public class DateiControllerIT {
     @Order(21)
     public void givenUnauthenticated_whenDelete_thenReturns401()
             throws Exception {
-        mockMvc.perform(delete("/dateien/" + DATEI_1_ID))
+        mockMvc.perform(delete("/student/dateien/" + DATEI_1_ID))
             .andExpect(status().isUnauthorized());
     }
 
@@ -249,7 +249,7 @@ public class DateiControllerIT {
             roles = {"KURSADMIN", "STUDENT"})
     public void givenNonMember_whenDelete_thenReturns403()
             throws Exception {
-        mockMvc.perform(delete("/dateien/" + DATEI_1_ID))
+        mockMvc.perform(delete("/student/dateien/" + DATEI_1_ID))
             .andExpect(status().isForbidden());
     }
 
@@ -260,7 +260,7 @@ public class DateiControllerIT {
             roles = {"SYSTEMADMIN", "KURSADMIN", "STUDENT"})
     public void givenUnknownId_whenDelete_thenReturns404()
             throws Exception {
-        mockMvc.perform(delete("/dateien/" + UNKNOWN_ID))
+        mockMvc.perform(delete("/student/dateien/" + UNKNOWN_ID))
             .andExpect(status().isNotFound());
     }
 
@@ -272,7 +272,7 @@ public class DateiControllerIT {
     public void givenMember_whenGetDateienForOrdner_thenReturns200()
             throws Exception {
         mockMvc.perform(
-            get("/dateien/ordner/" + TINF24B2_ORDNER_ID))
+            get("/student/dateien/ordner/" + TINF24B2_ORDNER_ID))
             .andExpect(status().isOk());
     }
 
@@ -281,7 +281,7 @@ public class DateiControllerIT {
     public void givenNoAuth_whenGetDateienForOrdner_thenReturns401()
             throws Exception {
         mockMvc.perform(
-            get("/dateien/ordner/" + TINF24B2_ORDNER_ID))
+            get("/student/dateien/ordner/" + TINF24B2_ORDNER_ID))
             .andExpect(status().isUnauthorized());
     }
 
@@ -293,7 +293,7 @@ public class DateiControllerIT {
     public void givenNonMember_whenGetDateienForOrdner_thenReturns403()
             throws Exception {
         mockMvc.perform(
-            get("/dateien/ordner/" + TINF24B2_ORDNER_ID))
+            get("/student/dateien/ordner/" + TINF24B2_ORDNER_ID))
             .andExpect(status().isForbidden());
     }
 
@@ -303,7 +303,7 @@ public class DateiControllerIT {
     public void givenUnknownId_whenGetDateienForOrdner_thenReturns404()
             throws Exception {
         mockMvc.perform(
-            get("/dateien/ordner/" + UNKNOWN_ID))
+            get("/student/dateien/ordner/" + UNKNOWN_ID))
             .andExpect(status().isNotFound());
     }
 
@@ -314,7 +314,7 @@ public class DateiControllerIT {
     @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
     public void givenMember_whenGetAllFiles_thenReturns200()
             throws Exception {
-        mockMvc.perform(get("/dateien"))
+        mockMvc.perform(get("/student/dateien"))
             .andExpect(status().isOk());
     }
 
@@ -322,7 +322,7 @@ public class DateiControllerIT {
     @Order(41)
     public void givenNoAuth_whenGetAllFiles_thenReturns401()
             throws Exception {
-        mockMvc.perform(get("/dateien"))
+        mockMvc.perform(get("/student/dateien"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -334,7 +334,7 @@ public class DateiControllerIT {
     public void givenMember_whenDownloadDatei_thenReturns200()
             throws Exception {
         mockMvc.perform(
-            get("/dateien/" + DATEI_1_ID + "/download"))
+            get("/student/dateien/" + DATEI_1_ID + "/download"))
             .andExpect(status().isOk());
     }
 
@@ -343,7 +343,7 @@ public class DateiControllerIT {
     public void givenNoAuth_whenDownloadDatei_thenReturns401()
             throws Exception {
         mockMvc.perform(
-            get("/dateien/" + DATEI_1_ID + "/download"))
+            get("/student/dateien/" + DATEI_1_ID + "/download"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -353,7 +353,7 @@ public class DateiControllerIT {
     public void givenUnknownId_whenDownloadDatei_thenReturns404()
             throws Exception {
         mockMvc.perform(
-            get("/dateien/" + UNKNOWN_ID + "/download"))
+            get("/student/dateien/" + UNKNOWN_ID + "/download"))
             .andExpect(status().isNotFound());
     }
 
@@ -365,7 +365,7 @@ public class DateiControllerIT {
     public void givenNonMember_whenDownloadDatei_thenReturns403()
             throws Exception {
         mockMvc.perform(
-            get("/dateien/" + DATEI_1_ID + "/download"))
+            get("/student/dateien/" + DATEI_1_ID + "/download"))
             .andExpect(status().isForbidden());
     }
 }

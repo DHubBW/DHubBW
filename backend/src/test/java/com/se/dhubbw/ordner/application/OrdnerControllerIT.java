@@ -132,7 +132,7 @@ public class OrdnerControllerIT {
     @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
     public void givenMember_whenGetRootFolders_thenReturns200()
             throws Exception {
-        mockMvc.perform(get("/ordner")
+        mockMvc.perform(get("/student/ordner")
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());
@@ -145,7 +145,7 @@ public class OrdnerControllerIT {
     @Order(2)
     public void givenUnauthenticated_whenGetRootFolders_thenReturns401()
             throws Exception {
-        mockMvc.perform(get("/ordner"))
+        mockMvc.perform(get("/student/ordner"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -160,7 +160,7 @@ public class OrdnerControllerIT {
         roles = {"SYSTEMADMIN", "KURSADMIN", "STUDENT"})
     public void givenSysAdmin_whenGetRootFolders_thenReturns200()
             throws Exception {
-        mockMvc.perform(get("/ordner")
+        mockMvc.perform(get("/student/ordner")
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());
@@ -178,7 +178,7 @@ public class OrdnerControllerIT {
     public void givenMember_whenGetUpperFolders_thenReturnsPath()
             throws Exception {
         mockMvc.perform(
-                get("/ordner/" + TINF24B2_CHILD_ID + "/upper")
+                get("/student/ordner/" + TINF24B2_CHILD_ID + "/upper")
                     .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(2));
@@ -193,7 +193,7 @@ public class OrdnerControllerIT {
     public void givenWrongCourse_whenGetUpperFolders_thenReturns403()
             throws Exception {
         mockMvc.perform(
-                get("/ordner/" + TINF24B1_ROOT_ID + "/upper"))
+                get("/student/ordner/" + TINF24B1_ROOT_ID + "/upper"))
             .andExpect(status().isForbidden());
     }
 
@@ -206,7 +206,7 @@ public class OrdnerControllerIT {
     public void givenUnknownId_whenGetUpperFolders_thenReturns404()
             throws Exception {
         mockMvc.perform(
-                get("/ordner/" + UNKNOWN_ID + "/upper"))
+                get("/student/ordner/" + UNKNOWN_ID + "/upper"))
             .andExpect(status().isNotFound());
     }
 
@@ -222,7 +222,7 @@ public class OrdnerControllerIT {
     public void givenMember_whenGetChildren_thenReturns200()
             throws Exception {
         mockMvc.perform(
-                get("/ordner/" + TINF24B2_ROOT_ID + "/children")
+                get("/student/ordner/" + TINF24B2_ROOT_ID + "/children")
                     .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());
@@ -236,7 +236,7 @@ public class OrdnerControllerIT {
     public void givenUnauthenticated_whenGetChildren_thenReturns401()
             throws Exception {
         mockMvc.perform(
-                get("/ordner/" + TINF24B2_ROOT_ID + "/children"))
+                get("/student/ordner/" + TINF24B2_ROOT_ID + "/children"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -249,7 +249,7 @@ public class OrdnerControllerIT {
     public void givenWrongCourse_whenGetChildren_thenReturns403()
             throws Exception {
         mockMvc.perform(
-                get("/ordner/" + TINF24B1_ROOT_ID + "/children"))
+                get("/student/ordner/" + TINF24B1_ROOT_ID + "/children"))
             .andExpect(status().isForbidden());
     }
 
@@ -265,7 +265,7 @@ public class OrdnerControllerIT {
     public void givenMember_whenCreateRootFolder_thenReturns201()
             throws Exception {
         MvcResult result = mockMvc.perform(
-                put("/ordner")
+                put("/student/ordner")
                     .param("name", "Neuer Ordner")
                     .param("isPublic", "true")
                     .param("farbe", "DEFAULT"))
@@ -286,7 +286,7 @@ public class OrdnerControllerIT {
     public void givenMember_whenCreateChildFolder_thenReturns201()
             throws Exception {
         mockMvc.perform(
-                put("/ordner")
+                put("/student/ordner")
                     .param("ueberOrdnerId", TINF24B2_ROOT_ID)
                     .param("name", "Unterpunkt")
                     .param("isPublic", "true")
@@ -302,7 +302,7 @@ public class OrdnerControllerIT {
     public void givenUnauthenticated_whenCreate_thenReturns401()
             throws Exception {
         mockMvc.perform(
-                put("/ordner")
+                put("/student/ordner")
                     .param("name", "X")
                     .param("isPublic", "true")
                     .param("farbe", "DEFAULT"))
@@ -319,7 +319,7 @@ public class OrdnerControllerIT {
     public void givenWrongCourse_whenCreateChild_thenReturns403()
             throws Exception {
         mockMvc.perform(
-                put("/ordner")
+                put("/student/ordner")
                     .param("ueberOrdnerId", TINF24B1_ROOT_ID)
                     .param("name", "Fremd")
                     .param("isPublic", "true")
@@ -339,7 +339,7 @@ public class OrdnerControllerIT {
     public void givenSysAdmin_whenCreateRootFolder_thenReturns201()
             throws Exception {
         mockMvc.perform(
-                put("/ordner")
+                put("/student/ordner")
                     .param("name", "Admin Ordner")
                     .param("isPublic", "true")
                     .param("farbe", "DEFAULT"))
@@ -360,7 +360,7 @@ public class OrdnerControllerIT {
     public void givenKursAdmin_whenRename_thenReturns200()
             throws Exception {
         mockMvc.perform(
-                patch("/ordner/" + TINF24B2_ROOT_ID)
+                patch("/student/ordner/" + TINF24B2_ROOT_ID)
                     .param("newName", "Umbenannt"))
             .andExpect(status().isOk());
     }
@@ -373,7 +373,7 @@ public class OrdnerControllerIT {
     public void givenUnauthenticated_whenRename_thenReturns401()
             throws Exception {
         mockMvc.perform(
-                patch("/ordner/" + TINF24B2_ROOT_ID)
+                patch("/student/ordner/" + TINF24B2_ROOT_ID)
                     .param("newName", "X"))
             .andExpect(status().isUnauthorized());
     }
@@ -388,7 +388,7 @@ public class OrdnerControllerIT {
     public void givenNonAdminNonCreator_whenRename_thenReturns403()
             throws Exception {
         mockMvc.perform(
-                patch("/ordner/" + TINF24B2_ROOT_ID)
+                patch("/student/ordner/" + TINF24B2_ROOT_ID)
                     .param("newName", "Verboten"))
             .andExpect(status().isForbidden());
     }
@@ -404,7 +404,7 @@ public class OrdnerControllerIT {
     public void givenUnknownId_whenRename_thenReturns404()
             throws Exception {
         mockMvc.perform(
-                patch("/ordner/" + UNKNOWN_ID)
+                patch("/student/ordner/" + UNKNOWN_ID)
                     .param("newName", "X"))
             .andExpect(status().isNotFound());
     }
@@ -424,7 +424,7 @@ public class OrdnerControllerIT {
     public void givenSysAdmin_whenDelete_thenReturns204()
             throws Exception {
         mockMvc.perform(
-                delete("/ordner/" + createdFolderForDelete))
+                delete("/student/ordner/" + createdFolderForDelete))
             .andExpect(status().isNoContent());
     }
 
@@ -436,7 +436,7 @@ public class OrdnerControllerIT {
     public void givenUnauthenticated_whenDelete_thenReturns401()
             throws Exception {
         mockMvc.perform(
-                delete("/ordner/" + TINF24B2_ROOT_ID))
+                delete("/student/ordner/" + TINF24B2_ROOT_ID))
             .andExpect(status().isUnauthorized());
     }
 
@@ -452,7 +452,7 @@ public class OrdnerControllerIT {
     public void givenKursAdminWrongCourse_whenDelete_thenReturns403()
             throws Exception {
         mockMvc.perform(
-                delete("/ordner/" + TINF24B2_ROOT_ID))
+                delete("/student/ordner/" + TINF24B2_ROOT_ID))
             .andExpect(status().isForbidden());
     }
 
@@ -467,7 +467,7 @@ public class OrdnerControllerIT {
     public void givenUnknownId_whenDelete_thenReturns404()
             throws Exception {
         mockMvc.perform(
-                delete("/ordner/" + UNKNOWN_ID))
+                delete("/student/ordner/" + UNKNOWN_ID))
             .andExpect(status().isNotFound());
     }
 }

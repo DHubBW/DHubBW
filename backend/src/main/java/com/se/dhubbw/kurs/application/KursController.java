@@ -35,7 +35,7 @@ import java.util.UUID;
  * creation requests.</p>
  */
 @RestController
-@RequestMapping("/public")
+@RequestMapping("/student")
 @RequiredArgsConstructor
 public class KursController {
 

@@ -109,8 +109,8 @@ Jedes Feature-Modul folgt dem gleichen Muster:
 
 Beide Profile nutzen JWT-basierte Authentifizierung mit Cookie-Storage:
 
-- **Login:** `POST /api/auth/login` mit `{"dhbwMail": "...", "password": "..."}`
-- **Registrierung:** `POST /api/auth/register` mit vollständigen Studentendaten
+- **Login:** `POST /public/auth/login` mit `{"dhbwMail": "...", "password": "..."}`
+- **Registrierung:** `POST /public/auth/register` mit vollständigen Studentendaten
 - **JWT:** Wird als `HttpOnly` Cookie gesetzt (Dev: `Secure=false`, Prod: `Secure=true`)
 
 **Dev-Profil Umgebungsvariablen (optional):**
