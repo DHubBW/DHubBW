@@ -4,6 +4,7 @@ import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
 import com.se.dhubbw.kurs.application.dto.KursAdminStatsDTO;
 import com.se.dhubbw.kurs.application.dto.KursmemberDTO;
 import com.se.dhubbw.kurs.domain.KursMitgliederService;
+import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -38,7 +39,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class KursMitgliederServiceImpl implements KursMitgliederService {
-
     /**
      * Repository for student lookup and role updates.
      */
@@ -54,6 +54,11 @@ public class KursMitgliederServiceImpl implements KursMitgliederService {
      * Repository for counting files per course.
      */
     private final DateiRepository dateiRepository;
+
+    /**
+     * Shared helper for student and course lookups.
+     */
+    private final KursStudentHelper kursStudentHelper;
 
     /**
      * Color-coded logger for error reporting.
@@ -73,7 +78,7 @@ public class KursMitgliederServiceImpl implements KursMitgliederService {
     @Transactional(readOnly = true)
     public KursAdminStatsDTO retrieveKursAdminStats(
             final String dhbwMail) {
-        Kurs kurs = getKursForAdmin(dhbwMail);
+        Kurs kurs = kursStudentHelper.findKursForAdminByEmail(dhbwMail);
         int anzahlMitglieder = kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedTrue(kurs).size();
         int anzahlDateien = dateiRepository
@@ -96,7 +101,7 @@ public class KursMitgliederServiceImpl implements KursMitgliederService {
     @Transactional(readOnly = true)
     public List<KursmemberDTO> retrieveAllCourseMembers(
             final String dhbwMail) {
-        Kurs kurs = getKursForAdmin(dhbwMail);
+        Kurs kurs = kursStudentHelper.findKursForAdminByEmail(dhbwMail);
         return kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedTrue(kurs).stream()
             .map(enrollment -> new KursmemberDTO(
@@ -120,10 +125,10 @@ public class KursMitgliederServiceImpl implements KursMitgliederService {
      * @throws IllegalStateException if the admin is the only
      *     KURSADMIN in the course
      */
-    @Transactional
+    @RetryableTransactional
     public void kursadminNiederlegen(final String dhbwMail) {
-        Student admin = findStudentOrThrow(dhbwMail);
-        Kurs kurs = getKursForAdmin(admin);
+        Student admin = kursStudentHelper.findStudentByEmail(dhbwMail);
+        Kurs kurs = kursStudentHelper.findKursForStudent(admin);
         verifyMinOneOtherKursadmin(kurs, admin);
         admin.setStudentType(StudentType.STUDENT);
         studentRepository.save(admin);
@@ -146,12 +151,12 @@ public class KursMitgliederServiceImpl implements KursMitgliederService {
      * @throws IllegalStateException if the target is already
      *     a {@code KURSADMIN}
      */
-    @Transactional
+    @RetryableTransactional
     public void addKursadmin(
             final UUID studentId,
             final String dhbwMail) {
-        Kurs kurs = getKursForAdmin(dhbwMail);
-        Student target = findStudentById(studentId);
+        Kurs kurs = kursStudentHelper.findKursForAdminByEmail(dhbwMail);
+        Student target = kursStudentHelper.findStudentById(studentId);
         verifyMembership(target, kurs);
         if (target.getStudentType() == StudentType.SYSTEMADMIN) {
             IllegalArgumentException ex = new IllegalArgumentException(
@@ -190,12 +195,12 @@ public class KursMitgliederServiceImpl implements KursMitgliederService {
      * @throws IllegalStateException if the target is the only
      *     KURSADMIN in the course
      */
-    @Transactional
+    @RetryableTransactional
     public void removeKursadmin(
             final UUID studentId,
             final String dhbwMail) {
-        Kurs kurs = getKursForAdmin(dhbwMail);
-        Student target = findStudentById(studentId);
+        Kurs kurs = kursStudentHelper.findKursForAdminByEmail(dhbwMail);
+        Student target = kursStudentHelper.findStudentById(studentId);
         verifyMembership(target, kurs);
         if (target.getStudentType() != StudentType.KURSADMIN) {
             IllegalArgumentException ex = new IllegalArgumentException(
@@ -225,12 +230,12 @@ public class KursMitgliederServiceImpl implements KursMitgliederService {
      * @throws IllegalStateException if the target is a
      *     {@code KURSADMIN} or {@code SYSTEMADMIN}
      */
-    @Transactional
+    @RetryableTransactional
     public void removeKursMember(
             final UUID studentId,
             final String dhbwMail) {
-        Kurs kurs = getKursForAdmin(dhbwMail);
-        Student target = findStudentById(studentId);
+        Kurs kurs = kursStudentHelper.findKursForAdminByEmail(dhbwMail);
+        Student target = kursStudentHelper.findStudentById(studentId);
         KursBeitrittsAnfrage membership =
             findMembership(target, kurs);
         if (target.getStudentType() != StudentType.STUDENT) {
@@ -243,61 +248,6 @@ public class KursMitgliederServiceImpl implements KursMitgliederService {
             throw ex;
         }
         kursBeitrittsAnfrageRepository.delete(membership);
-    }
-
-    /**
-     * Determine the course managed by the given admin.
-     *
-     * @param dhbwMail the admin's DHBW mail address
-     * @return the admin's course
-     * @throws NoSuchElementException if the student or their
-     *     approved enrollment is not found
-     */
-    private Kurs getKursForAdmin(final String dhbwMail) {
-        return getKursForAdmin(findStudentOrThrow(dhbwMail));
-    }
-
-    /**
-     * Determine the course managed by the given admin.
-     *
-     * @param admin the admin student
-     * @return the admin's course
-     * @throws NoSuchElementException if no approved enrollment
-     *     is found for the given student
-     */
-    private Kurs getKursForAdmin(final Student admin) {
-        return kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin)
-            .orElseThrow(() -> new NoSuchElementException(
-                "No course assignment for: "
-                    + admin.getDhbwMail()))
-            .getKurs();
-    }
-
-    /**
-     * Find a student by DHBW mail address.
-     *
-     * @param dhbwMail the DHBW mail address to search for
-     * @return the matching student
-     * @throws NoSuchElementException if no student is found
-     */
-    private Student findStudentOrThrow(final String dhbwMail) {
-        return studentRepository.findByDhbwMail(dhbwMail)
-            .orElseThrow(() -> new NoSuchElementException(
-                "Student not found: " + dhbwMail));
-    }
-
-    /**
-     * Find a student by their UUID.
-     *
-     * @param studentId the student identifier
-     * @return the matching student
-     * @throws NoSuchElementException if no student is found
-     */
-    private Student findStudentById(final UUID studentId) {
-        return studentRepository.findById(studentId)
-            .orElseThrow(() -> new NoSuchElementException(
-                "Student not found: " + studentId));
     }
 
     /**

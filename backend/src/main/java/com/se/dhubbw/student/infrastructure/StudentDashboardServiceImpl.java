@@ -7,6 +7,8 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
+import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
+import com.se.dhubbw.shared.infrastructure.helper.StudentLookupHelper;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import com.se.dhubbw.student.application.dto.StudentProfileDTO;
 import com.se.dhubbw.student.domain.StudentDashboardService;
@@ -40,11 +42,15 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class StudentDashboardServiceImpl implements StudentDashboardService {
-
     /**
      * Repository for student lookup and deletion.
      */
     private final StudentRepository studentRepository;
+
+    /**
+     * Shared helper for student lookup by email.
+     */
+    private final StudentLookupHelper studentLookupHelper;
 
     /**
      * Repository for course enrollment management.
@@ -93,9 +99,10 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
      *     KURSADMIN in their course
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void leaveKurs(final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         KursBeitrittsAnfrage enrollment =
             kursBeitrittsAnfrageRepository
                 .findByStudentAndIsApprovedTrue(student)
@@ -130,9 +137,10 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
      *     SYSTEMADMIN globally or the last KURSADMIN in their course
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void deleteAccount(final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
 
         // Check if student is last SYSTEMADMIN
         if (student.getStudentType() == StudentType.SYSTEMADMIN) {
@@ -183,19 +191,6 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
     }
 
     /**
-     * Find a student by DHBW mail address.
-     *
-     * @param dhbwMail the DHBW mail address to search for
-     * @return the matching student
-     * @throws NoSuchElementException if no student is found
-     */
-    private Student findStudentOrThrow(final String dhbwMail) {
-        return studentRepository.findByDhbwMail(dhbwMail)
-            .orElseThrow(() -> new NoSuchElementException(
-                "Student not found: " + dhbwMail));
-    }
-
-    /**
      * Assert that at least one other KURSADMIN (other than the
      * given student) remains enrolled in the course.
      *
@@ -243,7 +238,8 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
     @Override
     @Transactional(readOnly = true)
     public StudentProfileDTO retrieveProfile(final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         String kursName = kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student)
             .map(enrollment -> enrollment.getKurs().getKursName())

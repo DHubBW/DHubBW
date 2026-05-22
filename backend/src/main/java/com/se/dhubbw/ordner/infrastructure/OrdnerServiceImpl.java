@@ -9,13 +9,14 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.ordner.application.dto.OrdnerDTO;
 import com.se.dhubbw.ordner.domain.OrdnerFarbe;
 import com.se.dhubbw.ordner.domain.OrdnerService;
+import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
 import com.se.dhubbw.ordner.infrastructure.db.Ordner;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegung;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerRepository;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import com.se.dhubbw.student.infrastructure.db.Student;
-import com.se.dhubbw.student.infrastructure.db.StudentRepository;
+import com.se.dhubbw.shared.infrastructure.helper.StudentLookupHelper;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -50,7 +51,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrdnerServiceImpl implements OrdnerService {
-
     /**
      * Repository for folder persistence.
      */
@@ -62,9 +62,9 @@ public class OrdnerServiceImpl implements OrdnerService {
     private final OrdnerAnlegungRepository ordnerAnlegungRepository;
 
     /**
-     * Repository for student lookup.
+     * Shared helper for student lookups.
      */
-    private final StudentRepository studentRepository;
+    private final StudentLookupHelper studentLookupHelper;
 
     /**
      * Repository for course enrollment lookup.
@@ -95,7 +95,8 @@ public class OrdnerServiceImpl implements OrdnerService {
     @Transactional(readOnly = true)
     public List<OrdnerDTO> retrieveRootFolders(
             final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         Kurs kurs = findKursOrThrow(student);
         return ordnerRepository
             .findByKursAndUeberOrdnerIsNull(kurs)
@@ -112,7 +113,8 @@ public class OrdnerServiceImpl implements OrdnerService {
     public List<OrdnerDTO> retrieveAllUpperFolders(
             final UUID folderId,
             final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         Ordner ordner = findOrdnerOrThrow(folderId);
         verifyCourseAccess(ordner, student);
         List<Ordner> path = new ArrayList<>();
@@ -134,7 +136,8 @@ public class OrdnerServiceImpl implements OrdnerService {
     public List<OrdnerDTO> retrieveAllDirectFolderChildren(
             final UUID folderId,
             final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         Ordner ordner = findOrdnerOrThrow(folderId);
         verifyCourseAccess(ordner, student);
         return ordnerRepository
@@ -148,14 +151,15 @@ public class OrdnerServiceImpl implements OrdnerService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public UUID createFolder(
             final UUID ueberOrdnerId,
             final String name,
             final boolean isPublic,
             final OrdnerFarbe farbe,
             final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         Kurs kurs;
         Ordner ueberOrdner = null;
         int level = 0;
@@ -187,12 +191,13 @@ public class OrdnerServiceImpl implements OrdnerService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void renameFolder(
             final UUID ordnerId,
             final String newName,
             final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         Ordner ordner = findOrdnerOrThrow(ordnerId);
         verifyModifyAuthorized(ordner, student);
         ordner.setName(newName);
@@ -203,11 +208,12 @@ public class OrdnerServiceImpl implements OrdnerService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void deleteOrdner(
             final UUID ordnerId,
             final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         Ordner ordner = findOrdnerOrThrow(ordnerId);
         verifyModifyAuthorized(ordner, student);
         deleteRecursive(ordner);
@@ -336,20 +342,6 @@ public class OrdnerServiceImpl implements OrdnerService {
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "Kein Kurs gefunden"));
-    }
-
-    /**
-     * Look up a student by their DHBW email address.
-     *
-     * @param dhbwMail the DHBW email address to search for
-     * @return the matching student
-     * @throws ResponseStatusException 404 if no student is found
-     */
-    private Student findStudentOrThrow(final String dhbwMail) {
-        return studentRepository.findByDhbwMail(dhbwMail)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Student nicht gefunden"));
     }
 
     /**

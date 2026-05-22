@@ -8,8 +8,9 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursRepository;
+import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
+import com.se.dhubbw.shared.infrastructure.helper.StudentLookupHelper;
 import com.se.dhubbw.student.infrastructure.db.Student;
-import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class KursServiceImpl implements KursService {
-
     /**
      * Default notes value when no additional notes are provided.
      */
@@ -62,9 +62,9 @@ public class KursServiceImpl implements KursService {
         erstellungsAnfrageRepository;
 
     /**
-     * Repository for looking up students by DHBW email.
+     * Shared helper for student lookups.
      */
-    private final StudentRepository studentRepository;
+    private final StudentLookupHelper studentLookupHelper;
 
     /**
      * Retrieve all available courses with their identifier,
@@ -94,11 +94,12 @@ public class KursServiceImpl implements KursService {
      * @throws ResponseStatusException 409 if the student is
      *     already enrolled or has an open join request
      */
-    @Transactional
+    @RetryableTransactional
     @Override
     public void openJoinKursRequest(final UUID kursId, final String dhbwMail) {
 
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
 
         Kurs kurs = kursRepository.findById(kursId)
             .orElseThrow(() -> new ResponseStatusException(
@@ -146,13 +147,14 @@ public class KursServiceImpl implements KursService {
      *     request, or if a course with the same name and
      *     cohort year already exists
      */
-    @Transactional
+    @RetryableTransactional
     @Override
     public void openCreateCourseRequest(final String kursName,
             final String jahrgang, final String additionalNotes,
             final String dhbwMail) {
 
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
 
         if (kursBeitrittsAnfrageRepository
             .existsByStudentAndIsApprovedTrue(student)) {
@@ -195,18 +197,5 @@ public class KursServiceImpl implements KursService {
         anfrage.setApproved(false);
         anfrage.setRequestNotes(notes);
         erstellungsAnfrageRepository.save(anfrage);
-    }
-
-    /**
-     * Look up a student by their DHBW email address.
-     *
-     * @param dhbwMail the DHBW email address to search for
-     * @return the matching {@link Student}
-     * @throws ResponseStatusException 404 if no student is found
-     */
-    private Student findStudentOrThrow(final String dhbwMail) {
-        return studentRepository.findByDhbwMail(dhbwMail)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Student nicht gefunden"));
     }
 }

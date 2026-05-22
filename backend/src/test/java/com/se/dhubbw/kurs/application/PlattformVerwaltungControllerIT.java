@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @IntegrationTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class SystemAdminVerwaltungControllerIT {
+public class PlattformVerwaltungControllerIT {
 
     private static final String TINF26C1_ID =
         "22222222-2222-2222-2222-222222222230";

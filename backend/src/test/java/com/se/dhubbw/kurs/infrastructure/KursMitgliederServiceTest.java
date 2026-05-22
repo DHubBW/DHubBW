@@ -43,6 +43,9 @@ public class KursMitgliederServiceTest {
     @Mock
     private DateiRepository dateiRepository;
 
+    @Mock
+    private KursStudentHelper kursStudentHelper;
+
     @InjectMocks
     private KursMitgliederServiceImpl kursMitgliederService;
 
@@ -80,25 +83,21 @@ public class KursMitgliederServiceTest {
 
     @Test
     public void givenAdminWithCourse_whenRetrieveStats_thenReturnsStats() {
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
         when(kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedTrue(kurs))
             .thenReturn(List.of(adminAnfrage, memberAnfrage));
         when(dateiRepository
-            .findByKursIdOrderByNameAsc(
-                kurs.getKursID()))
+            .findByKursIdOrderByNameAsc(kurs.getKursID()))
             .thenReturn(Collections.emptyList());
         when(kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedFalse(kurs))
             .thenReturn(Collections.emptyList());
 
         KursAdminStatsDTO stats =
-            kursMitgliederService.retrieveKursAdminStats(
-                "admin@dhbw.de");
+            kursMitgliederService
+                .retrieveKursAdminStats("admin@dhbw.de");
 
         assertNotNull(stats);
         assertEquals(2, stats.getAnzahlMitglieder());
@@ -108,28 +107,27 @@ public class KursMitgliederServiceTest {
 
     @Test
     public void givenUnknownAdmin_whenRetrieveStats_thenThrows() {
-        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
-            .thenReturn(Optional.empty());
+        when(kursStudentHelper
+            .findKursForAdminByEmail("unknown@dhbw.de"))
+            .thenThrow(new NoSuchElementException("Student not found"));
 
         assertThrows(NoSuchElementException.class,
-            () -> kursMitgliederService.retrieveKursAdminStats(
-                "unknown@dhbw.de"));
+            () -> kursMitgliederService
+                .retrieveKursAdminStats("unknown@dhbw.de"));
     }
 
     @Test
-    public void givenAdminWithCourse_whenRetrieveMembers_thenReturnsList() {
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
+    public void
+            givenAdminWithCourse_whenRetrieveMembers_thenReturnsList() {
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
         when(kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedTrue(kurs))
             .thenReturn(List.of(adminAnfrage, memberAnfrage));
 
         List<KursmemberDTO> result =
-            kursMitgliederService.retrieveAllCourseMembers(
-                "admin@dhbw.de");
+            kursMitgliederService
+                .retrieveAllCourseMembers("admin@dhbw.de");
 
         assertEquals(2, result.size());
     }
@@ -146,11 +144,10 @@ public class KursMitgliederServiceTest {
         secondKaAnfrage.setStudent(secondKa);
         secondKaAnfrage.setApproved(true);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
+        when(kursStudentHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(admin);
+        when(kursStudentHelper.findKursForStudent(admin))
+            .thenReturn(kurs);
         when(kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedTrue(kurs))
             .thenReturn(List.of(adminAnfrage, secondKaAnfrage));
@@ -163,29 +160,26 @@ public class KursMitgliederServiceTest {
 
     @Test
     public void givenOnlyOneKa_whenResign_thenThrowsConflict() {
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
+        when(kursStudentHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(admin);
+        when(kursStudentHelper.findKursForStudent(admin))
+            .thenReturn(kurs);
         when(kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedTrue(kurs))
             .thenReturn(List.of(adminAnfrage));
 
         assertThrows(IllegalStateException.class,
-            () -> kursMitgliederService.kursadminNiederlegen(
-                "admin@dhbw.de"));
+            () -> kursMitgliederService
+                .kursadminNiederlegen("admin@dhbw.de"));
     }
 
     @Test
-    public void givenStudentMember_whenAddKursadmin_thenChangesType() {
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(member.getStudentID()))
-            .thenReturn(Optional.of(member));
+    public void
+            givenStudentMember_whenAddKursadmin_thenChangesType() {
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(member.getStudentID()))
+            .thenReturn(member);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(member))
             .thenReturn(Optional.of(memberAnfrage));
@@ -198,16 +192,14 @@ public class KursMitgliederServiceTest {
     }
 
     @Test
-    public void givenSystemAdmin_whenAddKursadmin_thenThrowsBadRequest() {
+    public void
+            givenSystemAdmin_whenAddKursadmin_thenThrowsBadRequest() {
         member.setStudentType(StudentType.SYSTEMADMIN);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(member.getStudentID()))
-            .thenReturn(Optional.of(member));
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(member.getStudentID()))
+            .thenReturn(member);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(member))
             .thenReturn(Optional.of(memberAnfrage));
@@ -221,13 +213,10 @@ public class KursMitgliederServiceTest {
     public void givenAlreadyKa_whenAddKursadmin_thenThrowsConflict() {
         member.setStudentType(StudentType.KURSADMIN);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(member.getStudentID()))
-            .thenReturn(Optional.of(member));
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(member.getStudentID()))
+            .thenReturn(member);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(member))
             .thenReturn(Optional.of(memberAnfrage));
@@ -238,16 +227,14 @@ public class KursMitgliederServiceTest {
     }
 
     @Test
-    public void givenUnknownStudentId_whenAddKursadmin_thenThrows() {
+    public void
+            givenUnknownStudentId_whenAddKursadmin_thenThrows() {
         UUID unknownId = UUID.randomUUID();
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(unknownId))
-            .thenReturn(Optional.empty());
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(unknownId))
+            .thenThrow(new NoSuchElementException("Student not found"));
 
         assertThrows(NoSuchElementException.class,
             () -> kursMitgliederService.addKursadmin(
@@ -255,7 +242,8 @@ public class KursMitgliederServiceTest {
     }
 
     @Test
-    public void givenMemberNotInCourse_whenAddKursadmin_thenThrows() {
+    public void
+            givenMemberNotInCourse_whenAddKursadmin_thenThrows() {
         Kurs otherKurs = new Kurs();
         otherKurs.setKursID(UUID.randomUUID());
         KursBeitrittsAnfrage otherAnfrage =
@@ -263,13 +251,10 @@ public class KursMitgliederServiceTest {
         otherAnfrage.setKurs(otherKurs);
         otherAnfrage.setStudent(member);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(member.getStudentID()))
-            .thenReturn(Optional.of(member));
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(member.getStudentID()))
+            .thenReturn(member);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(member))
             .thenReturn(Optional.of(otherAnfrage));
@@ -280,7 +265,8 @@ public class KursMitgliederServiceTest {
     }
 
     @Test
-    public void givenKaMemberAndOtherKa_whenRemoveKursadmin_thenChangesType() {
+    public void
+            givenKaMemberAndOtherKa_whenRemoveKursadmin_thenChangesType() {
         member.setStudentType(StudentType.KURSADMIN);
 
         Student otherKa = new Student();
@@ -291,13 +277,10 @@ public class KursMitgliederServiceTest {
         otherKaAnfrage.setKurs(kurs);
         otherKaAnfrage.setStudent(otherKa);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(member.getStudentID()))
-            .thenReturn(Optional.of(member));
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(member.getStudentID()))
+            .thenReturn(member);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(member))
             .thenReturn(Optional.of(memberAnfrage));
@@ -314,17 +297,15 @@ public class KursMitgliederServiceTest {
     }
 
     @Test
-    public void givenOnlyOneKa_whenRemoveKursadmin_thenThrowsConflict() {
+    public void
+            givenOnlyOneKa_whenRemoveKursadmin_thenThrowsConflict() {
         member.setStudentType(StudentType.KURSADMIN);
         admin.setStudentType(StudentType.STUDENT);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(member.getStudentID()))
-            .thenReturn(Optional.of(member));
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(member.getStudentID()))
+            .thenReturn(member);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(member))
             .thenReturn(Optional.of(memberAnfrage));
@@ -338,14 +319,12 @@ public class KursMitgliederServiceTest {
     }
 
     @Test
-    public void givenNotKa_whenRemoveKursadmin_thenThrowsBadRequest() {
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(member.getStudentID()))
-            .thenReturn(Optional.of(member));
+    public void
+            givenNotKa_whenRemoveKursadmin_thenThrowsBadRequest() {
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(member.getStudentID()))
+            .thenReturn(member);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(member))
             .thenReturn(Optional.of(memberAnfrage));
@@ -357,13 +336,10 @@ public class KursMitgliederServiceTest {
 
     @Test
     public void givenStudentMember_whenRemoveMember_thenDeletes() {
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(member.getStudentID()))
-            .thenReturn(Optional.of(member));
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(member.getStudentID()))
+            .thenReturn(member);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(member))
             .thenReturn(Optional.of(memberAnfrage));
@@ -378,13 +354,10 @@ public class KursMitgliederServiceTest {
     public void givenKaMember_whenRemoveMember_thenThrowsConflict() {
         member.setStudentType(StudentType.KURSADMIN);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(member.getStudentID()))
-            .thenReturn(Optional.of(member));
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(member.getStudentID()))
+            .thenReturn(member);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(member))
             .thenReturn(Optional.of(memberAnfrage));
@@ -398,13 +371,10 @@ public class KursMitgliederServiceTest {
     public void givenUnknownStudent_whenRemoveMember_thenThrows() {
         UUID unknownId = UUID.randomUUID();
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(admin));
-        when(kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(admin))
-            .thenReturn(Optional.of(adminAnfrage));
-        when(studentRepository.findById(unknownId))
-            .thenReturn(Optional.empty());
+        when(kursStudentHelper.findKursForAdminByEmail("admin@dhbw.de"))
+            .thenReturn(kurs);
+        when(kursStudentHelper.findStudentById(unknownId))
+            .thenThrow(new NoSuchElementException("Student not found"));
 
         assertThrows(NoSuchElementException.class,
             () -> kursMitgliederService.removeKursMember(

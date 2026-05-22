@@ -17,13 +17,13 @@ import com.se.dhubbw.ordner.infrastructure.db.Ordner;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegung;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerRepository;
+import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import com.se.dhubbw.shared.testing.UnitTest;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-public class SystemAdminVerwaltungServiceTest {
+public class PlattformVerwaltungServiceTest {
 
     @Mock
     private KursRepository kursRepository;
@@ -72,13 +72,15 @@ public class SystemAdminVerwaltungServiceTest {
     private KursErstellungsAnfrageRepository
         erstellungsAnfrageRepository;
 
+    @Mock
+    private KursStudentHelper kursStudentHelper;
+
     @InjectMocks
-    private SystemAdminVerwaltungServiceImpl systemAdminVerwaltungService;
+    private PlattformVerwaltungServiceImpl plattformVerwaltungService;
 
     private Kurs kurs;
     private Student student;
     private Student sysAdmin;
-    private Student secondSysAdmin;
 
     @BeforeEach
     public void setUp() {
@@ -98,16 +100,11 @@ public class SystemAdminVerwaltungServiceTest {
         sysAdmin.setName("Tom");
         sysAdmin.setDhbwMail("tom@dhbw.de");
         sysAdmin.setStudentType(StudentType.SYSTEMADMIN);
-
-        secondSysAdmin = new Student();
-        secondSysAdmin.setStudentID(UUID.randomUUID());
-        secondSysAdmin.setName("Eva");
-        secondSysAdmin.setDhbwMail("eva@dhbw.de");
-        secondSysAdmin.setStudentType(StudentType.SYSTEMADMIN);
     }
 
     @Test
-    public void givenPlatformData_whenRetrieveStats_thenReturnsStats() {
+    public void
+            givenPlatformData_whenRetrieveStats_thenReturnsStats() {
         when(kursRepository.count()).thenReturn(2L);
         when(studentRepository.count()).thenReturn(10L);
         when(dateiRepository.count()).thenReturn(5L);
@@ -116,7 +113,7 @@ public class SystemAdminVerwaltungServiceTest {
             .thenReturn(1L);
 
         SystemAdminStatsDTO stats =
-            systemAdminVerwaltungService.retrieveSystemAdminStats();
+            plattformVerwaltungService.retrieveSystemAdminStats();
 
         assertNotNull(stats);
         assertEquals(2L, stats.getAnzahlKurse());
@@ -131,7 +128,7 @@ public class SystemAdminVerwaltungServiceTest {
         when(kursRepository.findAll()).thenReturn(List.of(kurs));
 
         List<KursDTO> result =
-            systemAdminVerwaltungService.retrieveKurse();
+            plattformVerwaltungService.retrieveKurse();
 
         assertEquals(1, result.size());
         assertEquals(kurs.getKursID(), result.get(0).getKursID());
@@ -144,13 +141,14 @@ public class SystemAdminVerwaltungServiceTest {
             .thenReturn(Collections.emptyList());
 
         List<KursDTO> result =
-            systemAdminVerwaltungService.retrieveKurse();
+            plattformVerwaltungService.retrieveKurse();
 
         assertEquals(0, result.size());
     }
 
     @Test
-    public void givenKursWithPrivateFolder_whenDelete_thenDeletesFolder() {
+    public void
+            givenKursWithPrivateFolder_whenDelete_thenDeletesFolder() {
         Ordner privateOrdner = new Ordner();
         privateOrdner.setOrdnerID(UUID.randomUUID());
         privateOrdner.setPublic(false);
@@ -165,14 +163,15 @@ public class SystemAdminVerwaltungServiceTest {
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
             .thenReturn(Collections.emptyList());
 
-        systemAdminVerwaltungService.deleteKurs(kurs.getKursID());
+        plattformVerwaltungService.deleteKurs(kurs.getKursID());
 
         verify(ordnerRepository).delete(privateOrdner);
         verify(kursRepository).delete(kurs);
     }
 
     @Test
-    public void givenPrivateFolderWithAnlegung_whenDelete_thenDeletesAnlegung() {
+    public void
+            givenPrivateFolderWithAnlegung_whenDelete_thenDeletesAnlegung() {
         OrdnerAnlegung anlegung = new OrdnerAnlegung();
 
         Ordner privateOrdner = new Ordner();
@@ -189,14 +188,15 @@ public class SystemAdminVerwaltungServiceTest {
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
             .thenReturn(Collections.emptyList());
 
-        systemAdminVerwaltungService.deleteKurs(kurs.getKursID());
+        plattformVerwaltungService.deleteKurs(kurs.getKursID());
 
         verify(ordnerAnlegungRepository).delete(anlegung);
         verify(ordnerRepository).delete(privateOrdner);
     }
 
     @Test
-    public void givenKursWithPublicFolder_whenDelete_thenDetachesFolder() {
+    public void
+            givenKursWithPublicFolder_whenDelete_thenDetachesFolder() {
         Ordner publicOrdner = new Ordner();
         publicOrdner.setOrdnerID(UUID.randomUUID());
         publicOrdner.setPublic(true);
@@ -210,7 +210,7 @@ public class SystemAdminVerwaltungServiceTest {
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
             .thenReturn(Collections.emptyList());
 
-        systemAdminVerwaltungService.deleteKurs(kurs.getKursID());
+        plattformVerwaltungService.deleteKurs(kurs.getKursID());
 
         verify(ordnerRepository, never()).delete(any(Ordner.class));
         verify(ordnerRepository).save(publicOrdner);
@@ -218,7 +218,8 @@ public class SystemAdminVerwaltungServiceTest {
     }
 
     @Test
-    public void givenPrivateFolderWithFile_whenDelete_thenDeletesFile() {
+    public void
+            givenPrivateFolderWithFile_whenDelete_thenDeletesFile() {
         Datei datei = new Datei();
         datei.setDateiID(UUID.randomUUID());
 
@@ -241,7 +242,7 @@ public class SystemAdminVerwaltungServiceTest {
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
             .thenReturn(Collections.emptyList());
 
-        systemAdminVerwaltungService.deleteKurs(kurs.getKursID());
+        plattformVerwaltungService.deleteKurs(kurs.getKursID());
 
         verify(dateiAnlegungRepository).delete(anlegung);
         verify(dateiRepository).delete(datei);
@@ -249,7 +250,8 @@ public class SystemAdminVerwaltungServiceTest {
     }
 
     @Test
-    public void givenKursAdminInKurs_whenDelete_thenDemotesToStudent() {
+    public void
+            givenKursAdminInKurs_whenDelete_thenDemotesToStudent() {
         Student kursAdmin = new Student();
         kursAdmin.setStudentID(UUID.randomUUID());
         kursAdmin.setStudentType(StudentType.KURSADMIN);
@@ -265,7 +267,7 @@ public class SystemAdminVerwaltungServiceTest {
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
             .thenReturn(List.of(enrollment));
 
-        systemAdminVerwaltungService.deleteKurs(kurs.getKursID());
+        plattformVerwaltungService.deleteKurs(kurs.getKursID());
 
         assertEquals(StudentType.STUDENT, kursAdmin.getStudentType());
         verify(studentRepository).save(kursAdmin);
@@ -275,18 +277,20 @@ public class SystemAdminVerwaltungServiceTest {
     }
 
     @Test
-    public void givenUnknownKursId_whenDelete_thenThrowsException() {
+    public void
+            givenUnknownKursId_whenDelete_thenThrowsException() {
         UUID unknownId = UUID.randomUUID();
         when(kursRepository.findById(unknownId))
             .thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> systemAdminVerwaltungService.deleteKurs(unknownId));
+            () -> plattformVerwaltungService.deleteKurs(unknownId));
         verify(kursRepository, never()).delete(any());
     }
 
     @Test
-    public void givenKursWithMembers_whenRetrieveMembers_thenReturnsRoles() {
+    public void
+            givenKursWithMembers_whenRetrieveMembers_thenReturnsRoles() {
         KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
         enrollment.setStudent(student);
         enrollment.setKurs(kurs);
@@ -298,7 +302,7 @@ public class SystemAdminVerwaltungServiceTest {
             .thenReturn(List.of(enrollment));
 
         List<KursMitgliedRolleDTO> result =
-            systemAdminVerwaltungService
+            plattformVerwaltungService
                 .retrieveKursMembersAndTheirRoles(kurs.getKursID());
 
         assertEquals(1, result.size());
@@ -307,13 +311,14 @@ public class SystemAdminVerwaltungServiceTest {
     }
 
     @Test
-    public void givenUnknownKursId_whenRetrieveMembers_thenThrows() {
+    public void
+            givenUnknownKursId_whenRetrieveMembers_thenThrows() {
         UUID unknownId = UUID.randomUUID();
         when(kursRepository.findById(unknownId))
             .thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> systemAdminVerwaltungService
+            () -> plattformVerwaltungService
                 .retrieveKursMembersAndTheirRoles(unknownId));
     }
 
@@ -322,7 +327,7 @@ public class SystemAdminVerwaltungServiceTest {
         when(studentRepository.findAll()).thenReturn(List.of(student));
 
         List<StudentDTO> result =
-            systemAdminVerwaltungService.retrieveAllStudents();
+            plattformVerwaltungService.retrieveAllStudents();
 
         assertEquals(1, result.size());
         assertEquals(student.getStudentID(),
@@ -336,17 +341,19 @@ public class SystemAdminVerwaltungServiceTest {
             .thenReturn(Collections.emptyList());
 
         List<StudentDTO> result =
-            systemAdminVerwaltungService.retrieveAllStudents();
+            plattformVerwaltungService.retrieveAllStudents();
 
         assertEquals(0, result.size());
     }
 
     @Test
-    public void givenStudentNotSysAdmin_whenAddSysAdmin_thenPromotes() {
-        when(studentRepository.findById(student.getStudentID()))
-            .thenReturn(Optional.of(student));
+    public void
+            givenStudentNotSysAdmin_whenAddSysAdmin_thenPromotes() {
+        when(kursStudentHelper.findStudentById(student.getStudentID()))
+            .thenReturn(student);
 
-        systemAdminVerwaltungService.addSysAdmin(student.getStudentID());
+        plattformVerwaltungService.addSysAdmin(
+            student.getStudentID());
 
         assertEquals(StudentType.SYSTEMADMIN,
             student.getStudentType());
@@ -354,35 +361,40 @@ public class SystemAdminVerwaltungServiceTest {
     }
 
     @Test
-    public void givenAlreadySysAdmin_whenAddSysAdmin_thenThrowsConflict() {
-        when(studentRepository.findById(sysAdmin.getStudentID()))
-            .thenReturn(Optional.of(sysAdmin));
+    public void
+            givenAlreadySysAdmin_whenAddSysAdmin_thenThrowsConflict() {
+        when(kursStudentHelper.findStudentById(
+            sysAdmin.getStudentID()))
+            .thenReturn(sysAdmin);
 
         assertThrows(IllegalStateException.class,
-            () -> systemAdminVerwaltungService
+            () -> plattformVerwaltungService
                 .addSysAdmin(sysAdmin.getStudentID()));
         verify(studentRepository, never()).save(any());
     }
 
     @Test
-    public void givenUnknownStudentId_whenAddSysAdmin_thenThrows() {
+    public void
+            givenUnknownStudentId_whenAddSysAdmin_thenThrows() {
         UUID unknownId = UUID.randomUUID();
-        when(studentRepository.findById(unknownId))
-            .thenReturn(Optional.empty());
+        when(kursStudentHelper.findStudentById(unknownId))
+            .thenThrow(new NoSuchElementException("Student not found"));
 
         assertThrows(NoSuchElementException.class,
-            () -> systemAdminVerwaltungService.addSysAdmin(unknownId));
+            () -> plattformVerwaltungService.addSysAdmin(unknownId));
     }
 
     @Test
-    public void givenTwoSysAdmins_whenRemoveSysAdmin_thenDemotes() {
-        when(studentRepository.findById(sysAdmin.getStudentID()))
-            .thenReturn(Optional.of(sysAdmin));
+    public void
+            givenTwoSysAdmins_whenRemoveSysAdmin_thenDemotes() {
+        when(kursStudentHelper.findStudentById(
+            sysAdmin.getStudentID()))
+            .thenReturn(sysAdmin);
         when(studentRepository
             .countByStudentType(StudentType.SYSTEMADMIN))
             .thenReturn(2L);
 
-        systemAdminVerwaltungService
+        plattformVerwaltungService
             .removeSysAdmin(sysAdmin.getStudentID());
 
         assertEquals(StudentType.STUDENT, sysAdmin.getStudentType());
@@ -390,37 +402,41 @@ public class SystemAdminVerwaltungServiceTest {
     }
 
     @Test
-    public void givenOneSysAdmin_whenRemoveSysAdmin_thenThrowsConflict() {
-        when(studentRepository.findById(sysAdmin.getStudentID()))
-            .thenReturn(Optional.of(sysAdmin));
+    public void
+            givenOneSysAdmin_whenRemoveSysAdmin_thenThrowsConflict() {
+        when(kursStudentHelper.findStudentById(
+            sysAdmin.getStudentID()))
+            .thenReturn(sysAdmin);
         when(studentRepository
             .countByStudentType(StudentType.SYSTEMADMIN))
             .thenReturn(1L);
 
         assertThrows(IllegalStateException.class,
-            () -> systemAdminVerwaltungService
+            () -> plattformVerwaltungService
                 .removeSysAdmin(sysAdmin.getStudentID()));
         verify(studentRepository, never()).save(any());
     }
 
     @Test
-    public void givenNotSysAdmin_whenRemoveSysAdmin_thenThrowsBadRequest() {
-        when(studentRepository.findById(student.getStudentID()))
-            .thenReturn(Optional.of(student));
+    public void
+            givenNotSysAdmin_whenRemoveSysAdmin_thenThrowsBadRequest() {
+        when(kursStudentHelper.findStudentById(student.getStudentID()))
+            .thenReturn(student);
 
         assertThrows(IllegalArgumentException.class,
-            () -> systemAdminVerwaltungService
+            () -> plattformVerwaltungService
                 .removeSysAdmin(student.getStudentID()));
     }
 
     @Test
-    public void givenUnknownStudentId_whenRemoveSysAdmin_thenThrows() {
+    public void
+            givenUnknownStudentId_whenRemoveSysAdmin_thenThrows() {
         UUID unknownId = UUID.randomUUID();
-        when(studentRepository.findById(unknownId))
-            .thenReturn(Optional.empty());
+        when(kursStudentHelper.findStudentById(unknownId))
+            .thenThrow(new NoSuchElementException("Student not found"));
 
         assertThrows(NoSuchElementException.class,
-            () -> systemAdminVerwaltungService
+            () -> plattformVerwaltungService
                 .removeSysAdmin(unknownId));
     }
 }

@@ -1,6 +1,7 @@
 package com.se.dhubbw.kurs.infrastructure;
 
 import com.se.dhubbw.kurs.domain.KursSystemAdminService;
+import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -31,7 +32,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class KursSystemAdminServiceImpl implements KursSystemAdminService {
-
     /**
      * Repository for course creation request operations.
      */
@@ -64,7 +64,7 @@ public class KursSystemAdminServiceImpl implements KursSystemAdminService {
 
     /** {@inheritDoc} */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void approveKursErstellungsanfrage(
             final UUID anfrageId) {
         KursErstellungsAnfrage anfrage = findAnfrageOrThrow(anfrageId);
@@ -105,7 +105,7 @@ public class KursSystemAdminServiceImpl implements KursSystemAdminService {
 
     /** {@inheritDoc} */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void declineKursErstellungsanfrage(
             final UUID anfrageId) {
         KursErstellungsAnfrage anfrage = findAnfrageOrThrow(anfrageId);

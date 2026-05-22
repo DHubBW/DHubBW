@@ -7,7 +7,8 @@ import com.se.dhubbw.kurs.application.dto.KursMitgliedRolleDTO;
 import com.se.dhubbw.kurs.application.dto.KursDTO;
 import com.se.dhubbw.kurs.application.dto.StudentDTO;
 import com.se.dhubbw.kurs.application.dto.SystemAdminStatsDTO;
-import com.se.dhubbw.kurs.domain.SystemAdminVerwaltungService;
+import com.se.dhubbw.kurs.domain.PlattformVerwaltungService;
+import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -52,8 +53,8 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class SystemAdminVerwaltungServiceImpl
-    implements SystemAdminVerwaltungService {
+public class PlattformVerwaltungServiceImpl
+    implements PlattformVerwaltungService {
 
     /**
      * Repository for course operations.
@@ -104,10 +105,15 @@ public class SystemAdminVerwaltungServiceImpl
     private double maxStorageMb;
 
     /**
+     * Shared helper for student lookups.
+     */
+    private final KursStudentHelper kursStudentHelper;
+
+    /**
      * Color-coded logger for error reporting.
      */
     private final ColorLogger colorLogger =
-        new ColorLogger(SystemAdminVerwaltungServiceImpl.class);
+        new ColorLogger(PlattformVerwaltungServiceImpl.class);
 
     /**
      * {@inheritDoc}
@@ -149,7 +155,7 @@ public class SystemAdminVerwaltungServiceImpl
      * {@inheritDoc}
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void deleteKurs(final UUID kursId) {
         Kurs kurs = findKursOrThrow(kursId);
 
@@ -216,9 +222,9 @@ public class SystemAdminVerwaltungServiceImpl
      * {@inheritDoc}
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void addSysAdmin(final UUID studentId) {
-        Student student = findStudentByIdOrThrow(studentId);
+        Student student = kursStudentHelper.findStudentById(studentId);
         if (student.getStudentType() == StudentType.SYSTEMADMIN) {
             IllegalStateException ex = new IllegalStateException(
                 "Student is already SYSTEMADMIN");
@@ -235,9 +241,9 @@ public class SystemAdminVerwaltungServiceImpl
      * {@inheritDoc}
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void removeSysAdmin(final UUID studentId) {
-        Student student = findStudentByIdOrThrow(studentId);
+        Student student = kursStudentHelper.findStudentById(studentId);
         if (student.getStudentType() != StudentType.SYSTEMADMIN) {
             IllegalArgumentException ex = new IllegalArgumentException(
                 "Student is not a SYSTEMADMIN");
@@ -304,18 +310,5 @@ public class SystemAdminVerwaltungServiceImpl
             .orElseThrow(() -> new NoSuchElementException(
                 "Kurs not found: " + kursId));
     }
-
-    /**
-     * Find a student by their identifier.
-     *
-     * @param studentId the student ID
-     * @return the matching student
-     * @throws NoSuchElementException if no student with that ID
-     *     exists
-     */
-    private Student findStudentByIdOrThrow(final UUID studentId) {
-        return studentRepository.findById(studentId)
-            .orElseThrow(() -> new NoSuchElementException(
-                "Student not found: " + studentId));
-    }
 }
+

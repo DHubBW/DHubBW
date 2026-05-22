@@ -16,7 +16,7 @@ import java.util.UUID;
  * list course members with their roles, list all students, and
  * manage the SYSTEMADMIN role.</p>
  */
-public interface SystemAdminVerwaltungService {
+public interface PlattformVerwaltungService {
 
     /**
      * Retrieve platform-wide statistics.

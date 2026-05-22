@@ -42,4 +42,27 @@ public class ColorLoggerTest {
         assertDoesNotThrow(() ->
             colorLogger.colorInfo("synced {} items across {} days", 5, 3));
     }
+
+    @Test
+    public void givenMessage_whenColorWarn_thenNoExceptionThrown() {
+        assertDoesNotThrow(() -> colorLogger.colorWarn("warn message"));
+    }
+
+    @Test
+    public void givenMessageWithArgs_whenColorWarn_thenNoExceptionThrown() {
+        assertDoesNotThrow(() ->
+            colorLogger.colorWarn("warn {} code {}", "test", 42));
+    }
+
+    @Test
+    public void givenMessage_whenColorCritical_thenNoExceptionThrown() {
+        assertDoesNotThrow(() -> colorLogger.colorCritical("critical error"));
+    }
+
+    @Test
+    public void givenMessageWithArgs_whenColorCritical_thenNoExceptionThrown() {
+        assertDoesNotThrow(() ->
+            colorLogger.colorCritical(
+                "critical {} in {}", "failure", "service"));
+    }
 }

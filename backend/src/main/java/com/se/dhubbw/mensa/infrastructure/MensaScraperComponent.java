@@ -59,6 +59,16 @@ public class MensaScraperComponent {
     private static final String SEL_CANTEEN_DAY = "div.canteen-day";
 
     /**
+     * CSS selector for the outer mensatype row containing one line.
+     */
+    private static final String SEL_MENSATYPE_ROW = "tr.mensatype_rows";
+
+    /**
+     * CSS selector for the line name div inside a mensatype row.
+     */
+    private static final String SEL_MENSATYPE_NAME = "td.mensatype div";
+
+    /**
      * CSS selector for individual meal title cells.
      */
     private static final String SEL_MEAL_TITLE = "td.menu-title";
@@ -176,6 +186,10 @@ public class MensaScraperComponent {
     /**
      * Parse all meals from a single day container.
      *
+     * <p>Iterates over {@code tr.mensatype_rows} elements. Each such
+     * row represents one serving line (e.g. "Wahlessen 1") and
+     * contains one or more meal entries in a nested table.</p>
+     *
      * @param canteenDay the day container element
      * @param datum      the date this container represents
      * @return list of meals for that day
@@ -184,26 +198,36 @@ public class MensaScraperComponent {
         final Element canteenDay,
         final LocalDate datum) {
         List<Mensa> meals = new ArrayList<>();
-        Elements titleCells = canteenDay.select(SEL_MEAL_TITLE);
+        Elements mensatypeRows = canteenDay.select(SEL_MENSATYPE_ROW);
 
-        for (Element titleCell : titleCells) {
-            Element row = titleCell.parent();
-            if (row == null) {
-                continue;
+        for (Element mensatypeRow : mensatypeRows) {
+            Element linieDiv =
+                mensatypeRow.selectFirst(SEL_MENSATYPE_NAME);
+            String linie =
+                linieDiv != null ? linieDiv.text().trim() : "";
+
+            Elements titleCells =
+                mensatypeRow.select(SEL_MEAL_TITLE);
+            for (Element titleCell : titleCells) {
+                Element row = titleCell.parent();
+                if (row == null) {
+                    continue;
+                }
+
+                String name = extractName(titleCell);
+                String allergene = extractAllergene(titleCell);
+                double preis = extractPreis(row);
+                Ernaehrung ernaehrung = extractErnaehrung(row);
+
+                Mensa mensa = new Mensa();
+                mensa.setDatum(datum);
+                mensa.setLinie(linie);
+                mensa.setEssensbezeichnung(name);
+                mensa.setAllergene(allergene);
+                mensa.setPreis(preis);
+                mensa.setErnaehrung(ernaehrung);
+                meals.add(mensa);
             }
-
-            String name = extractName(titleCell);
-            String allergene = extractAllergene(titleCell);
-            double preis = extractPreis(row);
-            Ernaehrung ernaehrung = extractErnaehrung(row);
-
-            Mensa mensa = new Mensa();
-            mensa.setDatum(datum);
-            mensa.setEssensbezeichnung(name);
-            mensa.setAllergene(allergene);
-            mensa.setPreis(preis);
-            mensa.setErnaehrung(ernaehrung);
-            meals.add(mensa);
         }
         return meals;
     }

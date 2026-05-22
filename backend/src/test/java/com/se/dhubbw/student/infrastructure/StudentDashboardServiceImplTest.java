@@ -7,6 +7,7 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
+import com.se.dhubbw.shared.infrastructure.helper.StudentLookupHelper;
 import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.application.dto.StudentProfileDTO;
 import com.se.dhubbw.student.infrastructure.db.Student;
@@ -43,6 +44,9 @@ public class StudentDashboardServiceImplTest {
 
     @Mock
     private StudentRepository studentRepository;
+
+    @Mock
+    private StudentLookupHelper studentLookupHelper;
 
     @Mock
     private KursBeitrittsAnfrageRepository kursBeitrittsAnfrageRepository;
@@ -107,8 +111,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenRegularStudent_whenLeaveKurs_thenSuccessfullyLeaves() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(enrollment));
@@ -120,8 +124,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentNotFound_whenLeaveKurs_thenThrowsException() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenThrow(new NoSuchElementException("Student not found: " + STUDENT_MAIL));
 
         NoSuchElementException exception = assertThrows(
             NoSuchElementException.class,
@@ -134,8 +138,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentNoEnrollment_whenLeaveKurs_thenThrowsException() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.empty());
@@ -153,8 +157,8 @@ public class StudentDashboardServiceImplTest {
     @Test
     public void givenKursadminWithOthers_whenLeaveKurs_thenSuccessfullyLeaves() {
         student.setStudentType(StudentType.KURSADMIN);
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(enrollment));
@@ -170,8 +174,8 @@ public class StudentDashboardServiceImplTest {
     @Test
     public void givenLastKursadmin_whenLeaveKurs_thenThrowsException() {
         student.setStudentType(StudentType.KURSADMIN);
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(enrollment));
@@ -194,8 +198,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenRegularStudent_whenDeleteAccount_thenSuccessfullyDeletes() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(enrollment));
@@ -215,8 +219,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentNotFound_whenDeleteAccount_thenThrowsException() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenThrow(new NoSuchElementException("Student not found: " + STUDENT_MAIL));
 
         NoSuchElementException exception = assertThrows(
             NoSuchElementException.class,
@@ -230,8 +234,8 @@ public class StudentDashboardServiceImplTest {
     @Test
     public void givenLastSystemadmin_whenDeleteAccount_thenThrowsException() {
         student.setStudentType(StudentType.SYSTEMADMIN);
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(studentRepository.countByStudentType(StudentType.SYSTEMADMIN))
             .thenReturn(1L);
 
@@ -248,8 +252,8 @@ public class StudentDashboardServiceImplTest {
     @Test
     public void givenSystemadminWithOthers_whenDeleteAccount_thenSuccessfullyDeletes() {
         student.setStudentType(StudentType.SYSTEMADMIN);
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(studentRepository.countByStudentType(StudentType.SYSTEMADMIN))
             .thenReturn(2L);
         when(kursBeitrittsAnfrageRepository
@@ -267,8 +271,8 @@ public class StudentDashboardServiceImplTest {
     @Test
     public void givenLastKursadmin_whenDeleteAccount_thenThrowsException() {
         student.setStudentType(StudentType.KURSADMIN);
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(enrollment));
@@ -290,8 +294,8 @@ public class StudentDashboardServiceImplTest {
     @Test
     public void givenKursadminWithOthers_whenDeleteAccount_thenSuccessfullyDeletes() {
         student.setStudentType(StudentType.KURSADMIN);
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(enrollment));
@@ -309,8 +313,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentWithoutEnrollment_whenDeleteAccount_thenSuccessfullyDeletes() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.empty());
@@ -328,8 +332,8 @@ public class StudentDashboardServiceImplTest {
         KursBeitrittsAnfrage pendingRequest = new KursBeitrittsAnfrage();
         pendingRequest.setApproved(false);
 
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(enrollment));
@@ -348,8 +352,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentWithEnrollment_whenRetrieveProfile_thenReturnsProfileWithKurs() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(enrollment));
@@ -366,8 +370,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentWithoutEnrollment_whenRetrieveProfile_thenReturnsProfileWithNullKurs() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.empty());
@@ -384,8 +388,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentNotFound_whenRetrieveProfile_thenThrowsException() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenThrow(new NoSuchElementException("Student not found: " + STUDENT_MAIL));
 
         NoSuchElementException exception = assertThrows(
             NoSuchElementException.class,
@@ -399,8 +403,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentWithEnrollment_whenRetrieveKursForUser_thenReturnsKursName() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(enrollment));
@@ -412,8 +416,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentWithoutEnrollment_whenRetrieveKursForUser_thenReturnsNull() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.of(student));
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.empty());
@@ -425,8 +429,8 @@ public class StudentDashboardServiceImplTest {
 
     @Test
     public void givenStudentNotFound_whenRetrieveKursForUser_thenThrowsException() {
-        when(studentRepository.findByDhbwMail(STUDENT_MAIL))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenThrow(new NoSuchElementException("Student not found: " + STUDENT_MAIL));
 
         NoSuchElementException exception = assertThrows(
             NoSuchElementException.class,

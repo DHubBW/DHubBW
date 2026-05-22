@@ -47,6 +47,11 @@ public class MensaDTO {
     private Ernaehrung ernaehrung;
 
     /**
+     * Serving line or category (e.g. "Wahlessen 1").
+     */
+    private String linie;
+
+    /**
      * Create a DTO from a {@link Mensa} entity.
      *
      * @param mensa the entity to convert
@@ -59,7 +64,8 @@ public class MensaDTO {
             mensa.getEssensbezeichnung(),
             mensa.getAllergene(),
             mensa.getPreis(),
-            mensa.getErnaehrung()
+            mensa.getErnaehrung(),
+            mensa.getLinie()
         );
     }
 }

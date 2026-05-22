@@ -11,9 +11,9 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.ordner.infrastructure.db.Ordner;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerRepository;
+import com.se.dhubbw.shared.infrastructure.helper.StudentLookupHelper;
 import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
-import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,7 +57,7 @@ public class DateiServiceTest {
     private OrdnerRepository ordnerRepository;
 
     @Mock
-    private StudentRepository studentRepository;
+    private StudentLookupHelper studentLookupHelper;
 
     @Mock
     private KursBeitrittsAnfrageRepository
@@ -123,8 +124,8 @@ public class DateiServiceTest {
         KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
         enrollment.setKurs(kurs);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(ordnerRepository.findById(ordnerWithKurs.getOrdnerID()))
             .thenReturn(Optional.of(ordnerWithKurs));
         when(kursBeitrittsAnfrageRepository
@@ -154,8 +155,8 @@ public class DateiServiceTest {
         KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
         enrollment.setKurs(kurs);
 
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
         when(ordnerRepository.findById(ordnerWithKurs.getOrdnerID()))
             .thenReturn(Optional.of(ordnerWithKurs));
         when(kursBeitrittsAnfrageRepository
@@ -181,8 +182,8 @@ public class DateiServiceTest {
 
     @Test
     public void givenSysAdmin_whenUpload_thenSucceeds() {
-        when(studentRepository.findByDhbwMail("sys@dhbw.de"))
-            .thenReturn(Optional.of(sysAdmin));
+        when(studentLookupHelper.findStudentByEmail("sys@dhbw.de"))
+            .thenReturn(sysAdmin);
         when(ordnerRepository.findById(ordnerWithKurs.getOrdnerID()))
             .thenReturn(Optional.of(ordnerWithKurs));
         when(dateiRepository.findTotalFileSizeInMb()).thenReturn(0.0);
@@ -204,25 +205,24 @@ public class DateiServiceTest {
 
     @Test
     public void givenStudentNotFound_whenUpload_thenThrows404() {
-        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail("unknown@dhbw.de"))
+            .thenThrow(new NoSuchElementException(
+                "Student not found: unknown@dhbw.de"));
 
-        ResponseStatusException ex = assertThrows(
-            ResponseStatusException.class,
+        assertThrows(
+            NoSuchElementException.class,
             () -> dateiService.uploadDatei(
                 mockFile,
                 ordnerWithKurs.getOrdnerID(),
                 "test.pdf",
                 "unknown@dhbw.de"));
-
-        assertEquals(404, ex.getStatusCode().value());
     }
 
     @Test
     public void givenOrdnerNotFound_whenUpload_thenThrows404() {
         UUID unknownId = UUID.randomUUID();
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(ordnerRepository.findById(unknownId))
             .thenReturn(Optional.empty());
 
@@ -236,8 +236,8 @@ public class DateiServiceTest {
 
     @Test
     public void givenNonMember_whenUpload_thenThrows403() {
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
         when(ordnerRepository.findById(ordnerWithKurs.getOrdnerID()))
             .thenReturn(Optional.of(ordnerWithKurs));
 
@@ -254,8 +254,8 @@ public class DateiServiceTest {
 
     @Test
     public void givenOrdnerNoKurs_whenUpload_thenThrows403() {
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(ordnerRepository.findById(
             ordnerWithoutKurs.getOrdnerID()))
             .thenReturn(Optional.of(ordnerWithoutKurs));
@@ -276,8 +276,8 @@ public class DateiServiceTest {
         KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
         enrollment.setKurs(kurs);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(ordnerRepository.findById(ordnerWithKurs.getOrdnerID()))
             .thenReturn(Optional.of(ordnerWithKurs));
         when(kursBeitrittsAnfrageRepository
@@ -306,8 +306,8 @@ public class DateiServiceTest {
 
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(kursAdmin))
             .thenReturn(Optional.of(enrollment));
@@ -323,8 +323,8 @@ public class DateiServiceTest {
     public void givenSysAdmin_whenRename_thenRenames() {
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("sys@dhbw.de"))
-            .thenReturn(Optional.of(sysAdmin));
+        when(studentLookupHelper.findStudentByEmail("sys@dhbw.de"))
+            .thenReturn(sysAdmin);
 
         dateiService.renameDatei(
             datei.getDateiID(), "newName.pdf", "sys@dhbw.de");
@@ -339,8 +339,8 @@ public class DateiServiceTest {
 
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(regularStudent))
             .thenReturn(Optional.of(enrollment));
@@ -355,8 +355,8 @@ public class DateiServiceTest {
     public void givenNonMember_whenRename_thenThrows403() {
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
 
         ResponseStatusException ex = assertThrows(
             ResponseStatusException.class,
@@ -373,8 +373,8 @@ public class DateiServiceTest {
 
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
 
         dateiService.renameDatei(
             datei.getDateiID(), "new.pdf", "student@dhbw.de");
@@ -400,15 +400,14 @@ public class DateiServiceTest {
     public void givenStudentNotFound_whenRename_thenThrows404() {
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail("unknown@dhbw.de"))
+            .thenThrow(new NoSuchElementException(
+                "Student not found: unknown@dhbw.de"));
 
-        ResponseStatusException ex = assertThrows(
-            ResponseStatusException.class,
+        assertThrows(
+            NoSuchElementException.class,
             () -> dateiService.renameDatei(
                 datei.getDateiID(), "new.pdf", "unknown@dhbw.de"));
-
-        assertEquals(404, ex.getStatusCode().value());
     }
 
     // --- deleteDatei tests ---
@@ -423,8 +422,8 @@ public class DateiServiceTest {
 
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(kursAdmin))
             .thenReturn(Optional.of(enrollment));
@@ -441,8 +440,8 @@ public class DateiServiceTest {
     public void givenSysAdmin_whenDelete_thenDeletes() {
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("sys@dhbw.de"))
-            .thenReturn(Optional.of(sysAdmin));
+        when(studentLookupHelper.findStudentByEmail("sys@dhbw.de"))
+            .thenReturn(sysAdmin);
         when(dateiAnlegungRepository.findByDatei(datei))
             .thenReturn(Optional.empty());
 
@@ -455,8 +454,8 @@ public class DateiServiceTest {
     public void givenNonMember_whenDelete_thenThrows403() {
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
 
         ResponseStatusException ex = assertThrows(
             ResponseStatusException.class,
@@ -485,15 +484,14 @@ public class DateiServiceTest {
     public void givenStudentNotFound_whenDelete_thenThrows404() {
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail("unknown@dhbw.de"))
+            .thenThrow(new NoSuchElementException(
+                "Student not found: unknown@dhbw.de"));
 
-        ResponseStatusException ex = assertThrows(
-            ResponseStatusException.class,
+        assertThrows(
+            NoSuchElementException.class,
             () -> dateiService.deleteDatei(
                 datei.getDateiID(), "unknown@dhbw.de"));
-
-        assertEquals(404, ex.getStatusCode().value());
     }
 
     // --- retrieveDateienForOrdner tests ---
@@ -505,8 +503,8 @@ public class DateiServiceTest {
         enrollment.setKurs(kurs);
         UUID ordnerId = ordnerWithKurs.getOrdnerID();
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(ordnerRepository.findById(ordnerId))
             .thenReturn(Optional.of(ordnerWithKurs));
         when(kursBeitrittsAnfrageRepository
@@ -530,8 +528,8 @@ public class DateiServiceTest {
     public void givenSysAdmin_whenRetrieveDateienForOrdner_thenSucceeds() {
         UUID ordnerId = ordnerWithKurs.getOrdnerID();
 
-        when(studentRepository.findByDhbwMail("sys@dhbw.de"))
-            .thenReturn(Optional.of(sysAdmin));
+        when(studentLookupHelper.findStudentByEmail("sys@dhbw.de"))
+            .thenReturn(sysAdmin);
         when(ordnerRepository.findById(ordnerId))
             .thenReturn(Optional.of(ordnerWithKurs));
         when(dateiRepository
@@ -548,8 +546,8 @@ public class DateiServiceTest {
     @Test
     public void givenOrdnerNotFound_whenRetrieveDateienForOrdner_thenThrows404() {
         UUID unknownId = UUID.randomUUID();
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(ordnerRepository.findById(unknownId))
             .thenReturn(Optional.empty());
 
@@ -564,8 +562,8 @@ public class DateiServiceTest {
     @Test
     public void givenNonMember_whenRetrieveDateienForOrdner_thenThrows403() {
         UUID ordnerId = ordnerWithKurs.getOrdnerID();
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
         when(ordnerRepository.findById(ordnerId))
             .thenReturn(Optional.of(ordnerWithKurs));
         when(kursBeitrittsAnfrageRepository
@@ -583,21 +581,21 @@ public class DateiServiceTest {
     @Test
     public void givenStudentNotFound_whenRetrieveDateienForOrdner_thenThrows404() {
         UUID ordnerId = ordnerWithKurs.getOrdnerID();
-        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail("unknown@dhbw.de"))
+            .thenThrow(new NoSuchElementException(
+                "Student not found: unknown@dhbw.de"));
 
-        ResponseStatusException ex = assertThrows(
-            ResponseStatusException.class,
+        assertThrows(
+            NoSuchElementException.class,
             () -> dateiService.retrieveDateienForOrdner(
                 ordnerId, "unknown@dhbw.de"));
-
-        assertEquals(404, ex.getStatusCode().value());
     }
 
     @Test
-    public void givenOrdnerNoKurs_whenRetrieveDateienForOrdner_thenAllowed() {        UUID ordnerId = ordnerWithoutKurs.getOrdnerID();
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+    public void givenOrdnerNoKurs_whenRetrieveDateienForOrdner_thenAllowed() {
+        UUID ordnerId = ordnerWithoutKurs.getOrdnerID();
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
         when(ordnerRepository.findById(ordnerId))
             .thenReturn(Optional.of(ordnerWithoutKurs));
         when(dateiRepository
@@ -619,8 +617,8 @@ public class DateiServiceTest {
             new KursBeitrittsAnfrage();
         enrollment.setKurs(kurs);
 
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(kursAdmin))
             .thenReturn(Optional.of(enrollment));
@@ -637,8 +635,8 @@ public class DateiServiceTest {
 
     @Test
     public void givenNoEnrollment_whenRetrieveAllFiles_thenReturnsEmpty() {
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(kursAdmin))
             .thenReturn(Optional.empty());
@@ -651,8 +649,8 @@ public class DateiServiceTest {
 
     @Test
     public void givenSysAdmin_whenRetrieveAllFiles_thenReturnsAllFiles() {
-        when(studentRepository.findByDhbwMail("sys@dhbw.de"))
-            .thenReturn(Optional.of(sysAdmin));
+        when(studentLookupHelper.findStudentByEmail("sys@dhbw.de"))
+            .thenReturn(sysAdmin);
         when(dateiRepository
             .findAllOrderByNameAsc())
             .thenReturn(List.of(datei));
@@ -665,14 +663,13 @@ public class DateiServiceTest {
 
     @Test
     public void givenStudentNotFound_whenRetrieveAllFiles_thenThrows404() {
-        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail("unknown@dhbw.de"))
+            .thenThrow(new NoSuchElementException(
+                "Student not found: unknown@dhbw.de"));
 
-        ResponseStatusException ex = assertThrows(
-            ResponseStatusException.class,
+        assertThrows(
+            NoSuchElementException.class,
             () -> dateiService.retrieveAllFiles("unknown@dhbw.de"));
-
-        assertEquals(404, ex.getStatusCode().value());
     }
 
     // --- downloadDatei tests ---
@@ -686,8 +683,8 @@ public class DateiServiceTest {
 
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("admin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(kursAdmin))
             .thenReturn(Optional.of(enrollment));
@@ -705,8 +702,8 @@ public class DateiServiceTest {
 
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("sys@dhbw.de"))
-            .thenReturn(Optional.of(sysAdmin));
+        when(studentLookupHelper.findStudentByEmail("sys@dhbw.de"))
+            .thenReturn(sysAdmin);
 
         DateiDownloadDTO result = dateiService.downloadDatei(
             datei.getDateiID(), "sys@dhbw.de");
@@ -718,8 +715,8 @@ public class DateiServiceTest {
     public void givenNonMember_whenDownloadDatei_thenThrows403() {
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(regularStudent))
             .thenReturn(Optional.empty());
@@ -750,15 +747,14 @@ public class DateiServiceTest {
     public void givenStudentNotFound_whenDownloadDatei_thenThrows404() {
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
-            .thenReturn(Optional.empty());
+        when(studentLookupHelper.findStudentByEmail("unknown@dhbw.de"))
+            .thenThrow(new NoSuchElementException(
+                "Student not found: unknown@dhbw.de"));
 
-        ResponseStatusException ex = assertThrows(
-            ResponseStatusException.class,
+        assertThrows(
+            NoSuchElementException.class,
             () -> dateiService.downloadDatei(
                 datei.getDateiID(), "unknown@dhbw.de"));
-
-        assertEquals(404, ex.getStatusCode().value());
     }
 
     @Test
@@ -768,8 +764,8 @@ public class DateiServiceTest {
 
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(regularStudent));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
 
         DateiDownloadDTO result = dateiService.downloadDatei(
             datei.getDateiID(), "student@dhbw.de");

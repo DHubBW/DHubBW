@@ -19,7 +19,8 @@ import java.util.UUID;
  * JPA entity for storing mensa meal entries in the {@code mensa} table.
  *
  * <p>The entity contains the unique meal identifier, the serving date,
- * the meal name, allergen information, the price, and the dietary category.
+ * the meal name, allergen information, the price, the dietary category,
+ * and the serving line (e.g. "Wahlessen 1").
  */
 @Entity
 @Table(name = "mensa")
@@ -74,4 +75,12 @@ public class Mensa {
     @Enumerated(EnumType.STRING)
     @Column(name = "ernaehrung")
     private Ernaehrung ernaehrung;
+
+    /**
+     * Serving line or category (e.g. "Wahlessen 1", "Wahlessen 2").
+     */
+    @Getter
+    @Setter
+    @Column(name = "linie")
+    private String linie;
 }
