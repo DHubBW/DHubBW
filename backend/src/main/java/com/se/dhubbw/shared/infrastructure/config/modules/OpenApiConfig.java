@@ -20,7 +20,14 @@ import org.springframework.context.annotation.Profile;
 public class OpenApiConfig {
 
     /**
-     * Create custom OpenAPI specification with HTTP Basic Auth security scheme.
+     * Create custom OpenAPI specification with JWT Bearer
+     * token security scheme.
+     *
+     * <p>Configures Swagger UI to send the JWT via the
+     * {@code Authorization: Bearer} header, matching the
+     * fallback path in {@link
+     * com.se.dhubbw.shared.infrastructure.config.security
+     * .JwtAuthenticationFilter}.</p>
      *
      * @return the configured {@code OpenAPI} instance
      */
@@ -33,12 +40,13 @@ public class OpenApiConfig {
                 .description(
                     "REST API Dokumentation für das DHubBW Backend"))
             .addSecurityItem(new SecurityRequirement()
-                .addList("basicAuth"))
+                .addList("bearerAuth"))
             .components(new Components()
-                .addSecuritySchemes("basicAuth",
+                .addSecuritySchemes("bearerAuth",
                     new SecurityScheme()
                         .type(SecurityScheme.Type.HTTP)
-                        .scheme("basic")
-                        .name("basicAuth")));
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .name("bearerAuth")));
     }
 }

@@ -19,9 +19,20 @@ import java.io.IOException;
 
 /**
  * JWT authentication filter.
+ *
+ * <p>Reads the JWT from a cookie named {@code jwt} first; if no
+ * cookie is present, falls back to the {@code Authorization: Bearer}
+ * header. This allows browser-based flows (cookie) and API clients
+ * such as Swagger UI (header) to authenticate transparently.</p>
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    /**
+     * Length of the {@code "Bearer "} prefix in the Authorization
+     * header value.
+     */
+    private static final int BEARER_PREFIX_LENGTH = 7;
 
     /**
      * JWT service.
@@ -36,7 +47,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * Color logger instance.
      */
-    private final ColorLogger colorLogger = new ColorLogger(this.getClass());
+    private final ColorLogger colorLogger =
+        new ColorLogger(this.getClass());
 
     /**
      * Constructor.
@@ -51,8 +63,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Filter incoming requests and validate JWT from cookie.
-     * Skips authentication for register and login endpoints.
+     * Filter incoming requests and validate JWT.
+     *
+     * <p>The JWT is resolved from the {@code jwt} cookie first.
+     * If no cookie is present, the {@code Authorization: Bearer}
+     * header is tried as a fallback so that API clients such as
+     * Swagger UI can authenticate without relying on cookies.</p>
+     *
+     * <p>Skips authentication for register and login endpoints.</p>
      *
      * @param request     the HTTP request
      * @param response    the HTTP response
@@ -84,10 +102,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             for (Cookie cookie : cookies) {
                 if ("jwt".equals(cookie.getName())) {
                     jwt = cookie.getValue();
-                    colorLogger.colorDebug("JWT cookie found for request: {}",
+                    colorLogger.colorDebug(
+                        "JWT cookie found for request: {}",
                         path);
                     break;
                 }
+            }
+        }
+
+        // Fallback: read JWT from Authorization: Bearer header
+        if (jwt == null) {
+            String authHeader =
+                request.getHeader("Authorization");
+            if (authHeader != null
+                    && authHeader.startsWith("Bearer ")) {
+                jwt = authHeader
+                    .substring(BEARER_PREFIX_LENGTH);
+                colorLogger.colorDebug(
+                    "JWT Bearer header found for request: {}",
+                    path);
             }
         }
 

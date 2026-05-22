@@ -16,12 +16,14 @@ public interface OrdnerService {
 
     /**
      * Retrieve all root-level folders for the calling student's
-     * course.
+     * course. SYSTEMADMIN receives all root folders across all
+     * courses.
      *
      * @param dhbwMail the DHBW mail of the authenticated user
-     * @return list of root folders for the student's course
+     * @return list of root folders
      * @throws org.springframework.web.server.ResponseStatusException
-     *     404 if student or course not found
+     *     404 if student not found or non-admin student has no
+     *     approved course enrollment
      */
     List<OrdnerDTO> retrieveRootFolders(String dhbwMail);
 

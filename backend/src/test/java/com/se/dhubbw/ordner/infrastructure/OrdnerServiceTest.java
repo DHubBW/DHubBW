@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -332,6 +333,46 @@ public class OrdnerServiceTest {
             OrdnerFarbe.GREEN, "student@dhbw.de");
 
         verify(ordnerRepository).save(any(Ordner.class));
+    }
+
+    // --- SYSTEMADMIN without course ---
+
+    /**
+     * SYSTEMADMIN receives root folders from all courses.
+     */
+    @Test
+    public void givenSysAdmin_whenRetrieveRootFolders_thenReturnsAll() {
+        when(ordnerRepository.findByUeberOrdnerIsNull())
+            .thenReturn(List.of(rootOrdner, childOrdner));
+
+        List<OrdnerDTO> result = ordnerService.retrieveRootFolders(
+            "system.administrator.a24@student.dhbw-karlsruhe.de");
+
+        assertEquals(2, result.size());
+    }
+
+    /**
+     * SYSTEMADMIN can create a root-level folder without any
+     * course enrollment; the saved folder has a null Kurs.
+     */
+    @Test
+    public void givenSysAdmin_whenCreateRootFolder_thenSavesNullKurs() {
+        when(ordnerRepository.save(any(Ordner.class)))
+            .thenAnswer(inv -> {
+                Ordner saved = inv.getArgument(0);
+                saved.setOrdnerID(UUID.randomUUID());
+                return saved;
+            });
+        when(ordnerAnlegungRepository.save(any(OrdnerAnlegung.class)))
+            .thenAnswer(inv -> inv.getArgument(0));
+
+        UUID id = ordnerService.createFolder(
+            null, "Admin Ordner", true, OrdnerFarbe.DEFAULT,
+            "system.administrator.a24@student.dhbw-karlsruhe.de");
+
+        assertNotNull(id);
+        verify(ordnerRepository).save(
+            argThat(o -> o.getKurs() == null));
     }
 
     // --- renameFolder ---

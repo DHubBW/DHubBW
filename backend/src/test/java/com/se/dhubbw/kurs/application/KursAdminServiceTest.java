@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -136,7 +137,7 @@ public class KursAdminServiceTest {
         when(kursBeitrittsAnfrageRepository.findById(id))
             .thenReturn(Optional.of(otherAnfrage));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ResponseStatusException.class,
             () -> kursAdminService
                 .approveKursbeitrittsanfrage(id, "admin@dhbw.de"));
     }
@@ -205,7 +206,7 @@ public class KursAdminServiceTest {
         when(kursBeitrittsAnfrageRepository.findById(id))
             .thenReturn(Optional.of(otherAnfrage));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ResponseStatusException.class,
             () -> kursAdminService
                 .declineKursbeitrittsanfrage(id, "admin@dhbw.de"));
     }

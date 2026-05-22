@@ -6,8 +6,10 @@ import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -93,7 +95,7 @@ public class KursAdminServiceImpl implements KursAdminService {
      *
      * @param anfrage the request to verify
      * @param kurs the expected course
-     * @throws IllegalArgumentException if the request targets a
+     * @throws ResponseStatusException 403 if the request targets a
      *     different course
      */
     private void verifyBelongsToCourse(
@@ -101,7 +103,8 @@ public class KursAdminServiceImpl implements KursAdminService {
             final Kurs kurs) {
         if (!anfrage.getKurs().getKursID()
                 .equals(kurs.getKursID())) {
-            throw new IllegalArgumentException(
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
                 "Anfrage does not belong to admin course");
         }
     }
