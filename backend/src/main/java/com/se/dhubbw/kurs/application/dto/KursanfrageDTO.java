@@ -1,9 +1,5 @@
 package com.se.dhubbw.kurs.application.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -13,39 +9,16 @@ import java.util.UUID;
  * <p>Carries the data a course administrator needs to review
  * an open join request: the request identifier, the target
  * course, the requesting student, and the submission date.</p>
+ * @param anfrageID Unique identifier of the enrollment request.
+ * @param kursID Identifier of the target course.
+ * @param kursName Name of the target course.
+ * @param studentID Identifier of the requesting student.
+ * @param studentName name of the student.
+ * @param anfrageDatum The date of the request.
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-public class KursanfrageDTO {
-
-    /**
-     * Unique identifier of the enrollment request.
-     */
-    private UUID anfrageID;
-
-    /**
-     * Identifier of the target course.
-     */
-    private UUID kursID;
-
-    /**
-     * Name of the target course.
-     */
-    private String kursName;
-
-    /**
-     * Identifier of the requesting student.
-     */
-    private UUID studentID;
-
-    /**
-     * Full name of the requesting student.
-     */
-    private String studentName;
-
-    /**
-     * Date on which the request was submitted.
-     */
-    private LocalDate anfrageDatum;
-}
+public record KursanfrageDTO(UUID anfrageID,
+                             UUID kursID,
+                             String kursName,
+                             UUID studentID,
+                             String studentName,
+                             LocalDate anfrageDatum) { }

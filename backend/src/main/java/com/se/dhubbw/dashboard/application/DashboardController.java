@@ -4,6 +4,7 @@ import com.se.dhubbw.dashboard.domain.DashboardService;
 import com.se.dhubbw.datei.application.dto.DateiDTO;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.mensa.application.dto.MensaDTO;
+import com.se.dhubbw.mensa.application.dto.mapper.MensaDTOMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,6 +45,11 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     /**
+     * Component for mapping the mensa entity to a DTO.
+     */
+    private final MensaDTOMapper mensaDTOMapper;
+
+    /**
      * Retrieve all mensa meals for today.
      *
      * @return 200 with the list of today's meals, which may be empty
@@ -65,7 +71,7 @@ public class DashboardController {
     @GetMapping("/meals/today")
     public ResponseEntity<List<MensaDTO>> retrieveMealsForToday() {
         List<MensaDTO> gerichte = dashboardService.getMealsForToday().stream()
-            .map(MensaDTO::convertEntityToMensaDTO)
+            .map(mensaDTOMapper::convertMensaEntityToMensaDTO)
             .toList();
         return ResponseEntity.ok(gerichte);
     }

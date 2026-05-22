@@ -1,9 +1,5 @@
 package com.se.dhubbw.kurs.application.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.util.UUID;
 
 /**
@@ -11,24 +7,11 @@ import java.util.UUID;
  *
  * <p>Used by {@code retrieveKursNamesAndYears} to expose all available
  * courses with their unique identifier, name, and cohort year.</p>
+ * @param kursID The ID of the kurs.
+ * @param kursName The name of the kurs.
+ * @param jahrgang the year of the kurs.
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-public class KursYearDTO {
-
-    /**
-     * Unique identifier of the course.
-     */
-    private UUID kursID;
-
-    /**
-     * Name of the course (e.g. "TINF24B2").
-     */
-    private String kursName;
-
-    /**
-     * Cohort year of the course (e.g. "2024").
-     */
-    private String jahrgang;
+public record KursYearDTO(UUID kursID,
+                          String kursName,
+                          String jahrgang) {
 }

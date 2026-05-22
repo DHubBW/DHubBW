@@ -1,5 +1,6 @@
 package com.se.dhubbw.student.application;
 
+import com.se.dhubbw.shared.application.dto.SmallResponseDTO;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import com.se.dhubbw.student.application.dto.LoginRequestDTO;
 import com.se.dhubbw.student.application.dto.RegisterRequestDTO;
@@ -7,6 +8,7 @@ import com.se.dhubbw.student.domain.AuthenticationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -82,36 +84,38 @@ public class AuthenticationController {
      * @return response entity with status
      */
     @PostMapping("/register")
-    public ResponseEntity<String> register(
+    public ResponseEntity<SmallResponseDTO> register(
         @RequestBody final RegisterRequestDTO request,
         final HttpServletResponse response) {
-        if (!request.getDhbwMail().matches(
+        if (!request.dhbwMail().matches(
             "^[a-z]+\\.[a-z]+\\.[a-z0-9]+@student\\.dhbw-karlsruhe\\.de$")) {
             colorLogger.colorError("The dhbw mail format "
                 + "of the student doesn't match the required format.");
             return ResponseEntity.status(HTTP_UNPROCESSABLE_ENTITY)
-                .body("Invalid DHBW Mail Format");
-        } else if (!request.getName()
+                .body(new SmallResponseDTO("Invalid DHBW Mail Format"));
+        } else if (!request.name()
             .matches("^[A-ZÄÖÜ][a-zäöüß]+(?:[- ][A-ZÄÖÜ]"
                 + "[a-zäöüß]+)*\\s+[A-ZÄÖÜ][a-zäöüß]"
                 + "+(?:[- ][A-ZÄÖÜ][a-zäöüß]+)*$")) {
             colorLogger.colorError("The name of the student "
                 + "doesn't match the required format 'FirstName LastName'.");
             return ResponseEntity.status(HTTP_UNPROCESSABLE_ENTITY)
-                .body("Invalid Name format. "
+                .body(new SmallResponseDTO("Invalid Name format. "
                     + "The name has to be in the following format: "
-                    + "'FirstName LastName'");
+                    + "'FirstName LastName'"));
         }
         try {
             String token = authenticationService.registerStudent(request);
             addJwtCookie(response, token);
-            return ResponseEntity.ok(
-                "Successfully registered student with email: '"
-                    + request.getDhbwMail() + "'.");
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new SmallResponseDTO("Successfully registered "
+                    + "student with email: '"
+                    + request.dhbwMail() + "'."));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HTTP_CONFLICT)
-                .body("Student with email '" + request.getDhbwMail()
-                    + "' is already registered.");
+                .body(new SmallResponseDTO("Student with email '"
+                    + request.dhbwMail()
+                    + "' is already registered."));
         }
     }
 
@@ -123,19 +127,22 @@ public class AuthenticationController {
      * @return response entity with status
      */
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<SmallResponseDTO> login(
         @RequestBody final LoginRequestDTO request,
         final HttpServletResponse response) {
         try {
             String token = authenticationService.login(request);
             addJwtCookie(response, token);
-            return ResponseEntity.ok(
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new SmallResponseDTO(
                 "Successfully logged in student with email: '"
-                    + request.getDhbwMail() + "'.");
+                + request.dhbwMail() + "'."));
         } catch (Exception e) {
-            return ResponseEntity.status(HTTP_UNAUTHORIZED)
-                .body("Invalid credentials for email: '"
-                    + request.getDhbwMail() + "'.");
+            return ResponseEntity
+                .status(HTTP_UNAUTHORIZED)
+                .body(new SmallResponseDTO(
+                    "Invalid credentials for email: '\"\n"
+                    + "                    + request.dhbwMail() + \"'.\""));
         }
     }
 
@@ -157,14 +164,16 @@ public class AuthenticationController {
      * @return user info
      */
     @GetMapping("/test")
-    public ResponseEntity<String> test(final Authentication authentication) {
+    public ResponseEntity<SmallResponseDTO> test(
+        final Authentication authentication) {
         if (authentication == null) {
-            return ResponseEntity.ok("Not authenticated");
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(new SmallResponseDTO("Not authenticated"));
         }
-        return ResponseEntity.ok(
-            "Authenticated as: " + authentication.getName()
-                + " with roles: " + authentication.getAuthorities()
-        );
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(new SmallResponseDTO("Authenticated as: "
+                + authentication.getName()
+            + " with roles: " + authentication.getAuthorities()));
     }
 }
 

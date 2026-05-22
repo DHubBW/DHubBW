@@ -1,9 +1,11 @@
 package com.se.dhubbw.mensa.application;
 
 import com.se.dhubbw.mensa.domain.MensaService;
+import com.se.dhubbw.shared.application.dto.SmallResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,8 +46,9 @@ public class MensaSyncController {
     )
     @PreAuthorize("hasRole('SYSTEMADMIN')")
     @PostMapping("/sync")
-    public ResponseEntity<String> triggerSync() {
+    public ResponseEntity<SmallResponseDTO> triggerSync() {
         mensaService.sync();
-        return ResponseEntity.ok("Mensa sync completed.");
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(new SmallResponseDTO("Mensa sync completed."));
     }
 }

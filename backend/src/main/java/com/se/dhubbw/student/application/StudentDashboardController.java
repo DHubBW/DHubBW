@@ -1,5 +1,8 @@
 package com.se.dhubbw.student.application;
 
+import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.SmallResponseDTO;
+import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import com.se.dhubbw.student.application.dto.StudentProfileDTO;
 import com.se.dhubbw.student.domain.StudentDashboardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,22 +79,27 @@ public class StudentDashboardController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/leave-kurs")
-    public ResponseEntity<String> leaveKurs(
+    public ResponseEntity<RequestStatusResponseDTO> leaveKurs(
             final Authentication authentication) {
         try {
             studentDashboardService.leaveKurs(
                 authentication.getName());
-            return ResponseEntity.ok(
-                "Successfully left course for student: '"
-                    + authentication.getName() + "'.");
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new RequestStatusResponseDTO(
+                    "Successfully left course for student: '"
+                + authentication.getName() + "'.",
+                    PersistenceOperation.DELETE));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Student has no course enrollment: '"
-                    + authentication.getName() + "'.");
+                .body(new RequestStatusResponseDTO(
+                    "Student has no course enrollment: '"
+                    + authentication.getName() + "'.",
+                    PersistenceOperation.DELETE));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Cannot leave course: "
-                    + "You are the last KURSADMIN in this course.");
+                .body(new RequestStatusResponseDTO("Cannot leave course: "
+                    + "You are the last KURSADMIN in this course.",
+                    PersistenceOperation.DELETE));
         }
     }
 
@@ -123,18 +131,16 @@ public class StudentDashboardController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @DeleteMapping("/delete-account")
-    public ResponseEntity<String> deleteAccount(
+    public ResponseEntity<RequestStatusResponseDTO> deleteAccount(
             final Authentication authentication) {
-        try {
-            studentDashboardService.deleteAccount(
-                authentication.getName());
-            return ResponseEntity.ok(
+
+        studentDashboardService.deleteAccount(authentication.getName());
+        return ResponseEntity.status(HttpStatus.OK).body(
+            new RequestStatusResponseDTO(
                 "Successfully deleted account for student: '"
-                    + authentication.getName() + "'.");
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(e.getMessage());
-        }
+                + authentication.getName() + "'.",
+                PersistenceOperation.DELETE));
+
     }
 
     /**
@@ -187,7 +193,7 @@ public class StudentDashboardController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(
+    public ResponseEntity<SmallResponseDTO> logout(
             final HttpServletResponse response) {
         Cookie jwtCookie = new Cookie("jwt", null);
         jwtCookie.setHttpOnly(true);
@@ -195,7 +201,8 @@ public class StudentDashboardController {
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(0);
         response.addCookie(jwtCookie);
-        return ResponseEntity.ok("Successfully logged out.");
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(new SmallResponseDTO("Successfully logged out."));
     }
 
     /**
@@ -216,13 +223,15 @@ public class StudentDashboardController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/kurs")
-    public ResponseEntity<String> retrieveKursForUser(
+    public ResponseEntity<SmallResponseDTO> retrieveKursForUser(
             final Authentication authentication) {
         String kursName = studentDashboardService.retrieveKursForUser(
             authentication.getName());
         if (kursName == null) {
-            return ResponseEntity.ok("Kein Kurs");
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new SmallResponseDTO("Kein Kurs"));
         }
-        return ResponseEntity.ok(kursName);
+        return ResponseEntity.status(HttpStatus.OK).body(
+            new SmallResponseDTO(kursName));
     }
 }

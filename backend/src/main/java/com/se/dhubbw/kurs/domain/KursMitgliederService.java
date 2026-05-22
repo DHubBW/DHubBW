@@ -37,20 +37,6 @@ public interface KursMitgliederService {
     List<KursmemberDTO> retrieveAllCourseMembers(String dhbwMail);
 
     /**
-     * Resign from KURSADMIN role, reverting to STUDENT.
-     *
-     * <p>Requires at least one other KURSADMIN to remain in the
-     * course.</p>
-     *
-     * @param dhbwMail the DHBW mail address of the resigning admin
-     * @throws java.util.NoSuchElementException if the admin student or
-     *     their course assignment is not found
-     * @throws IllegalStateException if the admin is the last
-     *     KURSADMIN in the course
-     */
-    void kursadminNiederlegen(String dhbwMail);
-
-    /**
      * Promote a course member to KURSADMIN role.
      *
      * @param studentId the ID of the student to promote

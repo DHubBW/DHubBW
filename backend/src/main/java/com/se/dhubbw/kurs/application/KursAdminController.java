@@ -2,6 +2,8 @@ package com.se.dhubbw.kurs.application;
 
 import com.se.dhubbw.kurs.application.dto.KursanfrageDTO;
 import com.se.dhubbw.kurs.domain.KursAdminService;
+import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -105,13 +107,16 @@ public class KursAdminController {
     )
     @PreAuthorize("hasRole('KURSADMIN')")
     @PatchMapping("/{id}/approve")
-    public ResponseEntity<Void> approveKursbeitrittsanfrage(
+    public ResponseEntity<RequestStatusResponseDTO> approveKursbeitrittsanfrage(
             @PathVariable final UUID id,
             final Authentication authentication) {
         try {
             kursAdminService.approveKursbeitrittsanfrage(
                 id, authentication.getName());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.status(HttpStatus.OK).body(
+                new RequestStatusResponseDTO(
+                    "Kursbeitrittsanfrage approved successfully.",
+                    PersistenceOperation.UPDATE));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -143,13 +148,15 @@ public class KursAdminController {
     )
     @PreAuthorize("hasRole('KURSADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> declineKursbeitrittsanfrage(
+    public ResponseEntity<RequestStatusResponseDTO> declineKursbeitrittsanfrage(
             @PathVariable final UUID id,
             final Authentication authentication) {
         try {
             kursAdminService.declineKursbeitrittsanfrage(
                 id, authentication.getName());
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                new RequestStatusResponseDTO(
+                "Request deleted successfully", PersistenceOperation.DELETE));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

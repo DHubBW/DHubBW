@@ -1,6 +1,7 @@
 package com.se.dhubbw.mensa.application;
 
 import com.se.dhubbw.mensa.application.dto.MensaDTO;
+import com.se.dhubbw.mensa.application.dto.mapper.MensaDTOMapper;
 import com.se.dhubbw.mensa.domain.MensaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,6 +9,10 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * REST Controller for retrieving mensa-related data.
@@ -37,6 +37,11 @@ public class MensaController {
      * Application service providing mensa meal data.
      */
     private final MensaService mensaService;
+
+    /**
+     * Component for mapping the Mensa Entity to a DTO.
+     */
+    private final MensaDTOMapper mensaDTOMapper;
 
     /**
      * Retrieve all meals for a specific day.
@@ -74,7 +79,7 @@ public class MensaController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             final LocalDate date) {
         List<MensaDTO> gerichte = mensaService.getMealsForDay(date).stream()
-            .map(MensaDTO::convertEntityToMensaDTO)
+            .map(mensaDTOMapper::convertMensaEntityToMensaDTO)
             .toList();
         return ResponseEntity.ok(gerichte);
     }
@@ -108,7 +113,8 @@ public class MensaController {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> entry.getValue().stream()
-                                .map(MensaDTO::convertEntityToMensaDTO)
+                                .map(mensaDTOMapper::
+                                    convertMensaEntityToMensaDTO)
                                 .toList()
                 ));
         return ResponseEntity.ok(weekMeals);
@@ -142,7 +148,8 @@ public class MensaController {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> entry.getValue().stream()
-                                .map(MensaDTO::convertEntityToMensaDTO)
+                                .map(mensaDTOMapper::
+                                    convertMensaEntityToMensaDTO)
                                 .toList()
                 ));
         return ResponseEntity.ok(weekMeals);

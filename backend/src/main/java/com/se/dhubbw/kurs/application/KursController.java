@@ -3,6 +3,8 @@ package com.se.dhubbw.kurs.application;
 import com.se.dhubbw.kurs.application.dto.KursErstellungsAnfrageRequestDTO;
 import com.se.dhubbw.kurs.application.dto.KursYearDTO;
 import com.se.dhubbw.kurs.infrastructure.KursServiceImpl;
+import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -103,15 +105,19 @@ public class KursController {
             content = @Content(mediaType = "application/json"))
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/kurse/beitreten/{kursId}")
-    public ResponseEntity<Void> openJoinKursRequest(
+    public ResponseEntity<RequestStatusResponseDTO> openJoinKursRequest(
             @Parameter(
                     description = "UUID of the course to join",
                     required = true)
             @PathVariable final UUID kursId,
             final Authentication authentication) {
         kursService.openJoinKursRequest(
-            kursId, authentication.getName());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+                kursId, authentication.getName());
+        RequestStatusResponseDTO workingRequestStatus =
+            new RequestStatusResponseDTO(
+            "Join request opened successfully", PersistenceOperation.INSERT);
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(workingRequestStatus);
     }
 
     /**
@@ -141,7 +147,7 @@ public class KursController {
             content = @Content(mediaType = "application/json"))
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/kurse/erstellen")
-    public ResponseEntity<Void> openCreateCourseRequest(
+    public ResponseEntity<RequestStatusResponseDTO> openCreateCourseRequest(
             @Valid @RequestBody final KursErstellungsAnfrageRequestDTO request,
             final Authentication authentication) {
         kursService.openCreateCourseRequest(
@@ -150,6 +156,9 @@ public class KursController {
             request.getAdditionalNotes(),
             authentication.getName()
         );
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(new RequestStatusResponseDTO(
+                "Create Kurs Request opened successfully",
+                PersistenceOperation.INSERT));
     }
 }

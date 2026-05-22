@@ -4,11 +4,6 @@ import com.se.dhubbw.mensa.domain.MensaService;
 import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import com.se.dhubbw.mensa.infrastructure.db.MensaRepository;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
-import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -16,6 +11,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation of mensa service for synchronising meal data.

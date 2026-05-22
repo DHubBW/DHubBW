@@ -3,12 +3,17 @@ package com.se.dhubbw.kurs.application;
 import com.se.dhubbw.kurs.application.dto.KursAdminStatsDTO;
 import com.se.dhubbw.kurs.application.dto.KursmemberDTO;
 import com.se.dhubbw.kurs.infrastructure.KursMitgliederServiceImpl;
+import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,9 +23,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.UUID;
 
 /**
  * REST controller for course member and role management.
@@ -139,11 +141,14 @@ public class KursMitgliederController {
     )
     @PreAuthorize("hasRole('KURSADMIN')")
     @PatchMapping("/resign")
-    public ResponseEntity<Void> kursadminNiederlegen(
+    public ResponseEntity<RequestStatusResponseDTO> kursadminNiederlegen(
             final Authentication authentication) {
         kursMitgliederService.kursadminNiederlegen(
             authentication.getName());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .body(new RequestStatusResponseDTO(
+                "You gave up being kursadmin successfully.",
+                PersistenceOperation.UPDATE));
     }
 
     /**
@@ -178,12 +183,14 @@ public class KursMitgliederController {
     )
     @PreAuthorize("hasRole('KURSADMIN')")
     @PatchMapping("/add-kursadmin/{studentId}")
-    public ResponseEntity<Void> addKursadmin(
+    public ResponseEntity<RequestStatusResponseDTO> addKursadmin(
             @PathVariable final UUID studentId,
             final Authentication authentication) {
         kursMitgliederService.addKursadmin(
             studentId, authentication.getName());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            new RequestStatusResponseDTO(
+            "Kursadmin added successully.", PersistenceOperation.UPDATE));
     }
 
     /**
@@ -218,12 +225,15 @@ public class KursMitgliederController {
     )
     @PreAuthorize("hasRole('KURSADMIN')")
     @PatchMapping("/remove-kursadmin/{studentId}")
-    public ResponseEntity<Void> removeKursadmin(
+    public ResponseEntity<RequestStatusResponseDTO> removeKursadmin(
             @PathVariable final UUID studentId,
             final Authentication authentication) {
         kursMitgliederService.removeKursadmin(
             studentId, authentication.getName());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(
+            HttpStatus.OK).body(new RequestStatusResponseDTO(
+                "Kursadmin removed successfully.",
+            PersistenceOperation.UPDATE));
     }
 
     /**
@@ -257,11 +267,14 @@ public class KursMitgliederController {
     )
     @PreAuthorize("hasRole('KURSADMIN')")
     @DeleteMapping("/{studentId}")
-    public ResponseEntity<Void> removeKursMember(
+    public ResponseEntity<RequestStatusResponseDTO> removeKursMember(
             @PathVariable final UUID studentId,
             final Authentication authentication) {
         kursMitgliederService.removeKursMember(
             studentId, authentication.getName());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            new RequestStatusResponseDTO(
+                "You removed the kurs member successfully.",
+                PersistenceOperation.UPDATE));
     }
 }

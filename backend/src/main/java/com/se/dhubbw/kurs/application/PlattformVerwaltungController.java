@@ -5,6 +5,8 @@ import com.se.dhubbw.kurs.application.dto.KursMitgliedRolleDTO;
 import com.se.dhubbw.kurs.application.dto.StudentDTO;
 import com.se.dhubbw.kurs.application.dto.SystemAdminStatsDTO;
 import com.se.dhubbw.kurs.domain.PlattformVerwaltungService;
+import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -129,14 +131,13 @@ public class PlattformVerwaltungController {
     )
     @PreAuthorize("hasRole('SYSTEMADMIN')")
     @DeleteMapping("/kurse/{kursId}")
-    public ResponseEntity<Void> deleteKurs(
+    public ResponseEntity<RequestStatusResponseDTO> deleteKurs(
             @PathVariable final UUID kursId) {
-        try {
-            plattformVerwaltungService.deleteKurs(kursId);
-            return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        plattformVerwaltungService.deleteKurs(kursId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .body(new RequestStatusResponseDTO(
+            "Kurs deleted successfully.", PersistenceOperation.DELETE));
+
     }
 
     /**
@@ -234,16 +235,12 @@ public class PlattformVerwaltungController {
     )
     @PreAuthorize("hasRole('SYSTEMADMIN')")
     @PatchMapping("/studenten/{studentId}/add-sysadmin")
-    public ResponseEntity<Void> addSysAdmin(
+    public ResponseEntity<RequestStatusResponseDTO> addSysAdmin(
             @PathVariable final UUID studentId) {
-        try {
-            plattformVerwaltungService.addSysAdmin(studentId);
-            return ResponseEntity.ok().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        plattformVerwaltungService.addSysAdmin(studentId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+            new RequestStatusResponseDTO("SysAdmin added successfully",
+                PersistenceOperation.UPDATE));
     }
 
     /**
@@ -282,18 +279,11 @@ public class PlattformVerwaltungController {
     )
     @PreAuthorize("hasRole('SYSTEMADMIN')")
     @PatchMapping("/studenten/{studentId}/remove-sysadmin")
-    public ResponseEntity<Void> removeSysAdmin(
+    public ResponseEntity<RequestStatusResponseDTO> removeSysAdmin(
             @PathVariable final UUID studentId) {
-        try {
-            plattformVerwaltungService.removeSysAdmin(studentId);
-            return ResponseEntity.ok().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST).build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        plattformVerwaltungService.removeSysAdmin(studentId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+            new RequestStatusResponseDTO(
+            "SysAdmin removed successfully.", PersistenceOperation.UPDATE));
     }
 }
