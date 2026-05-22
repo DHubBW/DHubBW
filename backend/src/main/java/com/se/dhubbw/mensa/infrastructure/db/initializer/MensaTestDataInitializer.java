@@ -25,6 +25,11 @@ import java.util.List;
 public class MensaTestDataInitializer implements CommandLineRunner {
 
     /**
+     * Number of serving lines to cycle through for test data.
+     */
+    private static final int LINIE_COUNT = 3;
+
+    /**
      * Number of workweek days to generate data for.
      */
     private static final int WORKWEEK_DAYS = 5;
@@ -124,6 +129,7 @@ public class MensaTestDataInitializer implements CommandLineRunner {
         meal.setEssensbezeichnung(baseName);
         meal.setAllergene("Test-Allergene");
         meal.setPreis(BASE_PRICE + dayOffset * PRICE_INCREMENT);
+        meal.setLinie("Wahlessen " + (dayOffset % LINIE_COUNT + 1));
         return meal;
     }
 }

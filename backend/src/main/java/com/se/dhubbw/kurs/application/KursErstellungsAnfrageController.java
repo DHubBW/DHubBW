@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
@@ -34,7 +33,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/systemadmin/anfragen")
 @RequiredArgsConstructor
-public class SystemAdminController {
+public class KursErstellungsAnfrageController {
 
     /**
      * Service handling the course creation request business logic.
@@ -69,7 +68,7 @@ public class SystemAdminController {
         List<KursErstellungsAnfrage> anfragen =
             kursSystemAdminService.retrieveKursErstellungsanfragen();
         List<KursErstellungsAnfrageDTO> dtos = anfragen.stream()
-            .map(SystemAdminController::toDto)
+            .map(KursErstellungsAnfrageController::mapErstellungsAnfrageToDto)
             .toList();
         return ResponseEntity.ok(dtos);
     }
@@ -107,9 +106,7 @@ public class SystemAdminController {
         try {
             kursSystemAdminService.approveKursErstellungsanfrage(id);
             return ResponseEntity.ok().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalStateException | IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
@@ -138,12 +135,8 @@ public class SystemAdminController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> declineKursErstellungsanfrage(
             @PathVariable final UUID id) {
-        try {
-            kursSystemAdminService.declineKursErstellungsanfrage(id);
-            return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        kursSystemAdminService.declineKursErstellungsanfrage(id);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -152,7 +145,7 @@ public class SystemAdminController {
      * @param anfrage the entity to convert
      * @return the corresponding {@link KursErstellungsAnfrageDTO}
      */
-    private static KursErstellungsAnfrageDTO toDto(
+    private static KursErstellungsAnfrageDTO mapErstellungsAnfrageToDto(
             final KursErstellungsAnfrage anfrage) {
         return new KursErstellungsAnfrageDTO(
             anfrage.getAnfrageID(),

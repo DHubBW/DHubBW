@@ -65,4 +65,29 @@ public final class ColorLogger {
         String colorMsg = "[33m" + msg + "[0m";
         logger.warn(colorMsg, arguments);
     }
+
+    /**
+     * Log a warning message with yellow color (warn level).
+     *
+     * @param msg       the message format
+     * @param arguments the message arguments
+     */
+    public void colorWarn(final String msg, final Object... arguments) {
+        String colorMsg = "[33m" + msg + "[0m";
+        logger.warn(colorMsg, arguments);
+    }
+
+    /**
+     * Log a critical error message with magenta color (error level).
+     *
+     * <p>Use for unrecoverable errors and unexpected server-side
+     * failures that require immediate attention.</p>
+     *
+     * @param msg       the message format
+     * @param arguments the message arguments
+     */
+    public void colorCritical(final String msg, final Object... arguments) {
+        String colorMsg = "[35m" + msg + "[0m";
+        logger.error(colorMsg, arguments);
+    }
 }

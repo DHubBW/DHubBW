@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
@@ -142,11 +143,10 @@ public class KursServiceIT {
     @Test
     public void givenUnknownStudent_whenOpenJoinKursRequest_thenNotFound() {
         // ACT + ASSERT
-        ResponseStatusException ex = Assertions.assertThrows(
-            ResponseStatusException.class,
+        Assertions.assertThrows(
+            NoSuchElementException.class,
             () -> kursService.openJoinKursRequest(
                 KURS_TINF24B2_ID, "nobody.user.test123@student.dhbw-karlsruhe.de"));
-        Assertions.assertEquals(404, ex.getStatusCode().value());
     }
 
     // ---- openCreateCourseRequest ----
@@ -224,10 +224,9 @@ public class KursServiceIT {
     @Test
     public void givenUnknownStudent_whenOpenCreateCourseRequest_thenNotFound() {
         // ACT + ASSERT
-        ResponseStatusException ex = Assertions.assertThrows(
-            ResponseStatusException.class,
+        Assertions.assertThrows(
+            NoSuchElementException.class,
             () -> kursService.openCreateCourseRequest(
                 "TINF26A1", "2026", null, "nobody.user.test123@student.dhbw-karlsruhe.de"));
-        Assertions.assertEquals(404, ex.getStatusCode().value());
     }
 }

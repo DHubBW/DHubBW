@@ -4,7 +4,7 @@ import com.se.dhubbw.kurs.application.dto.KursDTO;
 import com.se.dhubbw.kurs.application.dto.KursMitgliedRolleDTO;
 import com.se.dhubbw.kurs.application.dto.StudentDTO;
 import com.se.dhubbw.kurs.application.dto.SystemAdminStatsDTO;
-import com.se.dhubbw.kurs.domain.SystemAdminVerwaltungService;
+import com.se.dhubbw.kurs.domain.PlattformVerwaltungService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,13 +36,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/systemadmin")
 @RequiredArgsConstructor
-public class SystemAdminVerwaltungController {
+public class PlattformVerwaltungController {
 
     /**
      * Service handling platform management business logic.
      */
-    private final SystemAdminVerwaltungService
-        systemAdminVerwaltungService;
+    private final PlattformVerwaltungService
+        plattformVerwaltungService;
 
     /**
      * Retrieve platform-wide statistics.
@@ -72,7 +72,7 @@ public class SystemAdminVerwaltungController {
     public ResponseEntity<SystemAdminStatsDTO>
             retrieveSystemAdminStats() {
         return ResponseEntity.ok(
-            systemAdminVerwaltungService.retrieveSystemAdminStats());
+            plattformVerwaltungService.retrieveSystemAdminStats());
     }
 
     /**
@@ -99,7 +99,7 @@ public class SystemAdminVerwaltungController {
     @GetMapping("/kurse")
     public ResponseEntity<List<KursDTO>> retrieveKurse() {
         return ResponseEntity.ok(
-            systemAdminVerwaltungService.retrieveKurse());
+            plattformVerwaltungService.retrieveKurse());
     }
 
     /**
@@ -132,7 +132,7 @@ public class SystemAdminVerwaltungController {
     public ResponseEntity<Void> deleteKurs(
             @PathVariable final UUID kursId) {
         try {
-            systemAdminVerwaltungService.deleteKurs(kursId);
+            plattformVerwaltungService.deleteKurs(kursId);
             return ResponseEntity.noContent().build();
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -173,7 +173,7 @@ public class SystemAdminVerwaltungController {
             @PathVariable final UUID kursId) {
         try {
             return ResponseEntity.ok(
-                systemAdminVerwaltungService
+                plattformVerwaltungService
                     .retrieveKursMembersAndTheirRoles(kursId));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -205,7 +205,7 @@ public class SystemAdminVerwaltungController {
     @GetMapping("/studenten")
     public ResponseEntity<List<StudentDTO>> retrieveAllStudents() {
         return ResponseEntity.ok(
-            systemAdminVerwaltungService.retrieveAllStudents());
+            plattformVerwaltungService.retrieveAllStudents());
     }
 
     /**
@@ -237,7 +237,7 @@ public class SystemAdminVerwaltungController {
     public ResponseEntity<Void> addSysAdmin(
             @PathVariable final UUID studentId) {
         try {
-            systemAdminVerwaltungService.addSysAdmin(studentId);
+            plattformVerwaltungService.addSysAdmin(studentId);
             return ResponseEntity.ok().build();
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -285,7 +285,7 @@ public class SystemAdminVerwaltungController {
     public ResponseEntity<Void> removeSysAdmin(
             @PathVariable final UUID studentId) {
         try {
-            systemAdminVerwaltungService.removeSysAdmin(studentId);
+            plattformVerwaltungService.removeSysAdmin(studentId);
             return ResponseEntity.ok().build();
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

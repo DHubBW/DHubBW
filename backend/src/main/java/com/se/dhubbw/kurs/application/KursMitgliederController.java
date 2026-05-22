@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
@@ -71,14 +69,10 @@ public class KursMitgliederController {
     @GetMapping("/stats")
     public ResponseEntity<KursAdminStatsDTO> retrieveKursAdminStats(
             final Authentication authentication) {
-        try {
-            KursAdminStatsDTO stats =
-                kursMitgliederService.retrieveKursAdminStats(
-                    authentication.getName());
-            return ResponseEntity.ok(stats);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        KursAdminStatsDTO stats =
+            kursMitgliederService.retrieveKursAdminStats(
+                authentication.getName());
+        return ResponseEntity.ok(stats);
     }
 
     /**
@@ -113,14 +107,10 @@ public class KursMitgliederController {
     public ResponseEntity<List<KursmemberDTO>>
             retrieveAllCourseMembers(
             final Authentication authentication) {
-        try {
-            List<KursmemberDTO> members =
-                kursMitgliederService.retrieveAllCourseMembers(
-                    authentication.getName());
-            return ResponseEntity.ok(members);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        List<KursmemberDTO> members =
+            kursMitgliederService.retrieveAllCourseMembers(
+                authentication.getName());
+        return ResponseEntity.ok(members);
     }
 
     /**
@@ -151,15 +141,9 @@ public class KursMitgliederController {
     @PatchMapping("/resign")
     public ResponseEntity<Void> kursadminNiederlegen(
             final Authentication authentication) {
-        try {
-            kursMitgliederService.kursadminNiederlegen(
-                authentication.getName());
-            return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        kursMitgliederService.kursadminNiederlegen(
+            authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -197,18 +181,9 @@ public class KursMitgliederController {
     public ResponseEntity<Void> addKursadmin(
             @PathVariable final UUID studentId,
             final Authentication authentication) {
-        try {
-            kursMitgliederService.addKursadmin(
-                studentId, authentication.getName());
-            return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        kursMitgliederService.addKursadmin(
+            studentId, authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -246,18 +221,9 @@ public class KursMitgliederController {
     public ResponseEntity<Void> removeKursadmin(
             @PathVariable final UUID studentId,
             final Authentication authentication) {
-        try {
-            kursMitgliederService.removeKursadmin(
-                studentId, authentication.getName());
-            return ResponseEntity.ok().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        kursMitgliederService.removeKursadmin(
+            studentId, authentication.getName());
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -294,14 +260,8 @@ public class KursMitgliederController {
     public ResponseEntity<Void> removeKursMember(
             @PathVariable final UUID studentId,
             final Authentication authentication) {
-        try {
-            kursMitgliederService.removeKursMember(
-                studentId, authentication.getName());
-            return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        kursMitgliederService.removeKursMember(
+            studentId, authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 }

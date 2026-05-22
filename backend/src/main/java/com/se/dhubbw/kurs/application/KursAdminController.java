@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
@@ -72,13 +71,9 @@ public class KursAdminController {
     public ResponseEntity<List<KursanfrageDTO>>
             retrieveKursbeitrittsanfragen(
             final Authentication authentication) {
-        try {
-            return ResponseEntity.ok(
-                kursAdminService.retrieveKursbeitrittsanfragen(
-                    authentication.getName()));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return ResponseEntity.ok(
+            kursAdminService.retrieveKursbeitrittsanfragen(
+                authentication.getName()));
     }
 
     /**
@@ -117,12 +112,8 @@ public class KursAdminController {
             kursAdminService.approveKursbeitrittsanfrage(
                 id, authentication.getName());
             return ResponseEntity.ok().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 
@@ -159,8 +150,6 @@ public class KursAdminController {
             kursAdminService.declineKursbeitrittsanfrage(
                 id, authentication.getName());
             return ResponseEntity.noContent().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

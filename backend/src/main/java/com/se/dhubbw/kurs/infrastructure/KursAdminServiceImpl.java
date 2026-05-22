@@ -5,8 +5,6 @@ import com.se.dhubbw.kurs.domain.KursAdminService;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
-import com.se.dhubbw.student.infrastructure.db.Student;
-import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,22 +26,22 @@ import java.util.UUID;
 public class KursAdminServiceImpl implements KursAdminService {
 
     /**
-     * Repository for student lookup by DHBW mail.
-     */
-    private final StudentRepository studentRepository;
-
-    /**
      * Repository for enrollment request operations.
      */
     private final KursBeitrittsAnfrageRepository
         kursBeitrittsAnfrageRepository;
+
+    /**
+     * Shared helper for student and course lookups.
+     */
+    private final KursStudentHelper kursStudentHelper;
 
     /** {@inheritDoc} */
     @Override
     @Transactional(readOnly = true)
     public List<KursanfrageDTO> retrieveKursbeitrittsanfragen(
             final String dhbwMail) {
-        Kurs kurs = getKursForAdmin(dhbwMail);
+        Kurs kurs = kursStudentHelper.findKursForAdminByEmail(dhbwMail);
         return kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedFalse(kurs).stream()
             .map(KursAdminServiceImpl::toDto)
@@ -56,7 +54,7 @@ public class KursAdminServiceImpl implements KursAdminService {
     public void approveKursbeitrittsanfrage(
             final UUID anfrageId,
             final String dhbwMail) {
-        Kurs kurs = getKursForAdmin(dhbwMail);
+        Kurs kurs = kursStudentHelper.findKursForAdminByEmail(dhbwMail);
         KursBeitrittsAnfrage anfrage = findAnfrage(anfrageId);
         verifyBelongsToCourse(anfrage, kurs);
         verifyStudentNotEnrolled(anfrage);
@@ -70,31 +68,10 @@ public class KursAdminServiceImpl implements KursAdminService {
     public void declineKursbeitrittsanfrage(
             final UUID anfrageId,
             final String dhbwMail) {
-        Kurs kurs = getKursForAdmin(dhbwMail);
+        Kurs kurs = kursStudentHelper.findKursForAdminByEmail(dhbwMail);
         KursBeitrittsAnfrage anfrage = findAnfrage(anfrageId);
         verifyBelongsToCourse(anfrage, kurs);
         kursBeitrittsAnfrageRepository.delete(anfrage);
-    }
-
-    /**
-     * Determine the course managed by the given admin via their
-     * approved enrollment request.
-     *
-     * @param dhbwMail the admin's DHBW mail address
-     * @return the admin's course
-     * @throws NoSuchElementException if the student or their
-     *     course assignment is not found
-     */
-    private Kurs getKursForAdmin(final String dhbwMail) {
-        Student student = studentRepository
-            .findByDhbwMail(dhbwMail)
-            .orElseThrow(() -> new NoSuchElementException(
-                "Student not found: " + dhbwMail));
-        return kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(student)
-            .orElseThrow(() -> new NoSuchElementException(
-                "No course assignment for: " + dhbwMail))
-            .getKurs();
     }
 
     /**

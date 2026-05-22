@@ -10,9 +10,10 @@ import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.ordner.infrastructure.db.Ordner;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerRepository;
+import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
+import com.se.dhubbw.shared.infrastructure.helper.StudentLookupHelper;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import com.se.dhubbw.student.infrastructure.db.Student;
-import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,9 +72,9 @@ public class DateiServiceImpl
     private final OrdnerRepository ordnerRepository;
 
     /**
-     * Repository for student lookup.
+     * Shared helper for student lookups.
      */
-    private final StudentRepository studentRepository;
+    private final StudentLookupHelper studentLookupHelper;
 
     /**
      * Repository for course enrollment lookup.
@@ -115,13 +116,14 @@ public class DateiServiceImpl
      *     content fails
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public UUID uploadDatei(
             final MultipartFile file,
             final UUID ueberordnerId,
             final String name,
             final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         Ordner ordner = findOrdnerOrThrow(ueberordnerId);
         verifyUploadAuthorized(ordner, student);
         verifyStorageAvailable(file.getSize());
@@ -170,13 +172,14 @@ public class DateiServiceImpl
      *     authorised to modify the file
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void renameDatei(
             final UUID dateiId,
             final String newName,
             final String dhbwMail) {
         Datei datei = findDateiOrThrow(dateiId);
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         verifyModifyAuthorized(datei, student);
         datei.setName(StringUtils.cleanPath(newName));
         datei.setZuletztBearbeitet(LocalDate.now());
@@ -198,12 +201,13 @@ public class DateiServiceImpl
      *     authorised to delete the file
      */
     @Override
-    @Transactional
+    @RetryableTransactional
     public void deleteDatei(
             final UUID dateiId,
             final String dhbwMail) {
         Datei datei = findDateiOrThrow(dateiId);
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         verifyModifyAuthorized(datei, student);
         dateiAnlegungRepository.findByDatei(datei)
             .ifPresent(dateiAnlegungRepository::delete);
@@ -336,7 +340,8 @@ public class DateiServiceImpl
     public List<DateiDTO> retrieveDateienForOrdner(
             final UUID ordnerId,
             final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         Ordner ordner = findOrdnerOrThrow(ordnerId);
         verifyReadAuthorized(ordner, student);
         return dateiRepository
@@ -363,7 +368,8 @@ public class DateiServiceImpl
     @Transactional(readOnly = true)
     public List<DateiDTO> retrieveAllFiles(
             final String dhbwMail) {
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         if (student.getStudentType()
                 == StudentType.SYSTEMADMIN) {
             return dateiRepository
@@ -404,7 +410,8 @@ public class DateiServiceImpl
             final UUID dateiId,
             final String dhbwMail) {
         Datei datei = findDateiOrThrow(dateiId);
-        Student student = findStudentOrThrow(dhbwMail);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
         verifyReadAuthorized(datei.getOrdner(), student);
         return new DateiDownloadDTO(
             datei.getName(), datei.getData());
@@ -474,19 +481,6 @@ public class DateiServiceImpl
         return dateiRepository.findById(dateiId)
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Datei nicht gefunden"));
-    }
-
-    /**
-     * Look up a student by their DHBW email address.
-     *
-     * @param dhbwMail the DHBW email address to search for
-     * @return the matching student
-     * @throws ResponseStatusException 404 if no student is found
-     */
-    private Student findStudentOrThrow(final String dhbwMail) {
-        return studentRepository.findByDhbwMail(dhbwMail)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Student nicht gefunden"));
     }
 
     /**

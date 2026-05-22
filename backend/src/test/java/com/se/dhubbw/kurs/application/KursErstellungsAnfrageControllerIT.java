@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @IntegrationTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class SystemAdminControllerIT {
+public class KursErstellungsAnfrageControllerIT {
 
     private static final String LENA_ANFRAGE_ID =
         "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2";
@@ -33,7 +33,7 @@ public class SystemAdminControllerIT {
 
     private final WebApplicationContext context;
 
-    public SystemAdminControllerIT(WebApplicationContext context) {
+    public KursErstellungsAnfrageControllerIT(WebApplicationContext context) {
         this.context = context;
     }
 

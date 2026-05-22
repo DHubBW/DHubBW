@@ -13,7 +13,7 @@ import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerRepository;
 import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
-import com.se.dhubbw.student.infrastructure.db.StudentRepository;
+import com.se.dhubbw.shared.infrastructure.helper.StudentLookupHelper;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,9 +52,9 @@ public class OrdnerServiceTest {
     @Mock
     private OrdnerAnlegungRepository ordnerAnlegungRepository;
 
-    /** Mock repository for student lookup. */
+    /** Mock helper for student lookup. */
     @Mock
-    private StudentRepository studentRepository;
+    private StudentLookupHelper studentLookupHelper;
 
     /** Mock repository for course enrollment lookup. */
     @Mock
@@ -144,12 +144,12 @@ public class OrdnerServiceTest {
         childOrdner.setLevel(1);
         childOrdner.setFarbe(OrdnerFarbe.BLUE);
 
-        when(studentRepository.findByDhbwMail("student@dhbw.de"))
-            .thenReturn(Optional.of(student));
-        when(studentRepository.findByDhbwMail("kursadmin@dhbw.de"))
-            .thenReturn(Optional.of(kursAdmin));
-        when(studentRepository.findByDhbwMail("system.administrator.a24@student.dhbw-karlsruhe.de"))
-            .thenReturn(Optional.of(sysAdmin));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(student);
+        when(studentLookupHelper.findStudentByEmail("kursadmin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(studentLookupHelper.findStudentByEmail("system.administrator.a24@student.dhbw-karlsruhe.de"))
+            .thenReturn(sysAdmin);
         when(kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.of(anfrage));
@@ -385,8 +385,8 @@ public class OrdnerServiceTest {
         other.setStudentID(UUID.randomUUID());
         other.setDhbwMail("other@dhbw.de");
         other.setStudentType(StudentType.STUDENT);
-        when(studentRepository.findByDhbwMail("other@dhbw.de"))
-            .thenReturn(Optional.of(other));
+        when(studentLookupHelper.findStudentByEmail("other@dhbw.de"))
+            .thenReturn(other);
         KursBeitrittsAnfrage otherAnfrage =
             new KursBeitrittsAnfrage();
         otherAnfrage.setKurs(kurs);
