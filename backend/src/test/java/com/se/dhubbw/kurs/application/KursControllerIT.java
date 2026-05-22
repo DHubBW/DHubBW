@@ -47,7 +47,7 @@ public class KursControllerIT {
     @Test
     @WithMockUser(roles = "STUDENT")
     public void givenStudent_whenRetrieveKursNamesAndYears_thenReturns200() throws Exception {
-        mockMvc.perform(get("/public/kurse"))
+        mockMvc.perform(get("/student/kurse"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());
     }
@@ -55,33 +55,33 @@ public class KursControllerIT {
     @Test
     @WithMockUser(roles = "KURSADMIN")
     public void givenKursadmin_whenRetrieveKursNamesAndYears_thenReturns403() throws Exception {
-        mockMvc.perform(get("/public/kurse"))
+        mockMvc.perform(get("/student/kurse"))
             .andExpect(status().isForbidden());
     }
 
     @Test
     public void givenUnauthenticated_whenRetrieveKursNamesAndYears_thenReturns401() throws Exception {
-        mockMvc.perform(get("/public/kurse"))
+        mockMvc.perform(get("/student/kurse"))
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "STUDENT")
     public void givenStudent_whenOpenJoinKursRequestWithInvalidId_thenReturns404() throws Exception {
-        mockMvc.perform(post("/public/kurse/beitreten/00000000-0000-0000-0000-000000000000"))
+        mockMvc.perform(post("/student/kurse/beitreten/00000000-0000-0000-0000-000000000000"))
             .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "KURSADMIN")
     public void givenKursadmin_whenOpenJoinKursRequest_thenReturns201Or409() throws Exception {
-        mockMvc.perform(post("/public/kurse/beitreten/00000000-0000-0000-0000-000000000000"))
+        mockMvc.perform(post("/student/kurse/beitreten/00000000-0000-0000-0000-000000000000"))
             .andExpect(status().is4xxClientError());
     }
 
     @Test
     public void givenUnauthenticated_whenOpenJoinKursRequest_thenReturns401() throws Exception {
-        mockMvc.perform(post("/public/kurse/beitreten/00000000-0000-0000-0000-000000000000"))
+        mockMvc.perform(post("/student/kurse/beitreten/00000000-0000-0000-0000-000000000000"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -97,7 +97,7 @@ public class KursControllerIT {
             "Test notes"
         );
 
-        mockMvc.perform(post("/public/kurse/erstellen")
+        mockMvc.perform(post("/student/kurse/erstellen")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().is2xxSuccessful());
@@ -115,7 +115,7 @@ public class KursControllerIT {
             "Should fail"
         );
 
-        mockMvc.perform(post("/public/kurse/erstellen")
+        mockMvc.perform(post("/student/kurse/erstellen")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isConflict());
@@ -129,7 +129,7 @@ public class KursControllerIT {
             null
         );
 
-        mockMvc.perform(post("/public/kurse/erstellen")
+        mockMvc.perform(post("/student/kurse/erstellen")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isUnauthorized());
@@ -143,7 +143,7 @@ public class KursControllerIT {
     public void givenUnenrolledStudent_whenOpenJoinKursRequest_thenReturns201()
             throws Exception {
         mockMvc.perform(post(
-            "/public/kurse/beitreten/22222222-2222-2222-2222-222222222230"))
+            "/student/kurse/beitreten/22222222-2222-2222-2222-222222222230"))
             .andExpect(status().isCreated());
     }
 }

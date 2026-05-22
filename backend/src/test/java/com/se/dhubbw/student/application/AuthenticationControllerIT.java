@@ -51,7 +51,7 @@ public class AuthenticationControllerIT {
             "SecurePassword123!"
         );
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/public/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -69,7 +69,7 @@ public class AuthenticationControllerIT {
             "password"
         );
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/public/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().is(422));
@@ -83,7 +83,7 @@ public class AuthenticationControllerIT {
             "password"
         );
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/public/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isConflict())
@@ -98,7 +98,7 @@ public class AuthenticationControllerIT {
             "wrongpassword"
         );
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isUnauthorized())
@@ -113,7 +113,7 @@ public class AuthenticationControllerIT {
             "password"
         );
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isUnauthorized())
@@ -127,13 +127,13 @@ public class AuthenticationControllerIT {
         roles = "STUDENT"
     )
     public void givenAuthenticatedUser_whenTest_thenReturns200WithUserInfo() throws Exception {
-        mockMvc.perform(get("/api/auth/test"))
+        mockMvc.perform(get("/public/auth/test"))
             .andExpect(status().isOk());
     }
 
     @Test
     public void givenUnauthenticatedUser_whenTest_thenReturns401() throws Exception {
-        mockMvc.perform(get("/api/auth/test"))
+        mockMvc.perform(get("/public/auth/test"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -146,7 +146,7 @@ public class AuthenticationControllerIT {
             "password"
         );
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/public/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().is(422));
@@ -157,13 +157,13 @@ public class AuthenticationControllerIT {
         String loginMail = "test.login.a24@student.dhbw-karlsruhe.de";
         String loginPassword = "LoginTestPassword123!";
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/public/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new RegisterRequestDTO(
                     loginMail, "Linus Kronenberger", loginPassword))))
             .andExpect(status().isOk());
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
                     new LoginRequestDTO(loginMail, loginPassword))))

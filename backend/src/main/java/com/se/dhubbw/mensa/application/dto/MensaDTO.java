@@ -23,4 +23,3 @@ public record MensaDTO(UUID gerichtID,
                        Ernaehrung ernaehrung,
                        String linie) {
 }
-

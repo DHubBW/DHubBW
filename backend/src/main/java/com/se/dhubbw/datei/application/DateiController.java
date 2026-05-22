@@ -43,7 +43,7 @@ import java.util.UUID;
  * the caller's role and course membership.</p>
  */
 @RestController
-@RequestMapping("/dateien")
+@RequestMapping("/student/dateien")
 @RequiredArgsConstructor
 public class DateiController {
 

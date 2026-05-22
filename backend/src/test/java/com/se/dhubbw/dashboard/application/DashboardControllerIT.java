@@ -37,21 +37,21 @@ public class DashboardControllerIT {
     @Test
     @WithMockUser(roles = "STUDENT")
     public void givenStudent_whenRetrieveMealsForToday_thenReturns200() throws Exception {
-        mockMvc.perform(get("/public/dashboard/meals/today"))
+        mockMvc.perform(get("/student/dashboard/meals/today"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());
     }
 
     @Test
     public void givenUnauthenticatedUser_whenRetrieveMealsForToday_thenReturns401() throws Exception {
-        mockMvc.perform(get("/public/dashboard/meals/today"))
+        mockMvc.perform(get("/student/dashboard/meals/today"))
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(username = "admin", roles = {"SYSTEMADMIN", "STUDENT"})
     public void givenSystemAdmin_whenRetrieveLatestDateien_thenReturns200WithAllFiles() throws Exception {
-        mockMvc.perform(get("/public/dashboard/dateien/latest"))
+        mockMvc.perform(get("/student/dashboard/dateien/latest"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());
     }
@@ -62,7 +62,7 @@ public class DashboardControllerIT {
         roles = "STUDENT"
     )
     public void givenApprovedStudent_whenRetrieveLatestDateien_thenReturns200WithFiles() throws Exception {
-        mockMvc.perform(get("/public/dashboard/dateien/latest"))
+        mockMvc.perform(get("/student/dashboard/dateien/latest"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(1));
@@ -74,7 +74,7 @@ public class DashboardControllerIT {
         roles = "STUDENT"
     )
     public void givenUnapprovedStudent_whenRetrieveLatestDateien_thenReturns403() throws Exception {
-        mockMvc.perform(get("/public/dashboard/dateien/latest"))
+        mockMvc.perform(get("/student/dashboard/dateien/latest"))
             .andExpect(status().isForbidden());
     }
 
@@ -84,13 +84,13 @@ public class DashboardControllerIT {
         roles = "STUDENT"
     )
     public void givenUnknownStudent_whenRetrieveLatestDateien_thenReturns403() throws Exception {
-        mockMvc.perform(get("/public/dashboard/dateien/latest"))
+        mockMvc.perform(get("/student/dashboard/dateien/latest"))
             .andExpect(status().isForbidden());
     }
 
     @Test
     public void givenUnauthenticatedUser_whenRetrieveLatestDateien_thenReturns401() throws Exception {
-        mockMvc.perform(get("/public/dashboard/dateien/latest"))
+        mockMvc.perform(get("/student/dashboard/dateien/latest"))
             .andExpect(status().isUnauthorized());
     }
 }

@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  * retrieve meals for specific days or entire weeks.</p>
  */
 @RestController
-@RequestMapping("/public")
+@RequestMapping("/student")
 @RequiredArgsConstructor
 public class MensaController {
 

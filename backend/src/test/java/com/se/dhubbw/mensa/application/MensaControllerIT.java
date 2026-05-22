@@ -35,7 +35,7 @@ public class MensaControllerIT {
     @Test
     @WithMockUser(roles = "STUDENT")
     public void givenStudent_whenRetrieveMealsForDay_thenReturns200() throws Exception {
-        mockMvc.perform(get("/public/meals")
+        mockMvc.perform(get("/student/meals")
                 .param("date", "2026-05-15"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());
@@ -44,7 +44,7 @@ public class MensaControllerIT {
     @Test
     @WithMockUser(roles = "KURSADMIN")
     public void givenKursadmin_whenRetrieveMealsForDay_thenReturns403() throws Exception {
-        mockMvc.perform(get("/public/meals")
+        mockMvc.perform(get("/student/meals")
                 .param("date", "2026-05-15"))
             .andExpect(status().isForbidden());
     }
@@ -52,7 +52,7 @@ public class MensaControllerIT {
     @Test
     @WithMockUser(username = "admin", roles = {"SYSTEMADMIN", "STUDENT"})
     public void givenSystemAdmin_whenRetrieveMealsForDay_thenReturns200() throws Exception {
-        mockMvc.perform(get("/public/meals")
+        mockMvc.perform(get("/student/meals")
                 .param("date", "2026-05-15"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());
@@ -60,7 +60,7 @@ public class MensaControllerIT {
 
     @Test
     public void givenUnauthenticated_whenRetrieveMealsForDay_thenReturns401() throws Exception {
-        mockMvc.perform(get("/public/meals")
+        mockMvc.perform(get("/student/meals")
                 .param("date", "2026-05-15"))
             .andExpect(status().isUnauthorized());
     }
@@ -68,14 +68,14 @@ public class MensaControllerIT {
     @Test
     @WithMockUser(roles = "STUDENT")
     public void givenStudent_whenRetrieveMealsWithoutDate_thenReturns400() throws Exception {
-        mockMvc.perform(get("/public/meals"))
+        mockMvc.perform(get("/student/meals"))
             .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "STUDENT")
     public void givenStudent_whenRetrieveCurrentWeek_thenReturns200() throws Exception {
-        mockMvc.perform(get("/public/meals/current-week"))
+        mockMvc.perform(get("/student/meals/current-week"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isMap());
     }
@@ -83,34 +83,34 @@ public class MensaControllerIT {
     @Test
     @WithMockUser(roles = "STUDENT")
     public void givenStudent_whenRetrieveNextWeek_thenReturns200() throws Exception {
-        mockMvc.perform(get("/public/meals/next-week"))
+        mockMvc.perform(get("/student/meals/next-week"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isMap());
     }
 
     @Test
     public void givenUnauthenticated_whenRetrieveCurrentWeek_thenReturns401() throws Exception {
-        mockMvc.perform(get("/public/meals/current-week"))
+        mockMvc.perform(get("/student/meals/current-week"))
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void givenUnauthenticated_whenRetrieveNextWeek_thenReturns401() throws Exception {
-        mockMvc.perform(get("/public/meals/next-week"))
+        mockMvc.perform(get("/student/meals/next-week"))
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "KURSADMIN")
     public void givenKursadmin_whenRetrieveCurrentWeek_thenReturns403() throws Exception {
-        mockMvc.perform(get("/public/meals/current-week"))
+        mockMvc.perform(get("/student/meals/current-week"))
             .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = "KURSADMIN")
     public void givenKursadmin_whenRetrieveNextWeek_thenReturns403() throws Exception {
-        mockMvc.perform(get("/public/meals/next-week"))
+        mockMvc.perform(get("/student/meals/next-week"))
             .andExpect(status().isForbidden());
     }
 }

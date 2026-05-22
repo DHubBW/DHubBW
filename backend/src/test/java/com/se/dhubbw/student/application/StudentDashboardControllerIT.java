@@ -54,7 +54,7 @@ public class StudentDashboardControllerIT {
     @WithMockUser(username = STUDENT_MAIL, roles = {"STUDENT"})
     public void givenAuthenticatedStudent_whenLeaveKurs_thenReturns200()
             throws Exception {
-        mockMvc.perform(get("/dashboard/leave-kurs"))
+        mockMvc.perform(get("/student/dashboard/leave-kurs"))
             .andExpect(status().isOk())
             .andExpect(content().string(org.hamcrest.Matchers.containsString(
                 "Successfully left course")));
@@ -65,7 +65,7 @@ public class StudentDashboardControllerIT {
         roles = {"STUDENT"})
     public void givenNonExistentStudent_whenLeaveKurs_thenReturns404()
             throws Exception {
-        mockMvc.perform(get("/dashboard/leave-kurs"))
+        mockMvc.perform(get("/student/dashboard/leave-kurs"))
             .andExpect(status().isNotFound())
             .andExpect(content().string(org.hamcrest.Matchers.containsString(
                 "has no course enrollment")));
@@ -76,7 +76,7 @@ public class StudentDashboardControllerIT {
         roles = {"STUDENT", "KURSADMIN"})
     public void givenLastKursadmin_whenLeaveKurs_thenReturns400()
             throws Exception {
-        mockMvc.perform(get("/dashboard/leave-kurs"))
+        mockMvc.perform(get("/student/dashboard/leave-kurs"))
             .andExpect(status().isBadRequest())
             .andExpect(content().string(org.hamcrest.Matchers.containsString(
                 "last KURSADMIN")));
@@ -85,7 +85,7 @@ public class StudentDashboardControllerIT {
     @Test
     public void givenUnauthenticated_whenLeaveKurs_thenReturns401()
             throws Exception {
-        mockMvc.perform(get("/dashboard/leave-kurs"))
+        mockMvc.perform(get("/student/dashboard/leave-kurs"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -96,7 +96,7 @@ public class StudentDashboardControllerIT {
         roles = {"STUDENT"})
     public void givenStudentWithoutEnrollment_whenDeleteAccount_thenReturns200()
             throws Exception {
-        mockMvc.perform(delete("/dashboard/delete-account"))
+        mockMvc.perform(delete("/student/dashboard/delete-account"))
             .andExpect(status().isOk())
             .andExpect(content().string(org.hamcrest.Matchers.containsString(
                 "Successfully deleted account")));
@@ -107,7 +107,7 @@ public class StudentDashboardControllerIT {
         roles = {"STUDENT", "KURSADMIN"})
     public void givenLastKursadmin_whenDeleteAccount_thenReturns400()
             throws Exception {
-        mockMvc.perform(delete("/dashboard/delete-account"))
+        mockMvc.perform(delete("/student/dashboard/delete-account"))
             .andExpect(status().is4xxClientError())
             .andExpect(content().string(org.hamcrest.Matchers.containsString(
                 "last KURSADMIN")));
@@ -119,7 +119,7 @@ public class StudentDashboardControllerIT {
     public void givenSystemadminWithOthers_whenDeleteAccount_thenReturns200()
             throws Exception {
         // Tom is not the last systemadmin (Eva exists)
-        mockMvc.perform(delete("/dashboard/delete-account"))
+        mockMvc.perform(delete("/student/dashboard/delete-account"))
             .andExpect(status().isOk())
             .andExpect(content().string(org.hamcrest.Matchers.containsString(
                 "Successfully deleted account")));
@@ -128,7 +128,7 @@ public class StudentDashboardControllerIT {
     @Test
     public void givenUnauthenticated_whenDeleteAccount_thenReturns401()
             throws Exception {
-        mockMvc.perform(delete("/dashboard/delete-account"))
+        mockMvc.perform(delete("/student/dashboard/delete-account"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -136,7 +136,7 @@ public class StudentDashboardControllerIT {
     @WithMockUser(username = STUDENT_MAIL, roles = {})
     public void givenNoRole_whenLeaveKurs_thenReturns403()
             throws Exception {
-        mockMvc.perform(get("/dashboard/leave-kurs"))
+        mockMvc.perform(get("/student/dashboard/leave-kurs"))
             .andExpect(status().isForbidden());
     }
 
@@ -144,7 +144,7 @@ public class StudentDashboardControllerIT {
     @WithMockUser(username = STUDENT_MAIL, roles = {})
     public void givenNoRole_whenDeleteAccount_thenReturns403()
             throws Exception {
-        mockMvc.perform(delete("/dashboard/delete-account"))
+        mockMvc.perform(delete("/student/dashboard/delete-account"))
             .andExpect(status().isForbidden());
     }
 
@@ -154,7 +154,7 @@ public class StudentDashboardControllerIT {
     @WithMockUser(username = STUDENT_MAIL, roles = {"STUDENT"})
     public void givenAuthenticatedStudent_whenRetrieveProfile_thenReturns200WithProfile()
             throws Exception {
-        mockMvc.perform(get("/dashboard/profile"))
+        mockMvc.perform(get("/student/dashboard/profile"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value("Linus Kronenberger"))
             .andExpect(jsonPath("$.dhbwMail").value(STUDENT_MAIL))
@@ -167,7 +167,7 @@ public class StudentDashboardControllerIT {
         roles = {"STUDENT"})
     public void givenStudentWithoutEnrollment_whenRetrieveProfile_thenReturnsProfileWithNullKurs()
             throws Exception {
-        mockMvc.perform(get("/dashboard/profile"))
+        mockMvc.perform(get("/student/dashboard/profile"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value("Max"))
             .andExpect(jsonPath("$.kursName").isEmpty());
@@ -176,7 +176,7 @@ public class StudentDashboardControllerIT {
     @Test
     public void givenUnauthenticated_whenRetrieveProfile_thenReturns401()
             throws Exception {
-        mockMvc.perform(get("/dashboard/profile"))
+        mockMvc.perform(get("/student/dashboard/profile"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -184,7 +184,7 @@ public class StudentDashboardControllerIT {
     @WithMockUser(username = STUDENT_MAIL, roles = {})
     public void givenNoRole_whenRetrieveProfile_thenReturns403()
             throws Exception {
-        mockMvc.perform(get("/dashboard/profile"))
+        mockMvc.perform(get("/student/dashboard/profile"))
             .andExpect(status().isForbidden());
     }
 
@@ -194,7 +194,7 @@ public class StudentDashboardControllerIT {
     @WithMockUser(username = STUDENT_MAIL, roles = {"STUDENT"})
     public void givenAuthenticatedStudent_whenLogout_thenReturns200AndInvalidatesCookie()
             throws Exception {
-        mockMvc.perform(post("/dashboard/logout"))
+        mockMvc.perform(post("/student/dashboard/logout"))
             .andExpect(status().isOk())
             .andExpect(cookie().maxAge("jwt", 0));
     }
@@ -202,7 +202,7 @@ public class StudentDashboardControllerIT {
     @Test
     public void givenUnauthenticated_whenLogout_thenReturns401()
             throws Exception {
-        mockMvc.perform(post("/dashboard/logout"))
+        mockMvc.perform(post("/student/dashboard/logout"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -210,7 +210,7 @@ public class StudentDashboardControllerIT {
     @WithMockUser(username = STUDENT_MAIL, roles = {})
     public void givenNoRole_whenLogout_thenReturns403()
             throws Exception {
-        mockMvc.perform(post("/dashboard/logout"))
+        mockMvc.perform(post("/student/dashboard/logout"))
             .andExpect(status().isForbidden());
     }
 
@@ -220,7 +220,7 @@ public class StudentDashboardControllerIT {
     @WithMockUser(username = STUDENT_MAIL, roles = {"STUDENT"})
     public void givenStudentWithEnrollment_whenRetrieveKursForUser_thenReturnsKursName()
             throws Exception {
-        mockMvc.perform(get("/dashboard/kurs"))
+        mockMvc.perform(get("/student/dashboard/kurs"))
             .andExpect(status().isOk());
     }
 
@@ -229,14 +229,14 @@ public class StudentDashboardControllerIT {
         roles = {"STUDENT"})
     public void givenStudentWithoutEnrollment_whenRetrieveKursForUser_thenReturnsKeinKurs()
             throws Exception {
-        mockMvc.perform(get("/dashboard/kurs"))
+        mockMvc.perform(get("/student/dashboard/kurs"))
             .andExpect(status().isOk());
     }
 
     @Test
     public void givenUnauthenticated_whenRetrieveKursForUser_thenReturns401()
             throws Exception {
-        mockMvc.perform(get("/dashboard/kurs"))
+        mockMvc.perform(get("/student/dashboard/kurs"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -244,7 +244,7 @@ public class StudentDashboardControllerIT {
     @WithMockUser(username = STUDENT_MAIL, roles = {})
     public void givenNoRole_whenRetrieveKursForUser_thenReturns403()
             throws Exception {
-        mockMvc.perform(get("/dashboard/kurs"))
+        mockMvc.perform(get("/student/dashboard/kurs"))
             .andExpect(status().isForbidden());
     }
 }

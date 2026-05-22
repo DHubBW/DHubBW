@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller for authentication endpoints.
  */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/public/auth")
 public class AuthenticationController {
 
     /**
@@ -141,8 +141,8 @@ public class AuthenticationController {
             return ResponseEntity
                 .status(HTTP_UNAUTHORIZED)
                 .body(new SmallResponseDTO(
-                    "Invalid credentials for email: '\"\n"
-                    + "                    + request.dhbwMail() + \"'.\""));
+                    "Invalid credentials for email: '"
+                        + request.dhbwMail() + "'."));
         }
     }
 

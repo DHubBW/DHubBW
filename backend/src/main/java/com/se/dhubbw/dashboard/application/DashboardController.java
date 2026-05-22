@@ -30,7 +30,7 @@ import java.util.Optional;
  * course-scoped files for students.</p>
  */
 @RestController
-@RequestMapping("/public/dashboard")
+@RequestMapping("/student/dashboard")
 @RequiredArgsConstructor
 public class DashboardController {
 
