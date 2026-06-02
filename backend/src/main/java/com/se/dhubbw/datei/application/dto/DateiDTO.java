@@ -16,6 +16,8 @@ import java.util.UUID;
  * or {@code null} if no uploader is recorded.
  * @param ordnerID Identifier of the folder containing this file.
  * @param ordnerName Name of the folder containing this file.
+ * @param downloadAnzahl Number of times this file has been
+ * downloaded.
  */
 public record DateiDTO(UUID dateiID,
                        String name,
@@ -23,4 +25,5 @@ public record DateiDTO(UUID dateiID,
                        float fileSize,
                        String uploaderName,
                        UUID ordnerID,
-                       String ordnerName) { }
+                       String ordnerName,
+                       int downloadAnzahl) { }

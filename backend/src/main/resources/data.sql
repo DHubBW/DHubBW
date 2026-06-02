@@ -34,9 +34,9 @@ INSERT INTO ordner (ordner_id, ueber_ordner_id, kurs_id, name, level, farbe, is_
 
 -- Dateien
 -- data column is loaded from src/main/resources/test-images/sample.png via H2's FILE_READ
-INSERT INTO datei (datei_id, ordner_id, name, zuletzt_bearbeitet, data, uploader, file_size) VALUES
-    ('55555555-5555-5555-5555-555555555551', '44444444-4444-4444-4444-444444444442', 'Skript_Mathe.pdf', DATE '2026-04-25', FILE_READ('classpath:/test-images/sample.png'), '11111111-1111-1111-1111-111111111112', 2.5),
-    ('55555555-5555-5555-5555-555555555552', '44444444-4444-4444-4444-444444444443', 'Notizen.txt', DATE '2026-04-30', FILE_READ('classpath:/test-images/sample.png'), '11111111-1111-1111-1111-111111111111', 0.8);
+INSERT INTO datei (datei_id, ordner_id, name, zuletzt_bearbeitet, data, uploader, file_size, download_anzahl) VALUES
+    ('55555555-5555-5555-5555-555555555551', '44444444-4444-4444-4444-444444444442', 'Skript_Mathe.pdf', DATE '2026-04-25', FILE_READ('classpath:/test-images/sample.png'), '11111111-1111-1111-1111-111111111112', 2.5, 0),
+    ('55555555-5555-5555-5555-555555555552', '44444444-4444-4444-4444-444444444443', 'Notizen.txt', DATE '2026-04-30', FILE_READ('classpath:/test-images/sample.png'), '11111111-1111-1111-1111-111111111111', 0.8, 0);
 
 -- Kurs-Beitrittsanfragen
 INSERT INTO kurs_beitritts_anfrage (anfrage_id, kurs_id, student_id, datum, is_approved) VALUES

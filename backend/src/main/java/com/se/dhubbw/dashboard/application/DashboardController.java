@@ -157,7 +157,8 @@ public class DashboardController {
             datei.getFileSize(),
             uploaderName,
             datei.getOrdner().getOrdnerID(),
-            datei.getOrdner().getName()
+            datei.getOrdner().getName(),
+            datei.getDownloadAnzahl()
         );
     }
 }

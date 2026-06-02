@@ -368,4 +368,43 @@ public class DateiControllerIT {
             get("/student/dateien/" + DATEI_1_ID + "/download"))
             .andExpect(status().isForbidden());
     }
+
+    @Test
+    @Order(54)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenTwoDownloads_whenList_thenCounterIncrementedByTwo()
+            throws Exception {
+        int before = readDownloadAnzahl();
+
+        mockMvc.perform(
+            get("/student/dateien/" + DATEI_1_ID + "/download"))
+            .andExpect(status().isOk());
+        mockMvc.perform(
+            get("/student/dateien/" + DATEI_1_ID + "/download"))
+            .andExpect(status().isOk());
+
+        int after = readDownloadAnzahl();
+        org.junit.jupiter.api.Assertions.assertEquals(
+            before + 2, after);
+    }
+
+    private int readDownloadAnzahl() throws Exception {
+        String body = mockMvc.perform(
+            get("/student/dateien/ordner/" + TINF24B2_ORDNER_ID))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+        com.fasterxml.jackson.databind.JsonNode array =
+            new com.fasterxml.jackson.databind.ObjectMapper()
+                .readTree(body);
+        for (com.fasterxml.jackson.databind.JsonNode node : array) {
+            if (DATEI_1_ID.equals(
+                    node.get("dateiID").asText())) {
+                return node.get("downloadAnzahl").asInt();
+            }
+        }
+        throw new IllegalStateException(
+            "DATEI_1_ID not found in folder listing");
+    }
 }

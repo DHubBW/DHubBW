@@ -84,4 +84,12 @@ public class Datei {
     @Column(name = "file_size")
     private float fileSize;
 
+    /**
+     * Number of times this file has been downloaded.
+     */
+    @Getter
+    @Setter
+    @Column(name = "download_anzahl", nullable = false)
+    private int downloadAnzahl;
+
 }
