@@ -12,11 +12,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @IntegrationTest
@@ -153,7 +158,8 @@ public class AuthenticationControllerIT {
     }
 
     @Test
-    public void givenValidCredentials_whenLogin_thenReturns200AndSetsCookie() throws Exception {
+    public void givenValidCredentials_whenLogin_thenReturns200AndSetsCookie()
+            throws Exception {
         String loginMail = "test.login.a24@student.dhbw-karlsruhe.de";
         String loginPassword = "LoginTestPassword123!";
 
@@ -172,5 +178,72 @@ public class AuthenticationControllerIT {
             .andExpect(cookie().httpOnly("jwt", true))
             .andExpect(content().string(org.hamcrest.Matchers.containsString(
                 "Successfully logged in student with email")));
+    }
+
+    @Test
+    public void givenValidLogin_thenReturnsTokenInBodyAndSetsCookie()
+            throws Exception {
+        String loginMail = "token.login.a24@student.dhbw-karlsruhe.de";
+        String loginPassword = "TokenBodyTest123!";
+
+        mockMvc.perform(post("/public/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new RegisterRequestDTO(
+                    loginMail, "Token Test", loginPassword))))
+            .andExpect(status().isOk());
+
+        long beforeLogin = System.currentTimeMillis();
+        mockMvc.perform(post("/public/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(
+                    new LoginRequestDTO(loginMail, loginPassword))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token", notNullValue()))
+            .andExpect(jsonPath("$.message",
+                containsString("Successfully logged in")))
+            .andExpect(jsonPath("$.expiresAt", greaterThan(beforeLogin)))
+            .andExpect(cookie().exists("jwt"))
+            .andExpect(cookie().httpOnly("jwt", true));
+    }
+
+    @Test
+    public void givenValidRegister_thenReturnsTokenInBodyAndSetsCookie()
+            throws Exception {
+        String mail =
+            "token.register.a24@student.dhbw-karlsruhe.de";
+        long beforeRegister = System.currentTimeMillis();
+
+        mockMvc.perform(post("/public/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new RegisterRequestDTO(
+                    mail, "Token Register", "RegisterTest123!"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token", notNullValue()))
+            .andExpect(jsonPath("$.message",
+                containsString("Successfully registered")))
+            .andExpect(jsonPath("$.expiresAt", greaterThan(beforeRegister)))
+            .andExpect(cookie().exists("jwt"))
+            .andExpect(cookie().httpOnly("jwt", true));
+    }
+
+    @Test
+    public void givenValidLogin_thenSetsSameSiteLaxAttribute()
+            throws Exception {
+        String loginMail = "samesite.test.a24@student.dhbw-karlsruhe.de";
+        String loginPassword = "SameSiteTest123!";
+
+        mockMvc.perform(post("/public/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new RegisterRequestDTO(
+                    loginMail, "Samesite Tester", loginPassword))))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(post("/public/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(
+                    new LoginRequestDTO(loginMail, loginPassword))))
+            .andExpect(status().isOk())
+            .andExpect(header().string("Set-Cookie",
+                containsString("SameSite=Lax")));
     }
 }
