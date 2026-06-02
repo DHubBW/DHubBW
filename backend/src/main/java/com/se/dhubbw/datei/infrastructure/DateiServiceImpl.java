@@ -405,7 +405,7 @@ public class DateiServiceImpl
      *     authorised to download the file
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public DateiDownloadDTO downloadDatei(
             final UUID dateiId,
             final String dhbwMail) {
@@ -413,6 +413,8 @@ public class DateiServiceImpl
         Student student = studentLookupHelper
             .findStudentByEmail(dhbwMail);
         verifyReadAuthorized(datei.getOrdner(), student);
+        datei.setDownloadAnzahl(datei.getDownloadAnzahl() + 1);
+        dateiRepository.save(datei);
         return new DateiDownloadDTO(
             datei.getName(), datei.getData());
     }
@@ -467,7 +469,8 @@ public class DateiServiceImpl
             datei.getFileSize(),
             uploaderName,
             datei.getOrdner().getOrdnerID(),
-            datei.getOrdner().getName());
+            datei.getOrdner().getName(),
+            datei.getDownloadAnzahl());
     }
 
     /**

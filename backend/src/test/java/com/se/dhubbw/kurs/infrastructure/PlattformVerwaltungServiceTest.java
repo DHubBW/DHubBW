@@ -380,6 +380,8 @@ public class PlattformVerwaltungServiceTest {
         assertEquals(student.getStudentID(),
             result.get(0).getStudentID());
         assertEquals("Linus", result.get(0).getName());
+        assertEquals(StudentType.STUDENT,
+            result.get(0).getStudentType());
     }
 
     @Test

@@ -502,6 +502,8 @@ public class DateiServiceTest {
             new KursBeitrittsAnfrage();
         enrollment.setKurs(kurs);
         UUID ordnerId = ordnerWithKurs.getOrdnerID();
+        ordnerWithKurs.setName("Mathematik");
+        datei.setDownloadAnzahl(7);
 
         when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
             .thenReturn(kursAdmin);
@@ -522,6 +524,7 @@ public class DateiServiceTest {
         assertEquals(
             datei.getDateiID(),
             result.get(0).dateiID());
+        assertEquals(7, result.get(0).downloadAnzahl());
     }
 
     @Test
@@ -680,6 +683,7 @@ public class DateiServiceTest {
             new KursBeitrittsAnfrage();
         enrollment.setKurs(kurs);
         datei.setData(new byte[]{1, 2, 3});
+        datei.setDownloadAnzahl(4);
 
         when(dateiRepository.findById(datei.getDateiID()))
             .thenReturn(Optional.of(datei));
@@ -694,6 +698,8 @@ public class DateiServiceTest {
 
         assertNotNull(result);
         assertEquals("test.pdf", result.getName());
+        assertEquals(5, datei.getDownloadAnzahl());
+        verify(dateiRepository).save(datei);
     }
 
     @Test
