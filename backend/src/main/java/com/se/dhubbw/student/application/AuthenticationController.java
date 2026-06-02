@@ -2,13 +2,15 @@ package com.se.dhubbw.student.application;
 
 import com.se.dhubbw.shared.application.dto.SmallResponseDTO;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
+import com.se.dhubbw.student.application.dto.AuthResponseDTO;
 import com.se.dhubbw.student.application.dto.LoginRequestDTO;
 import com.se.dhubbw.student.application.dto.RegisterRequestDTO;
 import com.se.dhubbw.student.domain.AuthenticationService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,11 +47,6 @@ public class AuthenticationController {
     private static final int HTTP_UNPROCESSABLE_ENTITY = 422;
 
     /**
-     * Milliseconds per second conversion factor.
-     */
-    private static final int MS_PER_SECOND = 1000;
-
-    /**
      * Authentication service.
      */
     private final AuthenticationService authenticationService;
@@ -81,10 +78,10 @@ public class AuthenticationController {
      *
      * @param request the registration request
      * @param response the HTTP response
-     * @return response entity with status
+     * @return response entity with auth data
      */
     @PostMapping("/register")
-    public ResponseEntity<SmallResponseDTO> register(
+    public ResponseEntity<AuthResponseDTO> register(
         @RequestBody final RegisterRequestDTO request,
         final HttpServletResponse response) {
         if (!request.dhbwMail().matches(
@@ -92,7 +89,8 @@ public class AuthenticationController {
             colorLogger.colorError("The dhbw mail format "
                 + "of the student doesn't match the required format.");
             return ResponseEntity.status(HTTP_UNPROCESSABLE_ENTITY)
-                .body(new SmallResponseDTO("Invalid DHBW Mail Format"));
+                .body(new AuthResponseDTO(
+                    "Invalid DHBW Mail Format", null, 0));
         } else if (!request.name()
             .matches("^[A-ZÄÖÜ][a-zäöüß]+(?:[- ][A-ZÄÖÜ]"
                 + "[a-zäöüß]+)*\\s+[A-ZÄÖÜ][a-zäöüß]"
@@ -100,22 +98,29 @@ public class AuthenticationController {
             colorLogger.colorError("The name of the student "
                 + "doesn't match the required format 'FirstName LastName'.");
             return ResponseEntity.status(HTTP_UNPROCESSABLE_ENTITY)
-                .body(new SmallResponseDTO("Invalid Name format. "
-                    + "The name has to be in the following format: "
-                    + "'FirstName LastName'"));
+                .body(new AuthResponseDTO(
+                    "Invalid Name format. "
+                        + "The name has to be in the following format: "
+                        + "'FirstName LastName'",
+                    null, 0));
         }
         try {
             String token = authenticationService.registerStudent(request);
             addJwtCookie(response, token);
+            long expiresAt = System.currentTimeMillis() + jwtExpiration;
             return ResponseEntity.status(HttpStatus.OK).body(
-                new SmallResponseDTO("Successfully registered "
-                    + "student with email: '"
-                    + request.dhbwMail() + "'."));
+                new AuthResponseDTO(
+                    "Successfully registered student with email: '"
+                        + request.dhbwMail() + "'.",
+                    token,
+                    expiresAt));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HTTP_CONFLICT)
-                .body(new SmallResponseDTO("Student with email '"
-                    + request.dhbwMail()
-                    + "' is already registered."));
+                .body(new AuthResponseDTO(
+                    "Student with email '"
+                        + request.dhbwMail()
+                        + "' is already registered.",
+                    null, 0));
         }
     }
 
@@ -124,37 +129,42 @@ public class AuthenticationController {
      *
      * @param request  the login request
      * @param response the HTTP response
-     * @return response entity with status
+     * @return response entity with auth data
      */
     @PostMapping("/login")
-    public ResponseEntity<SmallResponseDTO> login(
+    public ResponseEntity<AuthResponseDTO> login(
         @RequestBody final LoginRequestDTO request,
         final HttpServletResponse response) {
         try {
             String token = authenticationService.login(request);
             addJwtCookie(response, token);
+            long expiresAt = System.currentTimeMillis() + jwtExpiration;
             return ResponseEntity.status(HttpStatus.OK)
-                .body(new SmallResponseDTO(
-                "Successfully logged in student with email: '"
-                + request.dhbwMail() + "'."));
+                .body(new AuthResponseDTO(
+                    "Successfully logged in student with email: '"
+                        + request.dhbwMail() + "'.",
+                    token,
+                    expiresAt));
         } catch (Exception e) {
             return ResponseEntity
                 .status(HTTP_UNAUTHORIZED)
-                .body(new SmallResponseDTO(
+                .body(new AuthResponseDTO(
                     "Invalid credentials for email: '"
-                        + request.dhbwMail() + "'."));
+                        + request.dhbwMail() + "'.",
+                    null, 0));
         }
     }
 
     private void addJwtCookie(final HttpServletResponse response,
                               final String token) {
-        Cookie jwtCookie = new Cookie("jwt", token);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(cookieSecure);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge((int) (jwtExpiration / MS_PER_SECOND));
-
-        response.addCookie(jwtCookie);
+        ResponseCookie cookie = ResponseCookie.from("jwt", token)
+            .httpOnly(true)
+            .secure(cookieSecure)
+            .path("/")
+            .maxAge(Duration.ofMillis(jwtExpiration))
+            .sameSite("Lax")
+            .build();
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     /**
