@@ -107,19 +107,46 @@ public class PlattformVerwaltungController {
     /**
      * Delete a course and all its associated data.
      *
-     * <p>Cascade includes folders, files, creation records,
-     * and enrollments. KURSADMIN members are demoted to
-     * STUDENT.</p>
+     * <p>Performs a full cascade in the following order:</p>
+     * <ol>
+     *   <li><b>Private folders</b> of the course — deleted along
+     *       with all their files, file creation records, and the
+     *       folder creation record.</li>
+     *   <li><b>Public folders</b> — detached from the course
+     *       (course reference cleared) and kept available
+     *       platform-wide; their files are not removed.</li>
+     *   <li><b>Enrollments</b>
+     *       ({@code KursBeitrittsAnfrage}) — all approved and
+     *       pending enrollments are deleted. Members holding the
+     *       {@code KURSADMIN} role are demoted to {@code STUDENT}
+     *       before removal.</li>
+     *   <li><b>Course creation requests</b>
+     *       ({@code KursErstellungsAnfrage}) — every request
+     *       (approved or pending) whose desired course name and
+     *       cohort year match the deleted course is removed, so
+     *       no historical or pending request remains pointing to a
+     *       course that no longer exists.</li>
+     *   <li><b>The course entity</b> itself.</li>
+     * </ol>
+     *
+     * <p>User accounts are never removed by this cascade. The
+     * deletion runs in a single transaction and is retried on
+     * transient datastore errors.</p>
      *
      * @param kursId the ID of the course to delete
      * @return 204 on success, 404 if the course is not found
      */
     @Operation(
             summary = "Delete a course",
-            description = "Deletes a course with full cascade: "
-                + "folders, files, creation records, and "
-                + "enrollments. KURSADMIN members are demoted "
-                + "to STUDENT."
+            description = "Deletes a course with full cascade. "
+                + "Private folders (with files and creation "
+                + "records) are removed; public folders are "
+                + "detached from the course and kept. All "
+                + "enrollments are deleted, KURSADMIN members "
+                + "demoted to STUDENT. All course creation "
+                + "requests targeting the same course "
+                + "name/cohort year are removed. User accounts "
+                + "are not affected."
     )
     @ApiResponse(
             responseCode = "204",

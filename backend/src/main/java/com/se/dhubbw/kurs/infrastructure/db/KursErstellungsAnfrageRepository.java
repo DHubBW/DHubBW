@@ -44,5 +44,21 @@ public interface KursErstellungsAnfrageRepository extends
      * @param student the student whose creation requests to delete
      */
     void deleteByStudent(Student student);
+
+    /**
+     * Find all course creation requests that target the given course
+     * name and cohort year.
+     *
+     * <p>{@link KursErstellungsAnfrage} has no foreign key to
+     * {@link Kurs} (the course does not yet exist when the request
+     * is filed), so requests are matched by the name/year tuple
+     * that uniquely identifies a course in the system.</p>
+     *
+     * @param kursName the desired course name
+     * @param jahrgang the desired cohort year
+     * @return list of matching requests, may be empty
+     */
+    List<KursErstellungsAnfrage> findByKursNameAndJahrgang(
+        String kursName, String jahrgang);
 }
 

@@ -41,8 +41,10 @@ import java.util.UUID;
  * <p>Business rules enforced:</p>
  * <ul>
  *   <li>Course deletion cascades through folders, files, folder
- *       creation records, file creation records, and
- *       enrollments.</li>
+ *       creation records, file creation records, enrollments, and
+ *       course creation requests matching the deleted course's
+ *       name/year. See {@link #deleteKurs(UUID)} for the full
+ *       cascade contract.</li>
  *   <li>KURSADMIN students of a deleted course are demoted to
  *       STUDENT.</li>
  *   <li>At least one SYSTEMADMIN must remain on the platform
@@ -153,6 +155,31 @@ public class PlattformVerwaltungServiceImpl
 
     /**
      * {@inheritDoc}
+     *
+     * <p>Cascade behavior — items removed in this order:</p>
+     * <ol>
+     *   <li>Private folders of the course: their files (with file
+     *       creation records) are deleted, the folder creation
+     *       record is deleted, then the folder itself.</li>
+     *   <li>Public folders are <em>detached</em> from the course
+     *       (kurs reference set to {@code null}), not deleted, so
+     *       their files remain available platform-wide.</li>
+     *   <li>All enrollments ({@link KursBeitrittsAnfrage}) for the
+     *       course, both approved and pending. Members holding the
+     *       {@code KURSADMIN} role are demoted to {@code STUDENT}
+     *       before the enrollments are removed.</li>
+     *   <li>All course creation requests
+     *       (KursErstellungsAnfrage) whose desired course matches
+     *       this course's name and cohort year. Approved requests
+     *       are typically the one that originally created this
+     *       course; pending requests for the same name/year would
+     *       otherwise become orphans pointing at a deleted
+     *       course.</li>
+     *   <li>The course entity itself.</li>
+     * </ol>
+     *
+     * <p>User accounts ({@link Student}) are never removed by this
+     * cascade.</p>
      */
     @Override
     @RetryableTransactional
@@ -183,6 +210,10 @@ public class PlattformVerwaltungServiceImpl
             }
         }
         kursBeitrittsAnfrageRepository.deleteAll(enrollments);
+
+        erstellungsAnfrageRepository.deleteAll(
+            erstellungsAnfrageRepository.findByKursNameAndJahrgang(
+                kurs.getKursName(), kurs.getJahrgang()));
 
         kursRepository.delete(kurs);
     }
