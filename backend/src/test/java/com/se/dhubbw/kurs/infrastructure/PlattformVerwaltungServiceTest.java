@@ -11,6 +11,7 @@ import com.se.dhubbw.kurs.application.dto.SystemAdminStatsDTO;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
+import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursRepository;
 import com.se.dhubbw.ordner.infrastructure.db.Ordner;
@@ -273,6 +274,52 @@ public class PlattformVerwaltungServiceTest {
         verify(studentRepository).save(kursAdmin);
         verify(kursBeitrittsAnfrageRepository)
             .deleteAll(List.of(enrollment));
+        verify(kursRepository).delete(kurs);
+    }
+
+    @Test
+    public void
+            givenMatchingErstellungsAnfragen_whenDelete_thenDeletesThem() {
+        KursErstellungsAnfrage matchingAnfrage =
+            new KursErstellungsAnfrage();
+        matchingAnfrage.setAnfrageID(UUID.randomUUID());
+        matchingAnfrage.setKursName(kurs.getKursName());
+        matchingAnfrage.setJahrgang(kurs.getJahrgang());
+
+        when(kursRepository.findById(kurs.getKursID()))
+            .thenReturn(Optional.of(kurs));
+        when(ordnerRepository.findByKurs(kurs))
+            .thenReturn(Collections.emptyList());
+        when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
+            .thenReturn(Collections.emptyList());
+        when(erstellungsAnfrageRepository.findByKursNameAndJahrgang(
+            kurs.getKursName(), kurs.getJahrgang()))
+            .thenReturn(List.of(matchingAnfrage));
+
+        plattformVerwaltungService.deleteKurs(kurs.getKursID());
+
+        verify(erstellungsAnfrageRepository)
+            .deleteAll(List.of(matchingAnfrage));
+        verify(kursRepository).delete(kurs);
+    }
+
+    @Test
+    public void
+            givenNoMatchingErstellungsAnfragen_whenDelete_thenNoDeletion() {
+        when(kursRepository.findById(kurs.getKursID()))
+            .thenReturn(Optional.of(kurs));
+        when(ordnerRepository.findByKurs(kurs))
+            .thenReturn(Collections.emptyList());
+        when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
+            .thenReturn(Collections.emptyList());
+        when(erstellungsAnfrageRepository.findByKursNameAndJahrgang(
+            kurs.getKursName(), kurs.getJahrgang()))
+            .thenReturn(Collections.emptyList());
+
+        plattformVerwaltungService.deleteKurs(kurs.getKursID());
+
+        verify(erstellungsAnfrageRepository)
+            .deleteAll(Collections.emptyList());
         verify(kursRepository).delete(kurs);
     }
 
