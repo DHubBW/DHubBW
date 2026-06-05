@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ===== DHBW Light Mode (Default) ===== */
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 214.3 32.6% 16.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 214.3 32.6% 16.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 214.3 32.6% 16.9%;
+    --primary: 350.2 85.2% 42.4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 214.3 32.6% 16.9%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 214.3 32.6% 16.9%;
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 350.2 85.2% 42.4%;
+    --success: 142.1 76.2% 36.3%;
+    --warning: 45.4 93.4% 47.5%;
+    --radius: 0.5rem;
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 214.3 32.6% 16.9%;
+    --sidebar-primary: 350.2 85.2% 42.4%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 214.3 32.6% 16.9%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 350.2 85.2% 42.4%;
+  }
+
+  /* ===== DHBW Dark Mode ===== */
+  .dark:root {
+    --background: 220 9.1% 6.5%;
+    --foreground: 240 13% 95.5%;
+    --card: 216 8.8% 11.2%;
+    --card-foreground: 240 13% 95.5%;
+    --popover: 216 8.8% 11.2%;
+    --popover-foreground: 240 13% 95.5%;
+    --primary: 350.2 85.2% 42.4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214.3 8.4% 16.3%;
+    --secondary-foreground: 240 13% 95.5%;
+    --muted: 220 9.1% 12.9%;
+    --muted-foreground: 216.9 8.1% 68.4%;
+    --accent: 214.3 8.4% 16.3%;
+    --accent-foreground: 240 13% 95.5%;
+    --destructive: 354.9 73.8% 53.5%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214.3 7.7% 17.8%;
+    --input: 214.3 7.7% 17.8%;
+    --ring: 350.2 85.2% 42.4%;
+    --success: 137.8 44.1% 43.5%;
+    --warning: 44.4 75.5% 68%;
+    --sidebar: 216 8.8% 11.2%;
+    --sidebar-foreground: 240 13% 95.5%;
+    --sidebar-primary: 350.2 85.2% 42.4%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214.3 8.4% 16.3%;
+    --sidebar-accent-foreground: 240 13% 95.5%;
+    --sidebar-border: 214.3 7.7% 17.8%;
+    --sidebar-ring: 350.2 85.2% 42.4%;
+  }
+}
