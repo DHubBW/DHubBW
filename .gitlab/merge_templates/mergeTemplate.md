@@ -1,6 +1,14 @@
-# Das habe ich gemacht
-[Hier kommt die Beschreibung deiner Arbeit hinein]
-# Checkliste (Löschen wenn alles erfüllt)
+## Was wurde gemacht?
+
+<!-- Kurze Beschreibung der Änderungen und des Kontexts. -->
+
+Schließt #<!-- Issue-Nummer -->
+
+---
+
+## Checkliste (Author)
+
+- [ ] Issue verknüpft (`Closes #...`)
 - [ ] Label hinzugefügt
-- [ ] Issue verknüpft
-- [ ] Branch wurde erstellt und wird jetzt gelöscht
+- [ ] Alle DoD-Kriterien aus dem Issue erfüllt
+- [ ] Branch wird nach Merge gelöscht
