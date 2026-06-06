@@ -19,6 +19,14 @@
 
 ---
 
+## Live-Deployment
+
+> **Die Anwendung ist produktiv erreichbar unter: [http://vm553.ipp-vps.net](http://vm553.ipp-vps.net)**
+
+Die deployte Instanz läuft auf einer VM mit PostgreSQL, Spring Boot Backend und React Native Frontend (via Docker Compose). Login und Registrierung sind über die Web-Oberfläche möglich.
+
+---
+
 ## Was ist DHubBW?
 
 **DHubBW** ist eine integrierte Webplattform, die das Studium an der DHBW Karlsruhe vereinfacht. Anstatt zwischen Dutzenden Tools und Systemen zu jonglieren, bündelt DHubBW Kursmaterialien, Dateien, Termine, Kommunikation und Wissen an einem zentralen Ort.
@@ -110,6 +118,7 @@ Die vollständige Projektdokumentation befindet sich im zentralen **[DHubBW Wiki
 
 ### Weitere Links
 
+- **[Live-App (Produktiv-Deployment)](http://vm553.ipp-vps.net)** – DHubBW Anwendung auf der VM (PostgreSQL + Backend + Frontend)
 - **[Projektstrukturplan (PSP)](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/epics/10)** – Hierarchische Gliederung aller Arbeitspakete und Meilensteine
 - **[Issue-Tracking](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw/-/issues)** – Alle Issues, Bugs und Feature-Requests
 - **[Statusreports](https://sonstiges-42cd1e.gitlab.io)** – Wöchentliche Projektberichte als interaktive Webpräsentationen
