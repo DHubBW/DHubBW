@@ -173,11 +173,52 @@ public class StudentDashboardControllerIT {
             .andExpect(jsonPath("$.kursName").isEmpty());
     }
 
+    // ==================== retrieveProfile pendingKursRequest Tests ====================
+
     @Test
-    public void givenUnauthenticated_whenRetrieveProfile_thenReturns401()
+    @WithMockUser(username = "plain.paul.a24@student.dhbw-karlsruhe.de",
+        roles = {"STUDENT"})
+    public void givenStudentWithNoPendingRequest_whenRetrieveProfile_thenPendingIsNull()
             throws Exception {
         mockMvc.perform(get("/student/dashboard/profile"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.pendingKursRequest").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(username = "anonym.max.a24@student.dhbw-karlsruhe.de",
+        roles = {"STUDENT"})
+    public void givenStudentWithPendingJoinRequest_whenRetrieveProfile_thenReturnsBeitritt()
+            throws Exception {
+        mockMvc.perform(get("/student/dashboard/profile"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.pendingKursRequest.type").value("BEITRITT"))
+            .andExpect(jsonPath("$.pendingKursRequest.kursName")
+                .value("TINF24B2"));
+    }
+
+    @Test
+    @WithMockUser(username = "pending.peter.a24@student.dhbw-karlsruhe.de",
+        roles = {"STUDENT"})
+    public void givenStudentWithPendingCreationRequest_whenRetrieveProfile_thenReturnsErstellung()
+            throws Exception {
+        mockMvc.perform(get("/student/dashboard/profile"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.pendingKursRequest.type")
+                .value("ERSTELLUNG"))
+            .andExpect(jsonPath("$.pendingKursRequest.kursName")
+                .value("TINF26D1"));
+    }
+
+    @Test
+    @WithMockUser(username = STUDENT_MAIL, roles = {"STUDENT"})
+    public void givenStudentWithBothRequestTypes_whenRetrieveProfile_thenReturnsBeitritt()
+            throws Exception {
+        // Linus has both a pending join request and a pending creation
+        // request — join request takes precedence
+        mockMvc.perform(get("/student/dashboard/profile"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.pendingKursRequest.type").value("BEITRITT"));
     }
 
     @Test
@@ -186,6 +227,13 @@ public class StudentDashboardControllerIT {
             throws Exception {
         mockMvc.perform(get("/student/dashboard/profile"))
             .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void givenUnauthenticated_whenRetrieveProfile_thenReturns401()
+            throws Exception {
+        mockMvc.perform(get("/student/dashboard/profile"))
+            .andExpect(status().isUnauthorized());
     }
 
     // ==================== logout Tests ====================

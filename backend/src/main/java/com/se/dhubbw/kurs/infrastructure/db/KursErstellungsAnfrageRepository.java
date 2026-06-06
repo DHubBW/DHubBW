@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -13,6 +14,17 @@ import java.util.UUID;
 @Repository
 public interface KursErstellungsAnfrageRepository extends
     JpaRepository<KursErstellungsAnfrage, UUID> {
+
+    /**
+     * Find the pending (not yet approved) course creation request
+     * for the given student.
+     *
+     * @param student the student whose pending creation request
+     *     to look up
+     * @return the pending creation request, or empty if not found
+     */
+    Optional<KursErstellungsAnfrage>
+        findByStudentAndIsApprovedFalse(Student student);
 
     /**
      * Check whether the student already has an open (pending)

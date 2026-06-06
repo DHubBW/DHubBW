@@ -15,7 +15,9 @@ INSERT INTO student (student_id, student_type, name, password_hash, dhbw_mail) V
     ('11111111-1111-1111-1111-111111111120', 'STUDENT', 'Hans', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'resign.hans.a24@student.dhbw-karlsruhe.de'),
     -- SystemAdmin endpoint test users
     ('11111111-1111-1111-1111-111111111121', 'SYSTEMADMIN', 'Eva', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'sysadmin.eva.a23@student.dhbw-karlsruhe.de'),
-    ('11111111-1111-1111-1111-111111111122', 'STUDENT', 'Paul', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'plain.paul.a24@student.dhbw-karlsruhe.de');
+    ('11111111-1111-1111-1111-111111111122', 'STUDENT', 'Paul', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'plain.paul.a24@student.dhbw-karlsruhe.de'),
+    -- pendingKursRequest test user: only a pending creation request, no join request
+    ('11111111-1111-1111-1111-111111111123', 'STUDENT', 'Peter', '$2y$10$6vvaxuBKaDHNtz1folm8FOFCXWOX/cQWmELdzEO/ZMSqKoDMQXry2', 'pending.peter.a24@student.dhbw-karlsruhe.de');
 
 -- Kurse
 INSERT INTO kurs (kurs_id, kurs_name, jahrgang) VALUES
@@ -55,7 +57,8 @@ INSERT INTO kurs_erstellungs_anfrage (anfrage_id, student_id, kurs_name, jahrgan
     ('99999999-9999-9999-9999-999999999991', '11111111-1111-1111-1111-111111111112', 'TINF24B3', '2024', DATE '2026-04-18', TRUE, 'Bitte lass mich Kurs erstellen!'),
     ('99999999-9999-9999-9999-999999999992', '11111111-1111-1111-1111-111111111111', 'WINF25A1', '2025', DATE '2026-04-22', FALSE, 'Ich bin sehr unzufrieden ohne Kurs!'),
     ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1', '11111111-1111-1111-1111-111111111116', 'TINF26A1', '2026', DATE '2026-05-01', FALSE, 'Karl wants a new course'),
-    ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', '11111111-1111-1111-1111-111111111115', 'WINF26B1', '2026', DATE '2026-05-02', FALSE, 'Lena wants a new course');
+    ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', '11111111-1111-1111-1111-111111111115', 'WINF26B1', '2026', DATE '2026-05-02', FALSE, 'Lena wants a new course'),
+    ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3', '11111111-1111-1111-1111-111111111123', 'TINF26D1', '2026', DATE '2026-05-10', FALSE, 'Peter wants a new course');
 
 -- Ordner-Anlegungen
 INSERT INTO ordner_anlegung (anlegung_id, student_id, ordner_id, datum) VALUES
