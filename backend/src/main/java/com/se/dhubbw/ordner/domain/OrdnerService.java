@@ -6,11 +6,16 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service interface for folder management use cases.
+ * Domain interface for folder management.
+ * Defines operations for listing, creating, renaming, and deleting folders.
  *
  * <p>Defines operations to list, create, rename, and delete
  * folders. Access is restricted based on the student's role
  * and course membership.</p>
+ *
+ * @architecture.component Ordnerverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface OrdnerService {
 

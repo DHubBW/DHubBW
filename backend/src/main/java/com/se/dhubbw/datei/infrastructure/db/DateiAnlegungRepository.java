@@ -8,7 +8,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Spring Data repository for {@link DateiAnlegung} entities.
+ * Repository for database access to {@link DateiAnlegung} entities.
+ * Provides queries for tracking file creation records.
+ *
+ * @architecture.component Dateiverwaltung
+ * @architecture.layer Infrastructure Layer (data access layer)
+ * @architecture.category T-Software (Spring Data JPA)
  */
 @Repository
 public interface DateiAnlegungRepository extends

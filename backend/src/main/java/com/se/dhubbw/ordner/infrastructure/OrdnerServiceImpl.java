@@ -31,7 +31,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of {@link OrdnerService} for folder management.
+ * Implementation of the {@link OrdnerService} interface.
+ * Coordinates folder operations with access control and persistence.
  *
  * <p>Provides operations to list, create, rename, and delete
  * folders. Access is restricted based on the student's role
@@ -47,6 +48,10 @@ import java.util.stream.Collectors;
  *       folder's course, SYSTEMADMIN, or the original
  *       creator of the folder.</li>
  * </ul>
+ *
+ * @architecture.component Ordnerverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with JPA access)
  */
 @Service
 @RequiredArgsConstructor

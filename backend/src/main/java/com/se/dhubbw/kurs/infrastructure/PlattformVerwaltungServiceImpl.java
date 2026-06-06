@@ -31,7 +31,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
- * Service for system-admin platform management.
+ * Implementation of the {@link PlattformVerwaltungService} interface.
+ * Implements platform-wide administration operations for the system admin.
  *
  * <p>Provides operations for a SYSTEMADMIN to retrieve platform
  * statistics, list and delete courses (with full cascade),
@@ -52,6 +53,10 @@ import java.util.UUID;
  *   <li>A student cannot be promoted to SYSTEMADMIN if they
  *       already hold that role.</li>
  * </ul>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with JPA access)
  */
 @Service
 @RequiredArgsConstructor

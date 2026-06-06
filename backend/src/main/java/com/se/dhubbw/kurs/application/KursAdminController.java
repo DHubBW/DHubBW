@@ -25,11 +25,19 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * REST controller for course-admin enrollment request management.
+ * REST controller for course admin enrollment request management
+ * (list, approve, decline).
+ * Provides HTTP endpoints for KURSADMIN to manage open enrollment requests.
  *
  * <p>Exposes endpoints for a KURSADMIN to list, approve, or
  * decline pending join requests for their course. All endpoints
  * require the {@code KURSADMIN} role.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see KursAdminService
  */
 @RestController
 @RequestMapping("/kursadmin/anfragen")

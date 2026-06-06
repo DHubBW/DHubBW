@@ -17,7 +17,12 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * JPA entity for folder creation tracking.
+ * JPA entity for tracking folder creation.
+ * Records which student created a folder and when.
+ *
+ * @architecture.component Ordnerverwaltung
+ * @architecture.layer Infrastructure Layer (data persistence layer)
+ * @architecture.category T-Software (JPA entity mapping)
  */
 @Table(name = "ordner_anlegung")
 @Entity

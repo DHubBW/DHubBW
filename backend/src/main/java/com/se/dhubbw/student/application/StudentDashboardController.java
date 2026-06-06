@@ -26,11 +26,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.NoSuchElementException;
 
 /**
- * REST controller for student dashboard operations.
+ * REST controller for student dashboard operations (leave course,
+ * delete account, profile).
+ * Provides HTTP endpoints for student self-management.
  *
  * <p>Exposes endpoints for students to manage their own
  * course membership and account. All endpoints require
  * authentication as a STUDENT.</p>
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see StudentDashboardService
  */
 @RestController
 @RequestMapping("/student/dashboard")

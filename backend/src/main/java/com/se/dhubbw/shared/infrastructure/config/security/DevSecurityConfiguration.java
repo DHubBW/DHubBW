@@ -27,7 +27,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 /**
- * JWT security configuration for dev profile.
+ * Spring Security configuration for the development profile.
+ * Configures JWT-based authentication with open CORS policy for local
+ * development.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Security configuration)
  */
 @Configuration
 @EnableWebSecurity

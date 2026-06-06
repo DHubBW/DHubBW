@@ -18,7 +18,13 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * JPA entity for file storage.
+ * JPA entity representing a file in the system.
+ * Stores metadata (name, size, timestamp) and binary data
+ * (as Large Object) of an uploaded file.
+ *
+ * @architecture.component Dateiverwaltung
+ * @architecture.layer Infrastructure Layer (data persistence layer)
+ * @architecture.category T-Software (JPA entity mapping)
  */
 @Entity
 @Table(name = "datei")

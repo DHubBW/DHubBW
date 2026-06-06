@@ -11,10 +11,15 @@ import lombok.Setter;
 import java.util.UUID;
 
 /**
- * JPA entity for storing course data in the {@code kurs} table.
+ * JPA entity representing a course in the system.
+ * Stores the identifier, name, and cohort year of a DHBW course.
  *
  * <p>The entity contains the unique course identifier, the course name,
  * and the cohort year.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer (data persistence layer)
+ * @architecture.category T-Software (JPA entity mapping)
  */
 @Entity
 @Table(name = "kurs")

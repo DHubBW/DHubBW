@@ -6,10 +6,15 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service interface for course-admin enrollment request management.
+ * Domain interface for course admin enrollment request management.
+ * Defines operations for listing, approving, and declining enrollment requests.
  *
  * <p>Provides operations for a course administrator to list,
  * approve, or decline pending join requests for their course.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface KursAdminService {
 

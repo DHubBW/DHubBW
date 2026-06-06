@@ -8,7 +8,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Spring Data repository for {@link Student} entities.
+ * Repository for database access to {@link Student} entities.
+ * Provides queries by email and role counting.
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Infrastructure Layer (data access layer)
+ * @architecture.category T-Software (Spring Data JPA)
  */
 @Repository
 public interface StudentRepository extends JpaRepository<Student, UUID> {

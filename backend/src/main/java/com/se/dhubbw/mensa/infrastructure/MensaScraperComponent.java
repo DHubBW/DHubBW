@@ -18,32 +18,39 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Scraper that fetches and parses the mensa meal plan from sw-ka.de.
+ * Scraper component for extracting the mensa meal plan from sw-ka.de.
+ * Transforms HTML content into {@link Mensa} entities (representation
+ * transformation).
  *
  * <p>Parses the HTML structure of the Studierendenwerk Karlsruhe meal plan
  * and converts each meal row into a {@link Mensa} entity. The student price
  * ({@code price_1}) is used for the {@code preis} field.
  *
- * <p><b>Allergen-Legende (Zusatzstoffe):</b><br>
- * (1) Farbstoff, (2) Konservierungsstoff, (3) Antioxidationsmittel,
- * (4) Geschmacksverstärker, (5) Phosphat, (6) Oberfläche gewachst,
- * (7) geschwefelt, (8) Oliven geschwärzt, (9) Süßungsmittel,
- * (10) kann bei übermäßigem Verzehr abführend wirken,
- * (11) Phenylalaninquelle, (12) Restalkohol, (14) aus Fleischstücken
- * zusammengefügt, (15) kakaohaltiger Fettglasur,
- * (27) aus Fischstücken zusammengefügt.<br>
- * <b>Allergene:</b>
- * (Ca) Cashewnüsse, (Di) Dinkel, (Ei) Eier, (Er) Erdnüsse, (Fi) Fisch,
- * (Ge) Gerste, (Gl) Glutenhaltiges Getreide, (Ha) Haselnüsse, (Hf) Hafer,
- * (Ka) Kamut, (Kr) Krebstiere, (Lu) Lupine, (Ma) Mandeln,
- * (ML) Milch/Laktose, (Nu) Schalenfrüchte/Nüsse, (Pa) Paranüsse,
- * (Pe) Pekanüsse, (Pi) Pistazie, (Qu) Macadamianüsse, (Ro) Roggen,
- * (Sa) Sesam, (Se) Sellerie, (Sf) Schwefeldioxid/Sulfit, (Sn) Senf,
- * (So) Soja, (Wa) Walnüsse, (We) Weizen, (Wt) Weichtiere.<br>
- * <b>Icons:</b> Rindfleisch, regionales Rindfleisch, Schweinefleisch,
- * regionales Schweinefleisch, Geflügel, regionales Geflügel,
- * vegetarisches Gericht, veganes Gericht, MSC-Fisch, MensaVital,
- * (LAB) tierisches Lab, (GEL) Gelatine.
+ * <p><b>Allergen legend (additives):</b><br>
+ * (1) colorant, (2) preservative, (3) antioxidant,
+ * (4) flavor enhancer, (5) phosphate, (6) surface waxed,
+ * (7) sulfurized, (8) blackened olives, (9) sweetener,
+ * (10) may have laxative effect if consumed excessively,
+ * (11) phenylalanine source, (12) residual alcohol, (14) formed
+ * from meat pieces, (15) cocoa-containing fat glaze,
+ * (27) formed from fish pieces.<br>
+ * <b>Allergens:</b>
+ * (Ca) cashew nuts, (Di) spelt, (Ei) eggs, (Er) peanuts, (Fi) fish,
+ * (Ge) barley, (Gl) gluten-containing cereals, (Ha) hazelnuts, (Hf) oats,
+ * (Ka) kamut, (Kr) crustaceans, (Lu) lupin, (Ma) almonds,
+ * (ML) milk/lactose, (Nu) tree nuts, (Pa) Brazil nuts,
+ * (Pe) pecan nuts, (Pi) pistachios, (Qu) macadamia nuts, (Ro) rye,
+ * (Sa) sesame, (Se) celery, (Sf) sulfur dioxide/sulfite, (Sn) mustard,
+ * (So) soy, (Wa) walnuts, (We) wheat, (Wt) mollusks.<br>
+ * <b>Icons:</b> beef, regional beef, pork,
+ * regional pork, poultry, regional poultry,
+ * vegetarian dish, vegan dish, MSC fish, MensaVital,
+ * (LAB) animal rennet, (GEL) gelatin.
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category R-Software (representation transformation
+ *     HTML → Entity)
  */
 @Component
 public class MensaScraperComponent {
@@ -121,8 +128,9 @@ public class MensaScraperComponent {
     /**
      * Fetch meals for the current and the following ISO calendar week.
      *
-     * <p>Both weeks are requested separately using the {@code ?kw=} parameter.
-     * Returns an empty list and logs an error if a page cannot be reached.
+     * <p>Both weeks are requested separately using the {@code ?kw=}
+     * parameter. Returns an empty list and logs an error if a page
+     * cannot be reached.
      *
      * @return parsed {@link Mensa} entries for both weeks, never {@code null}
      */

@@ -8,11 +8,17 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 /**
- * Data Transfer Object representing a student.
+ * Data transfer object for representing a student (system admin view).
+ * Contains ID, name, email, and role for the platform-wide student list.
  *
  * <p>Used by the system-admin endpoint to expose all registered
  * students with their identifier, display name, DHBW email
  * address, and current role.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → API Response)
  */
 @AllArgsConstructor
 @NoArgsConstructor

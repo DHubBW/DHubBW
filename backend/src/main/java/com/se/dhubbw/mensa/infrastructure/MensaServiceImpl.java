@@ -17,11 +17,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Implementation of mensa service for synchronising meal data.
+ * Implementation of the {@link MensaService} interface.
+ * Performs the daily synchronization of the mensa meal plan and
+ * provides queries.
  *
  * <p>Runs a daily scheduled scrape of the Studierendenwerk Karlsruhe
  * meal plan and persists the results. Existing records for a given date
  * are replaced on every sync so the data always reflects the latest state.
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with JPA access and
+ *     scheduling)
  */
 @Service
 @RequiredArgsConstructor

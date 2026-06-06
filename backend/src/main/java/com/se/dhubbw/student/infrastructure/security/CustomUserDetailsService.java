@@ -15,7 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Custom UserDetailsService implementation for student authentication.
+ * Spring Security UserDetailsService implementation for student authentication.
+ * Loads user information and role authorities from the database.
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Security UserDetailsService)
  */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

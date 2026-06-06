@@ -6,10 +6,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * Request body DTO for opening a new course creation request.
+ * Data transfer object for the request body of a course creation
+ * request.
+ * Carries course name, cohort year, and optional notes from the client
+ * to the service.
  *
  * <p>Carries the desired course name, cohort year, and optional
  * notes from the HTTP request to the service layer.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation HTTP
+ *     Request → Service)
  */
 @AllArgsConstructor
 @NoArgsConstructor

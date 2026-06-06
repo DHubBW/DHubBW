@@ -21,7 +21,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
- * Service for course member and role management.
+ * Implementation of the {@link KursMitgliederService} interface.
+ * Implements member management and role administration within a course.
  *
  * <p>Provides operations for a KURSADMIN to retrieve member
  * statistics, list all members, manage KURSADMIN roles, and
@@ -35,6 +36,10 @@ import java.util.UUID;
  *   <li>KURSADMIN cannot be removed from course
  *       membership.</li>
  * </ul>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with JPA access)
  */
 @Service
 @RequiredArgsConstructor

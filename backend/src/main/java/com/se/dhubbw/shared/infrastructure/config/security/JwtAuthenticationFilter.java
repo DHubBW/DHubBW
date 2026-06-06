@@ -18,12 +18,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * JWT authentication filter.
+ * JWT authentication filter for incoming HTTP requests.
+ * Extracts and validates JWT tokens from cookies or Authorization header.
  *
  * <p>Reads the JWT from a cookie named {@code jwt} first; if no
  * cookie is present, falls back to the {@code Authorization: Bearer}
  * header. This allows browser-based flows (cookie) and API clients
  * such as Swagger UI (header) to authenticate transparently.</p>
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Security Filter)
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

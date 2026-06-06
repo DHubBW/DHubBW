@@ -11,7 +11,12 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Spring Data JPA repository for {@link Mensa} entities.
+ * Repository for database access to {@link Mensa} entities.
+ * Provides CRUD operations and date-based queries for mensa meals.
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Infrastructure Layer (data access layer)
+ * @architecture.category T-Software (Spring Data JPA)
  */
 @Repository
 public interface MensaRepository extends JpaRepository<Mensa, UUID> {

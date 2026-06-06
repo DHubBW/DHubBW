@@ -21,13 +21,18 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
- * Implementation of system-admin course creation request management.
+ * Implementation of the {@link KursSystemAdminService} interface.
+ * Implements course creation request management by the system admin.
  *
  * <p>Provides operations for a system administrator to list,
  * approve, or decline pending course creation requests.
  * On approval, a new course is created and the requesting
  * student is promoted to the {@code KURSADMIN} role with an
  * approved course membership.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with JPA access)
  */
 @Service
 @RequiredArgsConstructor

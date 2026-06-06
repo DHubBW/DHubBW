@@ -4,7 +4,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Main entry point for the DHBW DHUBBW Spring Boot application.
+ * Main entry point of the DHubBW Spring Boot application.
+ * Starts the embedded web server and initializes the Spring application
+ * context.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Boot application starter)
  */
 //CHECKSTYLE:OFF
 @SpringBootApplication

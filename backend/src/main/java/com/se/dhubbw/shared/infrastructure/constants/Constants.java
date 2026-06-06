@@ -1,7 +1,12 @@
 package com.se.dhubbw.shared.infrastructure.constants;
 
 /**
- * Application-wide constants shared across bounded contexts.
+ * Application-wide constants shared across all bounded contexts.
+ * Contains retry parameters and other technical configuration values.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (technical configuration constants)
  */
 public final class Constants {
 

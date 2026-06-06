@@ -28,12 +28,20 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
- * REST controller for system-admin course and student management.
+ * REST controller for system admin platform management (statistics,
+ * courses, students, roles).
+ * Provides HTTP endpoints for SYSTEMADMIN for platform-wide administration.
  *
  * <p>Exposes endpoints for a SYSTEMADMIN to retrieve platform
  * statistics, list and delete courses, inspect course members,
  * list all students, and manage the SYSTEMADMIN role.
  * All endpoints require the {@code SYSTEMADMIN} role.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see PlattformVerwaltungService
  */
 @RestController
 @RequestMapping("/systemadmin")

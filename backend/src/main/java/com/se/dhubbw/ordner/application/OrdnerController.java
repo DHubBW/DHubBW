@@ -27,11 +27,19 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * REST controller for folder management endpoints.
+ * REST controller for folder operations (create, list, rename, delete).
+ * Provides HTTP endpoints for folder management and delegates to
+ * {@link OrdnerService}.
  *
  * <p>Provides endpoints for listing, creating, renaming, and
  * deleting folders. Permissions are enforced at the service
  * layer based on the caller's role and course membership.</p>
+ *
+ * @architecture.component Ordnerverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see OrdnerService
  */
 @RestController
 @RequestMapping("/student/ordner")

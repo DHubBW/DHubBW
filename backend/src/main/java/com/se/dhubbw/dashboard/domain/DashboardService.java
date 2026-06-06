@@ -7,11 +7,16 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Application service interface for aggregating dashboard data.
+ * Domain interface for dashboard aggregation.
+ * Defines operations for providing daily meals and latest files.
  *
  * <p>Defines the operations required by the dashboard to supply
  * today's mensa meals and the latest files visible to the
  * authenticated user.</p>
+ *
+ * @architecture.component Dashboard-Aggregation
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface DashboardService {
 

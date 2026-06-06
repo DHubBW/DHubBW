@@ -5,13 +5,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * Data Transfer Object with platform-wide statistics for a
- * system administrator.
+ * Data transfer object with platform-wide statistics for a system admin.
+ * Contains key figures for courses, users, files, storage, and open requests.
  *
  * <p>Carries the key figures a SYSTEMADMIN sees on the
  * overview dashboard: total courses, total users, total files,
  * used and available storage, and pending course creation
  * requests.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → API Response)
  */
 @AllArgsConstructor
 @NoArgsConstructor

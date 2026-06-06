@@ -8,10 +8,15 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service interface for file management use cases.
+ * Domain interface for file management.
+ * Defines operations for uploading, downloading, renaming, and deleting files.
  *
  * <p>Defines operations for uploading, renaming, deleting,
  * listing, and downloading files.</p>
+ *
+ * @architecture.component Dateiverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface DateiService {
 

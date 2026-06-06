@@ -12,7 +12,12 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 /**
- * AOP aspect for logging repository method calls.
+ * AOP aspect for logging repository method invocations.
+ * Logs database accesses at debug level for all repository interfaces.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring AOP aspect)
  */
 @Aspect
 @Component

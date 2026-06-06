@@ -1,8 +1,12 @@
 package com.se.dhubbw.shared.application.dto.util;
 
 /**
- * Enum for several persistence operations
- * performed as response to http requests.
+ * Enumeration of persistence operations (INSERT, UPDATE, DELETE).
+ * Used in API responses to indicate the type of database operation performed.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Application Layer
+ * @architecture.category A-Software (domain value object)
  */
 public enum PersistenceOperation {
   /**

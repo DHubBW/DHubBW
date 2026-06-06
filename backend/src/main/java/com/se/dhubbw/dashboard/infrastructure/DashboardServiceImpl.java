@@ -18,11 +18,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Application service for aggregating dashboard data.
+ * Implementation of the {@link DashboardService} interface.
+ * Aggregates data from mensa and file modules for the frontend dashboard.
  *
  * <p>Delegates to the mensa and datei modules to supply the data
  * required by the frontend dashboard: today's meals and the latest
  * files visible to the authenticated user.</p>
+ *
+ * @architecture.component Dashboard-Aggregation
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with cross-module access)
  */
 @Service
 @RequiredArgsConstructor

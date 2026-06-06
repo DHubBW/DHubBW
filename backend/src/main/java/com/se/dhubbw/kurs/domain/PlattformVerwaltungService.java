@@ -9,12 +9,18 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service interface for system-admin course and student management.
+ * Domain interface for platform-wide management by system admins.
+ * Defines operations for statistics, course management, student lists,
+ * and SYSTEMADMIN roles.
  *
  * <p>Provides operations for a SYSTEMADMIN to retrieve platform
  * statistics, list and delete courses (with full cascade),
  * list course members with their roles, list all students, and
  * manage the SYSTEMADMIN role.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface PlattformVerwaltungService {
 

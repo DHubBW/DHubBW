@@ -9,7 +9,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Spring Data repository for {@link KursErstellungsAnfrage} entities.
+ * Repository for database access to {@link KursErstellungsAnfrage} entities.
+ * Provides queries for course creation requests by student and approval status.
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer (data access layer)
+ * @architecture.category T-Software (Spring Data JPA)
  */
 @Repository
 public interface KursErstellungsAnfrageRepository extends

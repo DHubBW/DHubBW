@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Service implementation for student dashboard operations.
+ * Implementation of the {@link StudentDashboardService} interface.
+ * Implements course departure, account deletion, and profile retrieval
+ * with business rules.
  *
  * <p>Provides operations for students to manage their own
  * course membership and account, with business rules to prevent
@@ -39,6 +41,10 @@ import java.util.NoSuchElementException;
  *   <li>A KURSADMIN cannot delete their account if they are
  *       the last KURSADMIN in their course.</li>
  * </ul>
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with JPA access)
  */
 @Service
 @RequiredArgsConstructor

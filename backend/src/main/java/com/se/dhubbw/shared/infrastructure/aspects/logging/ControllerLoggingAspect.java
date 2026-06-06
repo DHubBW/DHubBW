@@ -14,10 +14,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * AOP aspect for logging REST controller method calls.
+ * AOP aspect for logging REST controller method invocations.
+ * Logs HTTP requests, responses, and exceptions for all RestController classes.
  *
  * <p>Logs HTTP requests, responses, and exceptions for all methods
  * in classes annotated with {@code @RestController}.</p>
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring AOP aspect)
  */
 @Aspect
 @Component

@@ -236,6 +236,23 @@
 				<version>3.11.2</version>
 				<configuration>
 					<outputDirectory>${project.build.directory}</outputDirectory>
+					<tags>
+						<tag>
+							<name>architecture.component</name>
+							<placement>a</placement>
+							<head>Architecture Component:</head>
+						</tag>
+						<tag>
+							<name>architecture.layer</name>
+							<placement>a</placement>
+							<head>Architecture Layer:</head>
+						</tag>
+						<tag>
+							<name>architecture.category</name>
+							<placement>a</placement>
+							<head>Architecture Category:</head>
+						</tag>
+					</tags>
 				</configuration>
 				<executions>
 					<execution>

@@ -16,7 +16,12 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * JPA entity for file creation tracking.
+ * JPA entity for tracking file creation.
+ * Records which student created a file and when.
+ *
+ * @architecture.component Dateiverwaltung
+ * @architecture.layer Infrastructure Layer (data persistence layer)
+ * @architecture.category T-Software (JPA entity mapping)
  */
 @Table
 @Entity

@@ -1,7 +1,12 @@
 package com.se.dhubbw.mensa.infrastructure.util;
 
 /**
- * Enum for different meal types (veggie, vegan or carnivore).
+ * Enumeration of dietary types for mensa meals (vegetarian, vegan, meat).
+ * Used for categorizing meals in the mensa meal plan.
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category A-Software (domain value object)
  */
 public enum Ernaehrung {
     /**

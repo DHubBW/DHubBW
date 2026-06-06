@@ -7,10 +7,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Service interface for mensa meal data management.
+ * Domain interface for mensa management.
+ * Defines operations for synchronizing and querying mensa meal data.
  *
  * <p>Defines operations for synchronising meal data from the
  * Studierendenwerk Karlsruhe and querying meals by date.</p>
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface MensaService {
 

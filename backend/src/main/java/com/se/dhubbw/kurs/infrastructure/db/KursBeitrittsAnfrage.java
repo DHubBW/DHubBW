@@ -17,7 +17,12 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * JPA entity for course enrollment (join) requests.
+ * JPA entity for course enrollment requests (join requests).
+ * Stores a student's application to join a course with approval status.
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer (data persistence layer)
+ * @architecture.category T-Software (JPA entity mapping)
  */
 @Table(name = "kurs_beitritts_anfrage")
 @Entity

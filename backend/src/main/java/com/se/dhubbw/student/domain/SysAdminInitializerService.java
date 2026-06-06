@@ -1,10 +1,16 @@
 package com.se.dhubbw.student.domain;
 
 /**
- * Service interface for system administrator initialization.
+ * Domain interface for system administrator initialization.
+ * Defines the operation for creating an initial SYSTEMADMIN account on
+ * application startup.
  *
  * <p>Defines the operation required to initialize a system administrator
  * account on application startup.</p>
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface SysAdminInitializerService {
 

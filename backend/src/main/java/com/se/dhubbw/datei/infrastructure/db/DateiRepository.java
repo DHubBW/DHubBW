@@ -11,7 +11,12 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Spring Data repository for {@link Datei} entities.
+ * Repository for database access to {@link Datei} entities.
+ * Provides CRUD operations and custom queries for file metadata.
+ *
+ * @architecture.component Dateiverwaltung
+ * @architecture.layer Infrastructure Layer (data access layer)
+ * @architecture.category T-Software (Spring Data JPA)
  */
 @Repository
 public interface DateiRepository extends JpaRepository<Datei, UUID> {

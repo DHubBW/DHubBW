@@ -13,11 +13,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST controller providing system-admin operations for mensa data.
+ * REST controller for manual mensa synchronization (SYSTEMADMIN).
+ * Provides an endpoint to manually trigger scraping of the mensa meal plan.
  *
  * <p>Exposes a manual sync trigger that forces an immediate re-scrape
  * of the mensa meal plan. Access is restricted to users with the
  * {@code SYSTEMADMIN} role.
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see MensaService
  */
 @RestController
 @RequestMapping("/systemadmin/mensa")

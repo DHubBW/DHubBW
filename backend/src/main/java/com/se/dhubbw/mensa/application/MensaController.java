@@ -23,10 +23,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST Controller for retrieving mensa-related data.
+ * REST controller for mensa endpoints (daily meals, weekly overview).
+ * Provides HTTP endpoints for students to retrieve the mensa meal plan.
  *
  * <p>This controller provides endpoints for students to
  * retrieve meals for specific days or entire weeks.</p>
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see MensaService
  */
 @RestController
 @RequestMapping("/student")

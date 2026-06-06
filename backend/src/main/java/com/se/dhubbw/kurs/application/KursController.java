@@ -28,11 +28,18 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * REST controller for course-related endpoints.
+ * REST controller for course endpoints (list courses, join request,
+ * creation request).
+ * Provides HTTP endpoints for students to manage courses.
  *
  * <p>Provides endpoints for retrieving available courses,
  * submitting course join requests, and submitting course
  * creation requests.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
  */
 @RestController
 @RequestMapping("/student")
