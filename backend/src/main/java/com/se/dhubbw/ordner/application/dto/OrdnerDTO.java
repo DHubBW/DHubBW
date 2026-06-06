@@ -8,10 +8,16 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 /**
- * Data Transfer Object for folder metadata.
+ * Data transfer object for representing a folder in API responses.
+ * Contains metadata such as name, level, color, and visibility.
  *
  * <p>Carries display-relevant metadata only;
  * file contents are intentionally excluded.</p>
+ *
+ * @architecture.component Ordnerverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → API Response)
  */
 @AllArgsConstructor
 @NoArgsConstructor

@@ -15,7 +15,12 @@ import lombok.Setter;
 import java.util.UUID;
 
 /**
- * JPA entity for student users.
+ * JPA entity representing a student (user) in the system.
+ * Stores identification, name, password hash, email, and role.
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Infrastructure Layer (data persistence layer)
+ * @architecture.category T-Software (JPA entity mapping)
  */
 @Entity
 @Table(name = "student")

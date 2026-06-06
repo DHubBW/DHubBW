@@ -23,11 +23,18 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * REST controller for dashboard aggregation endpoints.
+ * REST controller for dashboard aggregation (daily meals, latest files).
+ * Bundles data from mensa and file management for the frontend dashboard view.
  *
  * <p>Provides today's mensa meals and the latest files visible to
  * the authenticated user: all files for system administrators,
  * course-scoped files for students.</p>
+ *
+ * @architecture.component Dashboard-Aggregation
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see DashboardService
  */
 @RestController
 @RequestMapping("/student/dashboard")

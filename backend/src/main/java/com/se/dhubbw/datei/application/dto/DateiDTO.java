@@ -4,10 +4,16 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * Data Transfer Object for file metadata.
+ * Data transfer object for representing a file in API responses.
+ * Contains metadata without binary data for the list view.
  *
  * <p>Carries display-relevant metadata only; the binary file content
  * is intentionally excluded to keep the response lightweight.</p>
+ *
+ * @architecture.component Dateiverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → API Response)
  * @param dateiID Unique file identifier.
  * @param name File name.
  * @param zuletztBearbeitet Date the file was last modified.

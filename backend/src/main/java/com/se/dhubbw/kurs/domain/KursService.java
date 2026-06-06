@@ -6,10 +6,16 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service interface for course-related use cases.
+ * Domain interface for course-related use cases.
+ * Defines operations for listing courses, submitting join requests, and
+ * creation requests.
  *
  * <p>Defines operations for retrieving courses, opening join
  * requests, and opening course creation requests.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface KursService {
 

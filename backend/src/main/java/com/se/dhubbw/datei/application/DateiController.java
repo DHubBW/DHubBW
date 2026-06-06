@@ -36,11 +36,19 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * REST controller for file management endpoints.
+ * REST controller for file operations (upload, download, rename, delete).
+ * Provides HTTP endpoints for file management and delegates to
+ * {@link DateiService}.
  *
  * <p>Provides endpoints for uploading, renaming, and deleting
  * files. Permissions are enforced at the service layer based on
  * the caller's role and course membership.</p>
+ *
+ * @architecture.component Dateiverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see DateiService
  */
 @RestController
 @RequestMapping("/student/dateien")

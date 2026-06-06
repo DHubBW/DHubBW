@@ -1,1 +1,7 @@
 .idea
+
+# OpenCode AI agent configuration (local/personal)
+.opencode/
+.agents/
+opencode.json
+skills-lock.json

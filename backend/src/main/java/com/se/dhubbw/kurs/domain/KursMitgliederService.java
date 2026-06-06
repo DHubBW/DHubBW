@@ -7,11 +7,16 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service interface for course member and role management.
+ * Domain interface for course member and role management.
+ * Defines operations for retrieving statistics, member lists, and role changes.
  *
  * <p>Provides operations for a KURSADMIN to retrieve member
  * statistics, list all members, manage KURSADMIN roles, and
  * remove members from their course.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface KursMitgliederService {
 

@@ -12,14 +12,19 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Composed annotation combining {@link Transactional} with
- * deadlock-resilient {@link Retryable} retry behaviour.
+ * Composed annotation: Combines {@link Transactional} with
+ * deadlock-resilient {@link Retryable}.
+ * Applies a write transaction that is automatically retried on deadlocks.
  *
  * <p>Applies a write transaction that retries up to
  * {@link Constants#RETRY_MAX_ATTEMPTS} times on
  * {@link CannotAcquireLockException} or
  * {@link DeadlockLoserDataAccessException}, with an exponential
  * back-off starting at {@link Constants#RETRY_DELAY_MS} ms.</p>
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Retry + transaction management)
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

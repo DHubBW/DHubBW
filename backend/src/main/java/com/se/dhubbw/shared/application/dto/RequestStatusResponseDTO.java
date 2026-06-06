@@ -3,8 +3,13 @@ package com.se.dhubbw.shared.application.dto;
 import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 
 /**
- * The RequestStatusReponse is used for HTTP responses,
- * if they affect the database.
+ * Data transfer object for HTTP responses on database-modifying operations.
+ * Contains a status message and the type of persistence operation performed.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation for
+ *     API Response)
  * @param response
  * @param persistenceOperation
  */

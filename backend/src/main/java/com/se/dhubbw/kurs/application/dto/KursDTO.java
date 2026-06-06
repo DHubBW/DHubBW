@@ -7,10 +7,16 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 /**
- * Data Transfer Object representing a course.
+ * Data transfer object for representing a course in API responses.
+ * Contains identifier, name, and cohort year for the system admin overview.
  *
  * <p>Used by system-admin endpoints to expose all courses
  * with their identifier, name, and cohort year.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → API Response)
  */
 @AllArgsConstructor
 @NoArgsConstructor

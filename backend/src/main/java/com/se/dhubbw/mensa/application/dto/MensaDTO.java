@@ -6,7 +6,13 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
+ * Data transfer object for representing a mensa meal in API responses.
+ * Contains all relevant meal information for the frontend display.
  *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → API Response)
  * @param gerichtID The id of the meal.
  * @param datum The date when the meal is served.
  * @param essensbezeichnung The description of the meal.

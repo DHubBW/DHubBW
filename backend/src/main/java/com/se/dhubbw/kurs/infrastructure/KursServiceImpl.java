@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Implementation of course-related business logic.
+ * Implementation of the {@link KursService} interface.
+ * Implements course queries, join requests, and course creation requests
+ * with validation.
  *
  * <p>Implements the business rules for retrieving courses,
  * opening join requests, and opening course creation
@@ -35,6 +37,10 @@ import java.util.UUID;
  *   <li>A course creation request requires that no course
  *       with the same name and cohort year already exists.</li>
  * </ul>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with JPA access)
  */
 @Service
 @RequiredArgsConstructor

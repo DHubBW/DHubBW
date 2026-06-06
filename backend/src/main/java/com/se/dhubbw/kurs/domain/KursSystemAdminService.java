@@ -6,10 +6,16 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service interface for system-admin course creation request management.
+ * Domain interface for system admin course creation request management.
+ * Defines operations for listing, approving, and declining course
+ * creation requests.
  *
  * <p>Provides operations for a system administrator to list,
  * approve, or decline pending course creation requests.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface KursSystemAdminService {
 

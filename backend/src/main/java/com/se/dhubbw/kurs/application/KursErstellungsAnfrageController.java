@@ -25,12 +25,20 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * REST controller for system-admin course creation request
- * management.
+ * REST controller for system admin course creation request management
+ * (list, approve, decline).
+ * Provides HTTP endpoints for SYSTEMADMIN to manage open course
+ * creation requests.
  *
  * <p>Exposes endpoints for a SYSTEMADMIN to list, approve, or
  * decline pending course creation requests. All endpoints
  * require the {@code SYSTEMADMIN} role.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see KursSystemAdminService
  */
 @RestController
 @RequestMapping("/systemadmin/anfragen")

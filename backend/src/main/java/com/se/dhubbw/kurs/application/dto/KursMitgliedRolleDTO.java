@@ -6,12 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * Data Transfer Object representing a course member with their
- * role.
+ * Data transfer object for a course member with role (system admin view).
+ * Contains name and role of an approved course member.
  *
  * <p>Used by the system-admin endpoint
  * {@code retrieveKursMembersAndTheirRoles} to expose the name
  * and role of each approved member of a given course.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → API Response)
  */
 @AllArgsConstructor
 @NoArgsConstructor

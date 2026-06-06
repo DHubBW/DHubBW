@@ -4,7 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Color-based logger wrapper for console output.
+ * Color-coded logger wrapper for console output.
+ * Provides methods for different log levels with ANSI color codes.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (SLF4J logger wrapper)
  */
 public final class ColorLogger {
     /**

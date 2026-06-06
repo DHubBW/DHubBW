@@ -8,12 +8,18 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * DTO for a course creation request reviewed by a system admin.
+ * Data transfer object for a course creation request (system admin view).
+ * Contains the data a system admin needs to review a creation request.
  *
  * <p>Carries the data a system administrator needs to review
  * an open course creation request: the request identifier,
  * the requesting student, the desired course details, and
  * optional notes.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → API Response)
  */
 @AllArgsConstructor
 @NoArgsConstructor

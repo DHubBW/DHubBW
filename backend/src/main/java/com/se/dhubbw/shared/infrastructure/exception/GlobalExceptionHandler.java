@@ -16,6 +16,8 @@ import java.util.NoSuchElementException;
 
 /**
  * Global exception handler for all REST controllers.
+ * Centralises HTTP error responses and maps exceptions to standard HTTP
+ * status codes.
  *
  * <p>Centralises HTTP error responses to avoid duplicated
  * try-catch blocks in individual controllers. The handler maps
@@ -41,6 +43,10 @@ import java.util.NoSuchElementException;
  * exception type (e.g. {@code IllegalArgumentException} → 403)
  * can still use a local {@code try-catch} block; local handlers
  * always take precedence over this advice.</p>
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring RestControllerAdvice)
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

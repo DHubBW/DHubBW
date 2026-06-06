@@ -25,12 +25,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST controller for course member and role management.
+ * REST controller for course member and role management (statistics,
+ * members, roles).
+ * Provides HTTP endpoints for KURSADMIN to manage course members.
  *
  * <p>Exposes endpoints for a KURSADMIN to retrieve course
  * statistics, list members, manage KURSADMIN roles, and
  * remove members from their course. All endpoints require
  * the {@code KURSADMIN} role.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web
+ *     annotations)
+ * @see KursMitgliederServiceImpl
  */
 @RestController
 @RequestMapping("/kursadmin/mitglieder")

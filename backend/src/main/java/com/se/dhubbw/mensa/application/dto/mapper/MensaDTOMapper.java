@@ -4,6 +4,17 @@ import com.se.dhubbw.mensa.application.dto.MensaDTO;
 import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapper component for transforming {@link Mensa} entities to
+ * {@link MensaDTO} objects.
+ * Implements the representation transformation between persistence
+ * and API layer.
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → DTO)
+ */
 @Component
 public class MensaDTOMapper {
   /**

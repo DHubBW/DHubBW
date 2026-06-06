@@ -1,9 +1,14 @@
 package com.se.dhubbw.ordner.domain;
 
 /**
- * Folder color enumeration.
+ * Enumeration of available folder colors.
+ * Defines color options for visual folder organization.
  *
  * <p>Defines available color options for folder organization.
+ *
+ * @architecture.component Ordnerverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (domain value object, technology-free)
  */
 public enum OrdnerFarbe {
     /**

@@ -18,10 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Implementation of authentication service for student registration and login.
+ * Implementation of the {@link AuthenticationService} interface.
+ * Implements registration and login with password encoding, JWT
+ * generation, and AuthenticationManager.
  *
  * <p>Handles password encoding, JWT token generation, and authentication
  * manager integration.</p>
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with Security integration)
  */
 @Service
 @RequiredArgsConstructor

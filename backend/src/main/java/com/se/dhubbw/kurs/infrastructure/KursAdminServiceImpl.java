@@ -16,12 +16,17 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
- * Implementation of course-admin enrollment request management.
+ * Implementation of the {@link KursAdminService} interface.
+ * Implements enrollment request management by the course admin.
  *
  * <p>Provides operations for a course administrator to list,
  * approve, or decline pending join requests for their course.
  * The admin's course is determined by their own approved
  * {@link KursBeitrittsAnfrage}.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with JPA access)
  */
 @Service
 @RequiredArgsConstructor

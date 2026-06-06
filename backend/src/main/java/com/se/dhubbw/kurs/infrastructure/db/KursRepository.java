@@ -6,7 +6,12 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 /**
- * Spring Data repository for {@link Kurs} entities.
+ * Repository for database access to {@link Kurs} entities.
+ * Provides CRUD operations and duplicate checking for courses.
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer (data access layer)
+ * @architecture.category T-Software (Spring Data JPA)
  */
 @Repository
 public interface KursRepository extends JpaRepository<Kurs, UUID> {

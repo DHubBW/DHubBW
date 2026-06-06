@@ -8,7 +8,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Spring Data repository for {@link OrdnerAnlegung} entities.
+ * Repository for database access to {@link OrdnerAnlegung} entities.
+ * Provides queries for tracking folder creation records.
+ *
+ * @architecture.component Ordnerverwaltung
+ * @architecture.layer Infrastructure Layer (data access layer)
+ * @architecture.category T-Software (Spring Data JPA)
  */
 @Repository
 public interface OrdnerAnlegungRepository extends

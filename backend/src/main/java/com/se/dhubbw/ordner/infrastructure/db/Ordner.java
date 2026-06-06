@@ -23,7 +23,12 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * JPA entity for folders.
+ * JPA entity representing a folder in the system.
+ * Stores metadata such as name, nesting level, color, and course assignment.
+ *
+ * @architecture.component Ordnerverwaltung
+ * @architecture.layer Infrastructure Layer (data persistence layer)
+ * @architecture.category T-Software (JPA entity mapping)
  */
 @Entity
 @Table(name = "ordner")

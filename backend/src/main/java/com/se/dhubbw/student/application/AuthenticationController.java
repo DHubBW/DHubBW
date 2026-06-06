@@ -20,7 +20,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST controller for authentication endpoints.
+ * REST controller for authentication endpoints (registration, login,
+ * test).
+ * Provides HTTP endpoints for user management and delegates to
+ * {@link AuthenticationService}.
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category T-Software (REST endpoints with Spring Web and
+ *     Security annotations)
+ * @see AuthenticationService
  */
 @RestController
 @RequestMapping("/public/auth")
@@ -29,7 +38,8 @@ public class AuthenticationController {
     /**
      * ColorLogger for errors / log messages.
      */
-    private final ColorLogger colorLogger = new ColorLogger(this.getClass());
+    private final ColorLogger colorLogger =
+        new ColorLogger(this.getClass());
 
     /**
      * HTTP status code for conflict (email already exists).

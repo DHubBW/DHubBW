@@ -18,6 +18,13 @@ import java.util.stream.Collectors;
 
 /**
  * Service for JWT token generation and validation.
+ * Manages creation, signing, and verification of JSON Web Tokens for
+ * authentication.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (JWT library with Spring Security
+ *     integration)
  */
 @Service
 public class JwtService {

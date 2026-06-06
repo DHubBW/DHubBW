@@ -16,8 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Initializes dynamic mensa test data for current and next week.
- * Only runs in dev profile.
+ * Initializes dynamic mensa test data for the current and next week.
+ * Only runs in the dev profile and serves local development.
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring CommandLineRunner, dev profile
+ *     only)
  */
 @Component
 @Profile("dev")

@@ -9,13 +9,18 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
- * Shared lookup helper for student resolution.
+ * Shared helper component for student resolution (by email or UUID).
+ * Centralises the recurring pattern of student lookups across multiple modules.
  *
  * <p>Centralises the repeated pattern of finding a student by
  * email or UUID and throwing a {@link NoSuchElementException}
  * when no match exists. Services in the {@code datei},
  * {@code ordner}, {@code kurs} and {@code student} modules all
  * previously duplicated this logic privately.</p>
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Component, cross-module)
  */
 @Component
 @RequiredArgsConstructor

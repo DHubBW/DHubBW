@@ -1,8 +1,13 @@
 package com.se.dhubbw.shared.application.dto;
 
 /**
- * The smallest DTO possible (you can use it if you
- * only want to provide a String response to the user).
+ * Minimal data transfer object for simple text responses.
+ * Used when only a string message needs to be returned to the client.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation for
+ *     API Response)
  * @param response The text response for the user.
  */
 public record SmallResponseDTO(String response) { }

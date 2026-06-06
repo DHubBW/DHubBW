@@ -8,7 +8,12 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Spring Data repository for {@link Ordner} entities.
+ * Repository for database access to {@link Ordner} entities.
+ * Provides CRUD operations and custom queries for folder data.
+ *
+ * @architecture.component Ordnerverwaltung
+ * @architecture.layer Infrastructure Layer (data access layer)
+ * @architecture.category T-Software (Spring Data JPA)
  */
 @Repository
 public interface OrdnerRepository extends JpaRepository<Ordner, UUID> {

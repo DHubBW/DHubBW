@@ -16,11 +16,17 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * JPA entity for storing mensa meal entries in the {@code mensa} table.
+ * JPA entity representing a mensa meal.
+ * Stores date, name, allergens, price, dietary type, and serving line
+ * of a meal.
  *
  * <p>The entity contains the unique meal identifier, the serving date,
  * the meal name, allergen information, the price, the dietary category,
  * and the serving line (e.g. "Wahlessen 1").
+ *
+ * @architecture.component Mensaverwaltung
+ * @architecture.layer Infrastructure Layer (data persistence layer)
+ * @architecture.category T-Software (JPA entity mapping)
  */
 @Entity
 @Table(name = "mensa")

@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service for file management use cases.
+ * Implementation of the {@link com.se.dhubbw.datei.domain.DateiService}
+ * interface.
+ * Coordinates file operations with access control and persistence.
  *
  * <p>Provides operations to upload, rename, and delete files.
  * Access is restricted based on the student's role and course
@@ -45,6 +47,10 @@ import java.util.UUID;
  *       course or SYSTEMADMIN. If the folder is no longer
  *       assigned to a course, the restriction is waived.</li>
  * </ul>
+ *
+ * @architecture.component Dateiverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Service with JPA access)
  */
 @Service
 @RequiredArgsConstructor

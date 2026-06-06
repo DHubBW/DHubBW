@@ -13,10 +13,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * AOP aspect for logging service method calls.
+ * AOP aspect for logging service method invocations.
+ * Logs entry, return, and exceptions for all service classes.
  *
  * <p>Logs entry, successful return, and exceptions for all methods
  * in classes annotated with {@code @Service} or ending with "ServiceImpl".</p>
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring AOP aspect)
  */
 @Aspect
 @Component

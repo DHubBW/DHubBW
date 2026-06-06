@@ -10,10 +10,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 /**
- * OpenAPI configuration for Swagger documentation.
+ * OpenAPI/Swagger configuration for API documentation.
+ * Registers the JWT Bearer security scheme and API metadata for Swagger UI.
  *
  * <p>Configures the OpenAPI specification for the DHubBW Backend API,
  * enabling interactive API documentation through Swagger UI.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring configuration with OpenAPI)
  */
 @Profile({"dev", "prod"})
 @Configuration

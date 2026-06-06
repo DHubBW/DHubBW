@@ -4,10 +4,15 @@ import com.se.dhubbw.student.application.dto.LoginRequestDTO;
 import com.se.dhubbw.student.application.dto.RegisterRequestDTO;
 
 /**
- * Service interface for authentication operations.
+ * Domain interface for authentication.
+ * Defines operations for student registration and login.
  *
  * <p>Defines the operations required for user registration
  * and login, returning JWT tokens upon successful authentication.</p>
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface AuthenticationService {
 

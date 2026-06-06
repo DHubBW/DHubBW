@@ -15,10 +15,17 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Implementation of system administrator initialization service.
+ * Implementation of the system administrator initialization.
+ * Creates a SYSTEMADMIN account with a generated password on
+ * application startup if none exists yet.
  *
  * <p>Creates a SYSTEMADMIN user with a randomly generated password
  * and logs the credentials in orange for production and development.</p>
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring CommandLineRunner with
+ *     Security integration)
  */
 @Component
 @Profile({"prod", "dev"})

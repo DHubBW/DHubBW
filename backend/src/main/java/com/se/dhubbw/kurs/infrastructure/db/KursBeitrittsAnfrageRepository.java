@@ -9,7 +9,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Spring Data repository for {@link KursBeitrittsAnfrage} entities.
+ * Repository for database access to {@link KursBeitrittsAnfrage}
+ * entities.
+ * Provides queries for enrollment requests by student, course, and
+ * approval status.
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer (data access layer)
+ * @architecture.category T-Software (Spring Data JPA)
  */
 @Repository
 public interface KursBeitrittsAnfrageRepository extends

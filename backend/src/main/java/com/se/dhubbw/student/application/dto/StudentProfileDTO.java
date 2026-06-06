@@ -6,11 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO representing a student's profile information.
+ * Data transfer object for the student profile.
+ * Contains name, email, role, course name, and pending course request.
  *
  * <p>Contains the student's name, email address, role,
  * current course name (if enrolled), and any open course
  * request (if present).</p>
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     Entity → API Response)
  */
 @AllArgsConstructor
 @NoArgsConstructor

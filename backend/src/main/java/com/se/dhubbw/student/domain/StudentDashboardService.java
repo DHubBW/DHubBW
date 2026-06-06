@@ -3,10 +3,16 @@ package com.se.dhubbw.student.domain;
 import com.se.dhubbw.student.application.dto.StudentProfileDTO;
 
 /**
- * Service interface for student dashboard operations.
+ * Domain interface for student dashboard operations.
+ * Defines operations for course management, account deletion, and
+ * profile retrieval.
  *
  * <p>Provides operations for students to manage their own
  * course membership, account, and profile information.</p>
+ *
+ * @architecture.component Benutzerverwaltung
+ * @architecture.layer Domain Layer
+ * @architecture.category A-Software (pure domain interface, technology-free)
  */
 public interface StudentDashboardService {
 

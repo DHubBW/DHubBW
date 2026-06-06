@@ -11,11 +11,15 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
- * Shared lookup helper for student and course resolution.
+ * Shared helper component for student and course resolution in the
+ * course module.
+ * Centralises recurring lookup patterns across course service
+ * implementations.
  *
- * <p>Centralises the repetitive lookup patterns used across
- * kurs service implementations: finding a student by email or
- * UUID and resolving a student's approved course enrollment.</p>
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Component, module-internal
+ *     helper class)
  */
 @Component
 @RequiredArgsConstructor

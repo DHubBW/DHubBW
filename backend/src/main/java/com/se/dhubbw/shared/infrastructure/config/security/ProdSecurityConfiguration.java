@@ -25,8 +25,15 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 import org.springframework.http.HttpStatus;
 
 /**
- * JWT security configuration for prod profile.
- * Hardened for production VM deployment with same-origin frontend.
+ * Spring Security configuration for the production profile.
+ * Configures JWT-based authentication, security headers, and CORS for
+ * VM deployment.
+ *
+ * <p>Hardened for production VM deployment with same-origin frontend.
+ *
+ * @architecture.component Querschnitt (Security)
+ * @architecture.layer Infrastructure Layer
+ * @architecture.category T-Software (Spring Security configuration)
  */
 @Configuration
 @EnableWebSecurity

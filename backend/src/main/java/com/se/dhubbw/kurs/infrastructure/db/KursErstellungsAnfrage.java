@@ -18,10 +18,15 @@ import java.util.UUID;
 
 /**
  * JPA entity for course creation requests.
+ * Stores a student's application to create a new course.
  *
  * <p>The referenced course does not yet exist when the request is
  * created, so the desired course is described via {@code kursName}
  * and {@code jahrgang} rather than a foreign key to {@link Kurs}.</p>
+ *
+ * @architecture.component Kursverwaltung
+ * @architecture.layer Infrastructure Layer (data persistence layer)
+ * @architecture.category T-Software (JPA entity mapping)
  */
 @Entity
 @Table(name = "kurs_erstellungs_anfrage")
