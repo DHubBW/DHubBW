@@ -1,9 +1,9 @@
 import { DarkTheme, DefaultTheme, type Theme } from '@react-navigation/native';
 
-// Mirror der CSS-Variablen aus global.css fuer @react-navigation/native.
-// Nur die Felder, die NavigationThemeProvider erwartet (background/border/
-// card/notification/primary/text). RN-Komponenten ausserhalb von Tailwind
-// (Stack-Header, Tab-Bar) ziehen ihre Farben hierher.
+// Mirrors the CSS variables from global.css for @react-navigation/native.
+// Only the fields expected by NavigationThemeProvider (background / border /
+// card / notification / primary / text). Native components outside Tailwind
+// (Stack header, Tab bar) read their colors from here.
 const LIGHT = {
   background: 'hsl(0 0% 98%)',
   foreground: 'hsl(214.3 32.6% 16.9%)',
@@ -22,6 +22,12 @@ const DARK = {
   destructive: 'hsl(354.9 73.8% 53.5%)',
 };
 
+/**
+ * React Navigation theme objects for light and dark mode.
+ *
+ * Mirrors the CSS variables from `global.css` for native navigation
+ * components (Stack header, Tab bar) that do not support NativeWind `className`.
+ */
 export const NAV_THEME: Record<'light' | 'dark', Theme> = {
   light: {
     ...DefaultTheme,

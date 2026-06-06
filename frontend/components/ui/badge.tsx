@@ -53,6 +53,18 @@ type BadgeProps = React.ComponentProps<typeof View> & React.RefAttributes<View> 
   asChild?: boolean;
 } & VariantProps<typeof badgeVariants>;
 
+/**
+ * Badge component for status indicators and labels.
+ *
+ * Supports the variants `default`, `secondary`, `destructive` and `outline`.
+ * Pass `asChild` to use a different root element via the slot mechanism.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param variant - Visual variant of the badge.
+ * @param asChild - When `true`, uses the slot mechanism as the root element.
+ * @param props - All other `View` props.
+ * @returns The badge component.
+ */
 function Badge({ className, variant, asChild, ...props }: BadgeProps) {
   const Component = asChild ? Slot : View;
   return (

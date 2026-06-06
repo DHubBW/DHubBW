@@ -3,5 +3,15 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
-  }
+  },
+  // "module": "preserve" is a valid TypeScript 5.4+ value set by expo/tsconfig.base.
+  // The Microsoft Edge Tools extension uses an outdated JSON schema that does not
+  // know this value yet. Disabling schema validation for tsconfig files suppresses
+  // the false-positive error without changing the actual compiler configuration.
+  "json.schemas": [
+    {
+      "fileMatch": ["tsconfig.json", "tsconfig.*.json"],
+      "schema": {}
+    }
+  ]
 }

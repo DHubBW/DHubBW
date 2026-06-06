@@ -7,12 +7,28 @@ import { Platform, StyleSheet } from 'react-native';
 import { FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
+/** Root tooltip component – wraps `@rn-primitives/tooltip` Root. */
 const Tooltip = TooltipPrimitive.Root;
 
+/** Tooltip trigger – wraps `@rn-primitives/tooltip` Trigger. */
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
 const FullWindowOverlay = Platform.OS === 'ios' ? RNFullWindowOverlay : React.Fragment;
 
+/**
+ * Animated tooltip content with portal support.
+ *
+ * Renders inside a portal and applies an entrance/exit animation depending on
+ * the `side` prop. On iOS the content is wrapped in `FullWindowOverlay` to
+ * ensure correct z-ordering above modals.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param sideOffset - Distance in pixels between trigger and tooltip (default: `4`).
+ * @param portalHost - Named portal host to render into (optional).
+ * @param side - Side relative to the trigger where the tooltip appears (default: `'top'`).
+ * @param props - All other `TooltipPrimitive.Content` props.
+ * @returns The animated tooltip content element.
+ */
 function TooltipContent({
   className,
   sideOffset = 4,

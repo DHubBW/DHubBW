@@ -8,16 +8,31 @@ import { Platform, Text, View, type ViewProps } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
+/** Root dialog component – wraps `@rn-primitives/dialog` Root. */
 const Dialog = DialogPrimitive.Root;
 
+/** Dialog trigger – wraps `@rn-primitives/dialog` Trigger. */
 const DialogTrigger = DialogPrimitive.Trigger;
 
+/** Dialog portal – wraps `@rn-primitives/dialog` Portal. */
 const DialogPortal = DialogPrimitive.Portal;
 
+/** Dialog close button – wraps `@rn-primitives/dialog` Close. */
 const DialogClose = DialogPrimitive.Close;
 
 const FullWindowOverlay = Platform.OS === 'ios' ? RNFullWindowOverlay : React.Fragment;
 
+/**
+ * Semi-transparent overlay behind the dialog content.
+ *
+ * On native platforms an animated fade-in/out is applied. On iOS the overlay
+ * is wrapped in `FullWindowOverlay` to ensure correct z-ordering.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param children - Content rendered inside the overlay.
+ * @param props - All other `DialogPrimitive.Overlay` props (except `asChild`).
+ * @returns The dialog overlay element.
+ */
 function DialogOverlay({
   className,
   children,
@@ -46,6 +61,18 @@ function DialogOverlay({
     </FullWindowOverlay>
   );
 }
+
+/**
+ * Main dialog content area with a built-in close button.
+ *
+ * Renders inside a {@link DialogPortal} on top of a {@link DialogOverlay}.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param portalHost - Named portal host to render into (optional).
+ * @param children - Dialog body content.
+ * @param props - All other `DialogPrimitive.Content` props.
+ * @returns The dialog content element.
+ */
 function DialogContent({
   className,
   portalHost,
@@ -87,12 +114,26 @@ function DialogContent({
   );
 }
 
+/**
+ * Header area of a dialog – stacks title and description vertically.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param props - All other `View` props.
+ * @returns The dialog header element.
+ */
 function DialogHeader({ className, ...props }: ViewProps) {
   return (
     <View className={cn('flex flex-col gap-2 text-center sm:text-left', className)} {...props} />
   );
 }
 
+/**
+ * Footer area of a dialog – arranges action buttons in a row.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param props - All other `View` props.
+ * @returns The dialog footer element.
+ */
 function DialogFooter({ className, ...props }: ViewProps) {
   return (
     <View
@@ -102,6 +143,13 @@ function DialogFooter({ className, ...props }: ViewProps) {
   );
 }
 
+/**
+ * Dialog title text.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param props - All other `DialogPrimitive.Title` props.
+ * @returns The dialog title element.
+ */
 function DialogTitle({
   className,
   ...props
@@ -114,6 +162,13 @@ function DialogTitle({
   );
 }
 
+/**
+ * Dialog description text shown below the title.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param props - All other `DialogPrimitive.Description` props.
+ * @returns The dialog description element.
+ */
 function DialogDescription({
   className,
   ...props

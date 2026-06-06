@@ -4,6 +4,15 @@ import { Pressable, Text, View } from 'react-native';
 import { ITEMS, visible } from '@/components/layout/navItems';
 import { useAuth } from '@/lib/auth/__stub';
 
+/**
+ * Desktop sidebar navigation.
+ *
+ * Shows the app name and all {@link NavItem} entries visible to the logged-in
+ * user as a vertical list. Mounted by {@link AppLayout} to the left of the
+ * content area at screen widths of 768 px and above.
+ *
+ * @returns The sidebar component with the logo and navigation list.
+ */
 export function Sidebar() {
   const { user } = useAuth();
   const items = ITEMS.filter((it) => visible(it, user));

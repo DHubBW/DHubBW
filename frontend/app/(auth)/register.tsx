@@ -1,8 +1,16 @@
 import { Link } from 'expo-router';
 import { Text, View } from 'react-native';
 
-// TODO FE-Auth (#206 / FE-S1): echter Register-Screen mit Form, Validierung,
-// API-Call POST /auth/register. Aktuell nur Stub-Platzhalter.
+/**
+ * Registration screen (placeholder).
+ *
+ * Will be replaced by issue FE-Auth (#206 / FE-S1) with a real form,
+ * validation and a `POST /auth/register` API call.
+ *
+ * @returns The registration screen.
+ */
+// TODO FE-Auth (#206 / FE-S1): real register screen with form, validation,
+// API call POST /auth/register. Currently a stub placeholder only.
 export default function RegisterScreen() {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>

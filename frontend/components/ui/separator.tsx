@@ -1,6 +1,15 @@
 import { cn } from '@/lib/utils';
 import * as SeparatorPrimitive from '@rn-primitives/separator';
 
+/**
+ * Horizontal or vertical visual separator line.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param orientation - Direction of the separator: `'horizontal'` (default) or `'vertical'`.
+ * @param decorative - Whether the separator is purely decorative (default: `true`).
+ * @param props - All other `SeparatorPrimitive.Root` props.
+ * @returns The styled separator element.
+ */
 function Separator({
   className,
   orientation = 'horizontal',

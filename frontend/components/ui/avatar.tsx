@@ -1,6 +1,13 @@
 import { cn } from '@/lib/utils';
 import * as AvatarPrimitive from '@rn-primitives/avatar';
 
+/**
+ * Circular avatar container.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param props - All other `AvatarPrimitive.Root` props.
+ * @returns The avatar root element.
+ */
 function Avatar({
   className,
   ...props
@@ -13,6 +20,13 @@ function Avatar({
   );
 }
 
+/**
+ * Avatar image – fills the circular container.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param props - All other `AvatarPrimitive.Image` props.
+ * @returns The avatar image element.
+ */
 function AvatarImage({
   className,
   ...props
@@ -20,6 +34,13 @@ function AvatarImage({
   return <AvatarPrimitive.Image className={cn('aspect-square size-full', className)} {...props} />;
 }
 
+/**
+ * Fallback shown when the avatar image fails to load.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param props - All other `AvatarPrimitive.Fallback` props.
+ * @returns The avatar fallback element.
+ */
 function AvatarFallback({
   className,
   ...props

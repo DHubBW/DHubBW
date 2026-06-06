@@ -26,11 +26,24 @@ const DEFAULT_THEME: ThemePreference = 'system';
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+/**
+ * Adds or removes the CSS class `dark` on the `<html>` element (web only).
+ * Required by NativeWind to activate dark-mode styles on the web platform.
+ *
+ * @param effective - The currently active theme (`'light'` or `'dark'`).
+ */
 function applyWebClass(effective: EffectiveTheme) {
   if (Platform.OS !== 'web' || typeof document === 'undefined') return;
   document.documentElement.classList.toggle('dark', effective === 'dark');
 }
 
+/**
+ * Provides the app-wide theme and persists the user preference via AsyncStorage.
+ * Keeps NativeWind and the native system UI in sync with the effective theme.
+ *
+ * @param children - Child components that need access to the theme context.
+ * @returns The ThemeContext provider, or `null` while hydrating from storage.
+ */
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemScheme = useRNColorScheme();
   const { setColorScheme } = useNativewindColorScheme();
@@ -75,6 +88,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
+/**
+ * Hook that returns the current theme context.
+ *
+ * Must be called inside a {@link ThemeProvider}.
+ *
+ * @returns `theme` (stored preference), `effectiveTheme` (active theme),
+ *   and `setTheme` (setter for the stored preference).
+ * @throws {Error} When called outside a `ThemeProvider`.
+ */
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {

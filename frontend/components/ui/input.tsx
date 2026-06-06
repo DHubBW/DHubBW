@@ -1,6 +1,16 @@
 import { cn } from '@/lib/utils';
 import { Platform, TextInput } from 'react-native';
 
+/**
+ * Single-line text input field.
+ *
+ * Adapts its style and placeholder color per platform (native vs. web).
+ * When `editable === false`, the field is visually shown as disabled.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param props - All other `TextInput` props.
+ * @returns The styled input field.
+ */
 function Input({ className, ...props }: React.ComponentProps<typeof TextInput> & React.RefAttributes<TextInput>) {
   return (
     <TextInput

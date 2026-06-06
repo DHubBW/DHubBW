@@ -90,6 +90,20 @@ const buttonTextVariants = cva(
 
 type ButtonProps = React.ComponentProps<typeof Pressable> & React.RefAttributes<typeof Pressable> & VariantProps<typeof buttonVariants>;
 
+/**
+ * Versatile button component with multiple variants and sizes.
+ *
+ * Supports the variants `default`, `destructive`, `outline`, `secondary`,
+ * `ghost` and `link`, as well as the sizes `default`, `sm`, `lg` and `icon`.
+ * Sets the `TextClassContext` so child text elements automatically receive
+ * the correct color.
+ *
+ * @param className - Additional Tailwind classes.
+ * @param variant - Visual variant of the button.
+ * @param size - Size of the button.
+ * @param props - All other `Pressable` props including `disabled`.
+ * @returns The button with the correct text style context.
+ */
 function Button({ className, variant, size, ...props }: ButtonProps) {
   return (
     <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>

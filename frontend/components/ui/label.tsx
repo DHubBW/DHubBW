@@ -2,6 +2,18 @@ import { cn } from '@/lib/utils';
 import * as LabelPrimitive from '@rn-primitives/label';
 import { Platform } from 'react-native';
 
+/**
+ * Accessible label element for form fields.
+ *
+ * Based on `@rn-primitives/label` and supports a `disabled` state with
+ * reduced opacity. On web the label is associated with its input via the
+ * `htmlFor` prop (handled by `LabelPrimitive`).
+ *
+ * @param className - Additional Tailwind classes for the label text.
+ * @param disabled - When `true`, the label is shown as disabled.
+ * @param props - All other `LabelPrimitive.Text` props.
+ * @returns The styled label element.
+ */
 function Label({
   className,
   onPress,

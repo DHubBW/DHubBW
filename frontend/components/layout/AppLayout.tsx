@@ -7,6 +7,15 @@ import { Sidebar } from './Sidebar';
 
 const BREAKPOINT = 768;
 
+/**
+ * Central app shell layout.
+ *
+ * Below 768 px the mobile layout is rendered (Header + Content + BottomNav).
+ * At 768 px and above the desktop sidebar is shown to the left of the content area.
+ *
+ * @param children - Page content rendered inside the content area.
+ * @returns The responsive app layout.
+ */
 export function AppLayout({ children }: { children: ReactNode }) {
   const { width } = useWindowDimensions();
   const isWide = width >= BREAKPOINT;
