@@ -2,7 +2,7 @@ import { Link } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
 import { ITEMS, visible } from '@/components/layout/navItems';
-import { useAuth } from '@/lib/auth/__stub';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 /**
  * Mobile navigation bar at the bottom of the screen.
