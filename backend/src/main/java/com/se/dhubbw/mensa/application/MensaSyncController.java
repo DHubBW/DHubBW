@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * {@code SYSTEMADMIN} role.
  */
 @RestController
-@RequestMapping("/sysadmin/mensa")
+@RequestMapping("/systemadmin/mensa")
 @RequiredArgsConstructor
 public class MensaSyncController {
 

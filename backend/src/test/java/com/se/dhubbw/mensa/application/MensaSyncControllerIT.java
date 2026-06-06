@@ -34,27 +34,27 @@ public class MensaSyncControllerIT {
     @Test
     @WithMockUser(username = "admin", roles = {"SYSTEMADMIN", "STUDENT"})
     public void givenSystemAdmin_whenTriggerSync_thenReturns200() throws Exception {
-        mockMvc.perform(post("/sysadmin/mensa/sync"))
+        mockMvc.perform(post("/systemadmin/mensa/sync"))
             .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(roles = "KURSADMIN")
     public void givenKursadmin_whenTriggerSync_thenReturns403() throws Exception {
-        mockMvc.perform(post("/sysadmin/mensa/sync"))
+        mockMvc.perform(post("/systemadmin/mensa/sync"))
             .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = "STUDENT")
     public void givenStudent_whenTriggerSync_thenReturns403() throws Exception {
-        mockMvc.perform(post("/sysadmin/mensa/sync"))
+        mockMvc.perform(post("/systemadmin/mensa/sync"))
             .andExpect(status().isForbidden());
     }
 
     @Test
     public void givenUnauthenticated_whenTriggerSync_thenReturns401() throws Exception {
-        mockMvc.perform(post("/sysadmin/mensa/sync"))
+        mockMvc.perform(post("/systemadmin/mensa/sync"))
             .andExpect(status().isUnauthorized());
     }
 }
