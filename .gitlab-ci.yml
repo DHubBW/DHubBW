@@ -15,7 +15,7 @@ default:
 variables:
   BACKEND_IMAGE:   dhubbw-backend:latest
   FRONTEND_IMAGE:  dhubbw-frontend:latest
-  GIT_CLEAN_FLAGS: -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/
+  GIT_CLEAN_FLAGS: -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/ -e frontend/docs/
 
 # ─── Templates ────────────────────────────────────────────────────────────────
 
