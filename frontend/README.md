@@ -39,6 +39,43 @@ npm run build-web    # Ausgabe: dist/
 
 ---
 
+## Tests
+
+```bash
+# Alle Unit- und Integrationstests ausführen
+npm test
+
+# Tests im Watch-Modus (interaktiv während der Entwicklung)
+npm run test:watch
+
+# Tests mit Coverage-Report
+npm run test:coverage
+
+# E2E-Tests (Playwright, Web) – Expo-Webserver wird automatisch gestartet
+npm run test:e2e
+
+# E2E-Tests mit sichtbarem Browser
+npm run test:e2e:headed
+```
+
+### Teststruktur
+
+```
+tests/
+├── components/       — Unit-Tests für UI-Komponenten (@testing-library/react-native)
+├── integration/      — Integrationstests mit MSW-Mock-Server
+└── mocks/
+    ├── handlers.ts   — MSW Request-Handler (Auth, Profile, Mensa)
+    └── server.ts     — MSW setupServer (gestartet in jest.setup.js)
+e2e/
+└── login.spec.ts     — Playwright E2E-Tests (Web)
+```
+
+Der MSW-Mock-Server wird automatisch vor jedem Test-File gestartet und danach gestoppt.
+Pre-Commit-Hook (Husky + lint-staged): linted und formatiert `.ts`/`.tsx`-Dateien vor jedem Commit.
+
+---
+
 ## Ordnerstruktur
 
 ```
