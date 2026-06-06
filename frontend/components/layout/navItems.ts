@@ -1,4 +1,4 @@
-import type { AuthUser } from '@/lib/auth/__stub';
+import type { AuthUser } from '@/lib/auth/AuthContext';
 
 /** A single navigation entry shown in the sidebar and bottom nav. */
 export type NavItem = {
@@ -33,7 +33,8 @@ export const ITEMS: NavItem[] = [
  * @param user - The currently logged-in user, or `null`.
  * @returns `true` if the entry should be displayed.
  */
-// TODO FE-S1 (#206): user type will come from the real AuthContext then.
+// TODO: when SYSTEMADMIN-only routes appear, add a `requiresRole: 'SYSTEMADMIN'`
+// item — the visible() helper already supports it.
 export function visible(item: NavItem, user: AuthUser | null): boolean {
   if (!user) return false;
   if (item.requiresKurs && !user.kursName) return false;
