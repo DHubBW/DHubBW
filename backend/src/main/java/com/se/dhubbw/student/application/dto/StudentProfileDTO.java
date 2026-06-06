@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 /**
  * DTO representing a student's profile information.
  *
- * <p>Contains the student's name, email address, role, and
- * current course name (if enrolled).</p>
+ * <p>Contains the student's name, email address, role,
+ * current course name (if enrolled), and any open course
+ * request (if present).</p>
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,4 +37,10 @@ public class StudentProfileDTO {
      * Null if the student has no course enrollment.
      */
     private String kursName;
+
+    /**
+     * Open course request of the student, if any.
+     * Null if there is no pending join or creation request.
+     */
+    private PendingKursRequestDTO pendingKursRequest;
 }

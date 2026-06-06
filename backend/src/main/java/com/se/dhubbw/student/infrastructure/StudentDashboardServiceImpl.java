@@ -10,6 +10,7 @@ import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
 import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
 import com.se.dhubbw.shared.infrastructure.helper.StudentLookupHelper;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
+import com.se.dhubbw.student.application.dto.PendingKursRequestDTO;
 import com.se.dhubbw.student.application.dto.StudentProfileDTO;
 import com.se.dhubbw.student.domain.StudentDashboardService;
 import com.se.dhubbw.student.infrastructure.db.Student;
@@ -230,9 +231,15 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
     /**
      * Retrieve the profile information for the given student.
      *
+     * <p>In addition to name, email, role and course, the profile
+     * includes the student's open course request, if any. A pending
+     * join request takes precedence over a pending creation request
+     * when both exist (edge case that should not occur in normal
+     * operation).</p>
+     *
      * @param dhbwMail the DHBW mail address of the student
      * @return the student's profile data including name, email,
-     *     role, and course name (if enrolled)
+     *     role, course name, and pending request (if enrolled)
      * @throws NoSuchElementException if the student is not found
      */
     @Override
@@ -245,12 +252,46 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
             .map(enrollment -> enrollment.getKurs().getKursName())
             .orElse(null);
 
+        PendingKursRequestDTO pendingKursRequest =
+            buildPendingKursRequest(student);
+
         return new StudentProfileDTO(
             student.getName(),
             student.getDhbwMail(),
             student.getStudentType(),
-            kursName
+            kursName,
+            pendingKursRequest
         );
+    }
+
+    /**
+     * Build the pending course request DTO for the given student.
+     *
+     * <p>Checks for a pending join request first; if none exists,
+     * falls back to a pending creation request. Returns {@code null}
+     * if the student has no open requests.</p>
+     *
+     * @param student the student to check
+     * @return a {@link PendingKursRequestDTO}, or {@code null}
+     */
+    private PendingKursRequestDTO buildPendingKursRequest(
+            final Student student) {
+        return kursBeitrittsAnfrageRepository
+            .findAllByStudentAndIsApprovedFalse(student)
+            .stream()
+            .findFirst()
+            .map(req -> new PendingKursRequestDTO(
+                "BEITRITT",
+                req.getKurs().getKursName(),
+                req.getAnfrageDatum()))
+            .orElseGet(() ->
+                kursErstellungsAnfrageRepository
+                    .findByStudentAndIsApprovedFalse(student)
+                    .map(req -> new PendingKursRequestDTO(
+                        "ERSTELLUNG",
+                        req.getKursName(),
+                        req.getAnfrageDatum()))
+                    .orElse(null));
     }
 
     /**
