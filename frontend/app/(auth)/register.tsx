@@ -1,6 +1,8 @@
 import { Link } from 'expo-router';
 import { Text, View } from 'react-native';
 
+import { Footer } from '@/components/layout/Footer';
+
 /**
  * Registration screen (placeholder).
  *
@@ -13,13 +15,16 @@ import { Text, View } from 'react-native';
 // API call POST /auth/register. Currently a stub placeholder only.
 export default function RegisterScreen() {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <Text style={{ fontSize: 18, marginBottom: 16, color: '#000' }}>
-        Register (TODO: FE-Auth)
-      </Text>
-      <Link href="/(auth)/login">
-        <Text style={{ fontSize: 14, color: '#0066cc' }}>Zum Login</Text>
-      </Link>
+    <View className="flex-1 bg-background">
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="mb-4 text-lg font-semibold text-foreground">
+          Register (TODO: FE-Auth)
+        </Text>
+        <Link href="/(auth)/login">
+          <Text className="text-sm text-primary">Zum Login</Text>
+        </Link>
+      </View>
+      <Footer />
     </View>
   );
 }

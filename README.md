@@ -13,7 +13,8 @@
     <a href="https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/sonstiges">Sonstiges</a> •
     <a href="https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/home">Wiki</a> •
     <a href="https://sonstiges-42cd1e.gitlab.io">Statusreports</a> •
-    <a href="https://dhubbw-be460f.gitlab.io">Dokumentation</a>
+    <a href="https://dhubbw-be460f.gitlab.io">Dokumentation</a> •
+    <a href="http://vm553.ipp-vps.net">Live-App</a>
 </p>
 
 ---
