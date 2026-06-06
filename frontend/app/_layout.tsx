@@ -28,6 +28,7 @@ function ThemedStack() {
       <Stack>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        <Stack.Screen name="(legal)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" options={{ title: 'Nicht gefunden' }} />
       </Stack>
       <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />

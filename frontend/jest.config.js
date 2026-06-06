@@ -2,6 +2,12 @@
 const config = {
   preset: "jest-expo",
   setupFilesAfterEnv: ["./jest.setup.js"],
+  moduleNameMapper: {
+    // Prevent react-native-css-interop from accessing Platform before RN is
+    // fully initialised in the Jest environment — map to the identity pass-through.
+    "^react-native-css-interop$":
+      "<rootDir>/node_modules/react-native-css-interop/src/index.ts",
+  },
   transformIgnorePatterns: [
     "node_modules/(?!(" +
       ".pnpm|" +
@@ -12,6 +18,7 @@ const config = {
       "@rn-primitives|" +
       "lucide-react-native|" +
       "nativewind|" +
+      "react-native-css-interop|" +
       "class-variance-authority|" +
       "clsx|" +
       "tailwind-merge|" +

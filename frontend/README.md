@@ -2,7 +2,7 @@
 
 Expo (React Native) App für die DHubBW Studierendenplattform. Läuft auf iOS, Android und im Browser; das Web-Build wird als statisches nginx-Bundle deployed.
 
-**Technologie-Stack:** TypeScript · React Native · Expo · expo-router · React Navigation · nginx (Web-Deployment)
+**Technologie-Stack:** TypeScript · React Native · Expo · expo-router · React Navigation · NativeWind · nginx (Web-Deployment)
 
 ---
 
@@ -44,33 +44,50 @@ npm run build-web    # Ausgabe: dist/
 ```
 frontend/
 ├── app/                        — Routen (Expo Router, file-based)
-│   ├── (tabs)/                 — Tab-Navigation
-│   │   ├── _layout.tsx         — Tab-Bar-Konfiguration (Icons, Labels)
-│   │   ├── index.tsx           — Home-Tab
-│   │   └── explore.tsx         — Explore-Tab
+│   ├── (app)/                  — Authentifizierte Screens (Auth-Guard)
+│   │   ├── dashboard.tsx
+│   │   ├── dateien.tsx
+│   │   ├── mensa.tsx
+│   │   └── verwaltung.tsx
+│   ├── (auth)/                 — Login / Registrierung
+│   │   ├── login.tsx
+│   │   └── register.tsx
+│   ├── (legal)/                — Statische Rechtstexte (kein Auth-Guard)
+│   │   ├── impressum.tsx       — Impressum gemäß § 5 TMG
+│   │   └── datenschutz.tsx     — Datenschutzerklärung gemäß DSGVO
 │   ├── _layout.tsx             — Root-Layout (Fonts, Splash Screen, Navigation)
-│   └── modal.tsx               — Modal-Bildschirm
+│   └── index.tsx               — Redirect-Entry
 ├── assets/                     — Statische Ressourcen
 │   ├── fonts/                  — Schriftarten
 │   └── images/                 — App-Icons, Splash Screens
 ├── components/                 — Wiederverwendbare UI-Komponenten
-│   ├── ui/                     — Plattformspezifische Icons und Tabs
-│   ├── external-link.tsx       — Link-Komponente (öffnet externen Browser)
-│   ├── haptic-tab.tsx          — Tab mit haptischem Feedback (iOS)
-│   ├── parallax-scroll-view.tsx
-│   ├── themed-text.tsx         — Text-Komponente mit Theme-Support
-│   └── themed-view.tsx         — View-Komponente mit Theme-Support
-├── constants/                  — App-Konstanten
-│   └── Colors.ts               — Farbpalette (Light/Dark Mode)
-├── hooks/                      — Custom React Hooks
-│   ├── use-color-scheme.ts     — Aktives Farbschema (native)
-│   ├── use-color-scheme.web.ts — Aktives Farbschema (Web)
-│   └── use-theme-color.ts      — Farbe aus Farbpalette
+│   ├── layout/
+│   │   ├── AppLayout.tsx       — Responsives Shell-Layout (Header+BottomNav / Sidebar)
+│   │   ├── Footer.tsx          — Footer mit Impressum- und Datenschutz-Links
+│   │   ├── Header.tsx
+│   │   ├── Sidebar.tsx
+│   │   └── BottomNav.tsx
+│   ├── CookieBanner.tsx        — DSGVO Cookie-Consent-Banner (Web only)
+│   └── ui/                     — rn-reusables / shadcn-Stil Primitives
+├── lib/
+│   ├── consent/
+│   │   └── useCookieConsent.ts — Hook: Cookie-Consent-Zustand (Web: localStorage)
+│   ├── auth/
+│   ├── api/
+│   ├── i18n/
+│   ├── storage/
+│   └── theme/
+├── tests/                      — Unit- und Integrationstests
+│   ├── components/
+│   └── integration/
+├── e2e/                        — Playwright E2E-Tests
 ├── scripts/
 │   └── reset-project.js        — Setzt App auf Starter-Zustand zurück
 ├── Dockerfile                  — Multi-stage: expo export + nginx
 ├── app.json                    — Expo-Konfiguration
-├── eslint.config.js            — ESLint-Regeln
+├── global.css                  — Tailwind-Direktiven + CSS-Variablen für Light/Dark
+├── tailwind.config.js
+├── eslint.config.js
 ├── package.json
 └── tsconfig.json
 ```
@@ -112,10 +129,35 @@ Im Produktivbetrieb wird das Image durch die CI/CD-Pipeline gebaut und via `dock
 | `scripts/reset-project.js` | Löscht den gesamten App-Inhalt und ersetzt ihn durch ein leeres Starter-Template – **nie versehentlich** `npm run reset-project` ausführen |
 | `dist/` | Wird durch `npm run build-web` generiert – **nicht committen** |
 | `app/_layout.tsx` | Root-Layout mit Fonts und Splash Screen – fehlerhafte Änderungen hier führen zu einem weißen Startbildschirm |
+| `components/ui/` | rn-reusables/shadcn-generierte Primitives – **nicht manuell bearbeiten** |
+
+---
+
+## Rechtliche Seiten (Impressum & Datenschutz)
+
+Die Seiten unter `app/(legal)/` sind statisch und öffentlich zugänglich (kein Auth-Guard):
+
+| Route | Datei | Beschreibung |
+|---|---|---|
+| `/impressum` | `app/(legal)/impressum.tsx` | Impressum gemäß § 5 TMG |
+| `/datenschutz` | `app/(legal)/datenschutz.tsx` | Datenschutzerklärung gemäß DSGVO / TTDSG |
+
+Der `Footer` (`components/layout/Footer.tsx`) verlinkt beide Seiten und ist in:
+- `components/layout/AppLayout.tsx` — alle authentifizierten Screens
+- `app/(auth)/login.tsx` und `app/(auth)/register.tsx` — Login/Register
+
+**Cookie-Consent-Banner (`components/CookieBanner.tsx`):** Erscheint nur auf Web und nur beim
+ersten Besuch. Die Entscheidung wird im `localStorage` unter dem Key `cookie_consent` gespeichert.
+Der Hook `lib/consent/useCookieConsent.ts` verwaltet den Zustand. Auf Native (iOS/Android) ist der
+Consent immer `'accepted'` (kein Browser-Cookie-Konzept).
 
 ---
 
 ## Links & Dokumentation
+
+### Live-App
+
+**[http://vm553.ipp-vps.net](http://vm553.ipp-vps.net)** – Produktiv-Deployment der Anwendung (PostgreSQL + Backend + Frontend via Docker Compose auf VM `vm553.ipp-vps.net`)
 
 ### Wiki
 - **[GUI-Entwurf](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/GUI-Entwurf)** – Grafische Benutzeroberfläche und User Experience

@@ -9,6 +9,17 @@ jest.mock("react-native-worklets", () => ({
   useRunOnJS: jest.fn(),
 }));
 
+// Mock react-native-safe-area-context (prevents Platform.OS crash in react-native-css-interop)
+jest.mock("react-native-safe-area-context", () => {
+  const { View } = require("react-native"); // eslint-disable-line @typescript-eslint/no-require-imports
+  return {
+    SafeAreaProvider: View,
+    SafeAreaView: View,
+    useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+    useSafeAreaFrame: () => ({ x: 0, y: 0, width: 375, height: 812 }),
+  };
+});
+
 // Mock expo-secure-store (not installed as a dependency, but mocked for completeness)
 jest.mock(
   "expo-secure-store",
