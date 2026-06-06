@@ -1,0 +1,31 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "app",
+    "components",
+    "lib"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs/typedoc",
+  "tsconfig": "./tsconfig.json",
+  "name": "DHubBW Frontend",
+  "includeVersion": true,
+  "readme": "none",
+  "exclude": [
+    "**/node_modules/**",
+    "**/.expo/**",
+    "**/dist/**",
+    "**/scripts/**",
+    "**/_dev/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**"
+  ],
+  "excludeExternals": true,
+  "skipErrorChecking": true,
+  "githubPages": false,
+  "categorizeByGroup": true,
+  "navigationLinks": {
+    "Repository": "https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw"
+  }
+}

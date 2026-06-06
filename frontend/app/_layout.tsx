@@ -12,6 +12,13 @@ import { useAuth } from '@/lib/auth/__stub';
 import { NAV_THEME } from '@/lib/theme/nav-theme';
 import { ThemeProvider, useTheme } from '@/lib/theme/ThemeProvider';
 
+/**
+ * Internal component that keeps the React Navigation theme provider in sync
+ * with the active NativeWind theme.
+ *
+ * @returns The theme-synchronized navigation stack including StatusBar,
+ *   Toaster and PortalHost.
+ */
 function ThemedStack() {
   const { effectiveTheme } = useTheme();
   return (
@@ -33,11 +40,19 @@ function ThemedStack() {
   );
 }
 
+/**
+ * Root layout of the application.
+ *
+ * Wraps the entire app stack in the {@link ThemeProvider} and shows a loading
+ * splash while the auth state is being hydrated.
+ *
+ * @returns The root layout, or a loading splash during hydration.
+ */
 export default function RootLayout() {
   const { isLoading } = useAuth();
 
-  // AuthBootstrap: einfacher Splash-Block. TODO FE-S1 (#206): echter
-  // JWT-Restore via /student/dashboard/profile setzt isLoading initial true.
+  // Auth bootstrap: simple splash block. TODO FE-S1 (#206): real JWT restore
+  // via /student/dashboard/profile will set isLoading to true initially.
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">

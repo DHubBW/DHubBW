@@ -3,10 +3,18 @@ import { Pressable, Text, View } from 'react-native';
 
 import { useTheme } from '@/lib/theme/ThemeProvider';
 
+/**
+ * Mobile app header bar at the top of the screen.
+ *
+ * Shows the app name and a settings button. The button is currently a
+ * placeholder — implementation is tracked in the FE-Settings issue.
+ *
+ * @returns The header bar with the app logo and settings icon.
+ */
 export function Header() {
   const { effectiveTheme } = useTheme();
-  // Ionicons akzeptiert kein className-Prop, daher Farbe via Theme abgeleitet
-  // (foreground-light = #1D2939, foreground-dark = #F2F2F5).
+  // Ionicons does not accept a className prop, so the color is derived from
+  // the theme (foreground-light = #1D2939, foreground-dark = #F2F2F5).
   const iconColor = effectiveTheme === 'dark' ? '#F2F2F5' : '#1D2939';
 
   return (
@@ -16,7 +24,7 @@ export function Header() {
         accessibilityRole="button"
         accessibilityLabel="Einstellungen öffnen"
         onPress={() => {
-          // TODO FE-Settings: öffnet <SettingsModal> aus FE-Settings-Issue.
+          // TODO FE-Settings: opens <SettingsModal> from the FE-Settings issue.
           console.log('TODO: open SettingsModal');
         }}
         hitSlop={8}

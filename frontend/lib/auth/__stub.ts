@@ -1,11 +1,11 @@
 /**
- * TEMP-STUB für Sub-A (FE-S2). Wird durch FE-S1 (Issue #206) ersetzt mit echtem
- * AuthContext + JWT-Restore via /student/dashboard/profile.
+ * TEMP STUB for Sub-A (FE-S2). Will be replaced by FE-S1 (issue #206) with a
+ * real AuthContext + JWT restore via /student/dashboard/profile.
  *
- * Bei Ersetzung: Datei umbenennen nach `lib/auth/AuthContext.tsx` und Imports
- * (`@/lib/auth/__stub`) auf `@/lib/auth/AuthContext` ändern.
+ * When replacing: rename this file to `lib/auth/AuthContext.tsx` and update
+ * all imports from `@/lib/auth/__stub` to `@/lib/auth/AuthContext`.
  *
- * NICHT in Production verwenden.
+ * DO NOT use in production.
  */
 
 export type StudentType = 'STUDENT' | 'KURSADMIN' | 'SYSTEMADMIN';
@@ -31,10 +31,18 @@ const STUB_USER: AuthUser = {
   kursName: null,
 };
 
-// Dev-Only Override: EXPO_PUBLIC_FORCE_NO_AUTH=true erzwingt user=null,
-// damit Anti-Auth-Guard und Login-Redirect manuell testbar sind.
+// Dev-only override: EXPO_PUBLIC_FORCE_NO_AUTH=true forces user=null so the
+// anti-auth guard and login redirect can be tested manually.
 const FORCE_NO_AUTH = process.env.EXPO_PUBLIC_FORCE_NO_AUTH === 'true';
 
+/**
+ * Returns the current authentication state.
+ *
+ * This stub always returns a hard-coded user. After issue #206 is implemented
+ * this hook will be replaced by a real JWT-based context.
+ *
+ * @returns {@link AuthState} containing `isLoading` and `user`.
+ */
 export function useAuth(): AuthState {
   return {
     isLoading: false,

@@ -62,8 +62,27 @@ const ARIA_LEVEL: Partial<Record<TextVariant, string>> = {
   h4: '4',
 };
 
+/**
+ * React context for propagating Tailwind text classes to child components.
+ *
+ * Used by Button and Card to automatically pass text colors down to nested
+ * `Text` elements without manually threading props.
+ */
 const TextClassContext = React.createContext<string | undefined>(undefined);
 
+/**
+ * Universal text component with semantic variants.
+ *
+ * Supports all typographic variants (`h1`–`h4`, `p`, `blockquote`,
+ * `code`, `lead`, `large`, `small`, `muted`) via the `variant` prop.
+ * Automatically sets `role` and `aria-level` for headings.
+ *
+ * @param variant - Typographic variant (default: `'default'`).
+ * @param asChild - When `true`, the slot mechanism is used.
+ * @param className - Additional Tailwind classes.
+ * @param props - All other `Text` props.
+ * @returns The typed text element.
+ */
 function Text({
   className,
   asChild = false,

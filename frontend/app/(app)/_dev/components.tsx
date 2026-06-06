@@ -25,9 +25,14 @@ import { Text as UiText } from '@/components/ui/text';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { type ThemePreference, useTheme } from '@/lib/theme/ThemeProvider';
 
-// Dev-Showcase für rn-reusables-Komponenten + Theme-Toggle.
-// Nur in __DEV__ sichtbar, kein Sidebar-/BottomNav-Eintrag.
-// Tooltip ist Web-primary, auf Native ist es bestenfalls Long-Press / oft unsichtbar.
+
+/**
+ * Dev-only showcase screen for rn-reusables components and the theme toggle.
+ *
+ * Renders {@link NotFoundScreen} in production builds (`__DEV__ === false`).
+ *
+ * @returns The dev showcase or the NotFoundScreen in production.
+ */
 export default function DevComponentsScreen() {
   if (!__DEV__) {
     return <NotFoundScreen />;

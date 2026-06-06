@@ -15,7 +15,7 @@ default:
 variables:
   BACKEND_IMAGE:   dhubbw-backend:latest
   FRONTEND_IMAGE:  dhubbw-frontend:latest
-  GIT_CLEAN_FLAGS: -ffdx -e backend/target/
+  GIT_CLEAN_FLAGS: -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/
 
 # ─── Templates ────────────────────────────────────────────────────────────────
 
@@ -102,6 +102,29 @@ validate-migrations:
     - changes:
         - backend/src/main/resources/db/migration/**/*
 
+lint-frontend:
+  stage: test
+  script:
+    - docker run --rm -v "$PWD/frontend:/app" -w /app node:22-alpine
+        sh -c "npm ci && npm run lint"
+  rules:
+    - changes:
+        - frontend/**/*
+
+docs-frontend:
+  stage: test
+  script:
+    - docker run --rm -v "$PWD/frontend:/app" -w /app node:22-alpine
+        sh -c "npm ci && npm run docs"
+  artifacts:
+    paths:
+      - frontend/docs/typedoc/
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - frontend/**/*
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # DEPLOY
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -112,11 +135,15 @@ pages:
     - job: test-backend
       artifacts: true
       optional: true
+    - job: docs-frontend
+      artifacts: true
+      optional: true
   script:
-    - mkdir -p public/apidocs public/jacoco
+    - mkdir -p public/apidocs public/jacoco public/typedoc
     - cp -r backend/target/apidocs/. public/apidocs/ 2>/dev/null || true
     - cp -r backend/target/site/jacoco/. public/jacoco/ 2>/dev/null || true
     - cp backend/target/openapi.json public/openapi.json 2>/dev/null || true
+    - cp -r frontend/docs/typedoc/. public/typedoc/ 2>/dev/null || true
     - |
       cat > public/index.html << 'HTMLEOF'
       <!DOCTYPE html>
@@ -146,6 +173,10 @@ pages:
             <div class="card-title">Javadoc</div>
             <div class="card-desc">Automatisch generierte API-Dokumentation aus dem Java-Quellcode</div>
           </a>
+          <a class="card" href="typedoc/index.html">
+            <div class="card-title">TypeDoc – Frontend Dokumentation</div>
+            <div class="card-desc">Automatisch generierte API-Dokumentation aus dem TypeScript-Quellcode (React Native)</div>
+          </a>
           <a class="card" href="jacoco/index.html">
             <div class="card-title">JaCoCo – Test Coverage</div>
             <div class="card-desc">Testabdeckungsreport des Spring Boot Backends</div>
@@ -170,6 +201,7 @@ pages:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - backend/**/*
+        - frontend/**/*
 
 deploy:
   stage: deploy

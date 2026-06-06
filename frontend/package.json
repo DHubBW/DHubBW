@@ -9,7 +9,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "build-web": "npx expo export --platform web"
+    "build-web": "npx expo export --platform web",
+    "docs": "typedoc"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -59,9 +60,11 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-jsdoc": "^49.0.0",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.4.19",
+    "typedoc": "^0.28.19",
     "typescript": "~5.9.2"
   },
   "private": true
