@@ -51,7 +51,7 @@ export function isValidName(value: string): boolean {
  */
 export function getMailErrorMessage(value: string): string | null {
   if (isValidDhbwMail(value)) return null;
-  return 'Bitte eine gültige DHBW-Mail im Format vorname.nachname.kurs@student.dhbw-karlsruhe.de eingeben.';
+  return 'Bitte eine gültige DHBW-Mail im Format nachname.vorname.a24@student.dhbw-karlsruhe.de eingeben.';
 }
 
 /**

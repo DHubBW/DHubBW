@@ -1,28 +1,28 @@
-// FALLBACK: TODO regenerate via `npm run generate:api` nach BE-Lokal-Run.
-// Stand 2026-06-06 — BE-1 (#201, AuthResponseDTO body.token + cookie hardening)
-// und BE-5 (#205, StudentProfileDTO.pendingKursRequest + PendingKursRequestDTO)
-// sind in dieser handcoded Fallback-Datei abgedeckt.
+// Handcoded fallback for the OpenAPI-generated DTOs.
 //
-// Diese Datei wurde handcoded angelegt, weil das Backend zum Sub-A-Zeitpunkt
-// nicht lokal lief. Sub-B hat sie um BE-5-Felder ergänzt. Sobald
-// `cd ../backend && ./mvnw spring-boot:run` läuft, ersetzt
-// `npm run generate:api` diesen Inhalt durch den `openapi-typescript`-Output —
-// dieser zusätzlich liefert path-typed Endpoint-Types, die der Fallback nicht
-// abdeckt (z.B. `paths['/public/auth/login']['post']['responses']['200']`).
+// TODO: regenerate via `npm run generate:api` once the backend runs locally
+// so `openapi-typescript` can replace this file with the canonical output —
+// the generated version additionally provides path-typed endpoint helpers
+// (e.g. `paths['/public/auth/login']['post']['responses']['200']`) which
+// this fallback cannot express.
 //
-// Quellen (Backend-DTOs):
+// Field-name casing follows the Java DTOs verbatim — notably `kursID` with
+// upper-case `D` (record property name preserved by the JSON serialiser)
+// and `dhbwMail` (camelCase). `studentType` and `kursName` MUST stay in
+// sync with their consumers in `components/layout/navItems.ts`
+// (Sidebar / BottomNav), which is why `lib/auth/AuthContext.tsx` exports
+// the `AuthUser = StudentProfileDTO` alias.
+//
+// Backend sources (one DTO per file unless noted):
 // - student/application/dto/AuthResponseDTO.java         (record)
 // - student/application/dto/StudentProfileDTO.java       (Lombok @Getter)
-// - student/application/dto/PendingKursRequestDTO.java   (Lombok @Getter, BE-5)
+// - student/application/dto/PendingKursRequestDTO.java   (Lombok @Getter)
 // - student/application/dto/LoginRequestDTO.java
 // - student/application/dto/RegisterRequestDTO.java
 // - shared/application/dto/SmallResponseDTO.java
 // - shared/application/dto/RequestStatusResponseDTO.java
-//
-// Wichtig: `studentType` und `kursName` MÜSSEN mit den Konsumenten in
-// `components/layout/navItems.ts` (Sidebar/BottomNav) übereinstimmen, sonst
-// brechen die FE-S2-Komponenten. Sub-B exportiert deshalb in
-// `lib/auth/AuthContext.tsx` einen Type-Alias `AuthUser = StudentProfileDTO`.
+// - kurs/application/dto/KursYearDTO.java                (record)
+// - kurs/application/dto/KursErstellungsAnfrageRequestDTO.java (Lombok @Getter)
 
 export interface LoginRequestDTO {
   dhbwMail: string;
@@ -46,7 +46,7 @@ export interface AuthResponseDTO {
 export type StudentType = 'STUDENT' | 'KURSADMIN' | 'SYSTEMADMIN';
 
 /**
- * Pending course request shown on the student dashboard (BE-5, #205).
+ * Pending course request shown on the student dashboard.
  *
  * Covers both course-join requests (`BEITRITT`) and creation requests
  * (`ERSTELLUNG`). For `ERSTELLUNG` the `kursName` may be `null` until the
@@ -75,8 +75,8 @@ export interface StudentProfileDTO {
    */
   kursName: string | null;
   /**
-   * Open course request of the student (BE-5, #205).
-   * `null` when there is no pending join or creation request.
+   * Open course request of the student. `null` when there is no pending
+   * join or creation request.
    */
   pendingKursRequest: PendingKursRequestDTO | null;
 }
@@ -88,4 +88,35 @@ export interface SmallResponseDTO {
 export interface RequestStatusResponseDTO {
   response: string;
   persistenceOperation: 'INSERT' | 'UPDATE' | 'DELETE';
+}
+
+/**
+ * Single course entry returned by `GET /student/kurse`.
+ *
+ * Mirrors the backend record `KursYearDTO`. Field-name casing follows the
+ * Java record verbatim — note the upper-case `D` in `kursID`, which the
+ * controller's JSON serialiser preserves.
+ */
+export interface KursYearDTO {
+  /** UUID of the course (string-encoded). */
+  kursID: string;
+  /** Display name, e.g. `"TINF24B2"`. */
+  kursName: string;
+  /** Cohort year as free-text, e.g. `"2024"`. */
+  jahrgang: string;
+}
+
+/**
+ * Request body for `POST /student/kurse/erstellen`.
+ *
+ * `additionalNotes` is optional on the backend (no `@NotBlank`) but the
+ * frontend caps it at 500 characters before sending — see `NewKursDialog`.
+ */
+export interface KursErstellungsAnfrageRequestDTO {
+  /** Desired course name. Backend constraint: `@NotBlank`. */
+  kursName: string;
+  /** Cohort year free-text. Backend constraint: `@NotBlank`. */
+  jahrgang: string;
+  /** Optional notes; omit or send `null` when empty. */
+  additionalNotes?: string | null;
 }

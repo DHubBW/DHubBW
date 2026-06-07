@@ -203,6 +203,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   // ---------------------------------------------------------------------
+  // Tracks whether the user has ever been authenticated in this provider
+  // instance. Set to true the moment `user` becomes non-null; never reset
+  // back to false except on logout. The global 401-handler consults this
+  // ref to distinguish a real session expiry (was logged in, now is not)
+  // from a bootstrap 401 on `/login` / `/register` (never was logged in).
+  // Without this guard the bootstrap 401 would call `queryClient.clear()`
+  // + `router.replace('/login?reason=expired')`, which would in turn
+  // re-trigger the profile fetch (still mounted with enabled=true) and
+  // produce a request storm.
+  // ---------------------------------------------------------------------
+  const wasLoggedInRef = useRef(false);
+  useEffect(() => {
+    if (profile.data !== undefined) {
+      wasLoggedInRef.current = true;
+    }
+  }, [profile.data]);
+
+  // ---------------------------------------------------------------------
   // Global 401-handler — registered as a Subscribe (Set-based registry from
   // Sub-A's fetchClient). The handler runs the auto-logout sequence in the
   // documented order: queryClient.clear → secureStorage.clear → setUser(null)
@@ -212,10 +230,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // ---------------------------------------------------------------------
   useEffect(() => {
     const unsubscribe = setUnauthorizedHandler(() => {
+      // Skip the auto-logout flow for the bootstrap 401 — `useProfile`
+      // is the unambiguous "are you logged in?" probe; a 401 here on
+      // `/login` / `/register` is expected, not a session expiry. The
+      // `bootstrapDone` useEffect will see `profile.isError`, flip the
+      // gate, and the query stops on its own.
+      if (!wasLoggedInRef.current) return;
+
       // Auto-logout cleanup ordering per Handover Z. 66:
       // queryClient.clear → secureStorage.clear → setUser(null) → redirect.
       // setUser(null) happens implicitly: queryClient.clear drops the
       // ['profile'] cache, useProfile re-runs, returns 401 → user=null.
+      wasLoggedInRef.current = false;
       queryClient.clear();
       void secureStorage.clear().catch(() => {
         // best-effort — handler must be idempotent
