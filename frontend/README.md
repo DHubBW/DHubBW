@@ -194,7 +194,7 @@ Consent immer `'accepted'` (kein Browser-Cookie-Konzept).
 
 ### Live-App
 
-**[http://vm553.ipp-vps.net](http://vm553.ipp-vps.net)** – Produktiv-Deployment der Anwendung (PostgreSQL + Backend + Frontend via Docker Compose auf VM `vm553.ipp-vps.net`)
+**[https://vm553.ipp-vps.net](https://vm553.ipp-vps.net)** – Produktiv-Deployment der Anwendung (PostgreSQL + Backend + Frontend via Docker Compose auf VM `vm553.ipp-vps.net`)
 
 ### Wiki
 - **[GUI-Entwurf](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/GUI-Entwurf)** – Grafische Benutzeroberfläche und User Experience

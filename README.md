@@ -14,14 +14,14 @@
     <a href="https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/home">Wiki</a> •
     <a href="https://sonstiges-42cd1e.gitlab.io">Statusreports</a> •
     <a href="https://dhubbw-be460f.gitlab.io">Dokumentation</a> •
-    <a href="http://vm553.ipp-vps.net">Live-App</a>
+    <a href="https://vm553.ipp-vps.net">Live-App</a>
 </p>
 
 ---
 
 ## Live-Deployment
 
-> **Die Anwendung ist produktiv erreichbar unter: [http://vm553.ipp-vps.net](http://vm553.ipp-vps.net)**
+> **Die Anwendung ist produktiv erreichbar unter: [https://vm553.ipp-vps.net](https://vm553.ipp-vps.net)**
 
 Die deployte Instanz läuft auf einer VM mit PostgreSQL, Spring Boot Backend und React Native Frontend (via Docker Compose). Login und Registrierung sind über die Web-Oberfläche möglich.
 
@@ -118,7 +118,7 @@ Die vollständige Projektdokumentation befindet sich im zentralen **[DHubBW Wiki
 
 ### Weitere Links
 
-- **[Live-App (Produktiv-Deployment)](http://vm553.ipp-vps.net)** – DHubBW Anwendung auf der VM (PostgreSQL + Backend + Frontend)
+- **[Live-App (Produktiv-Deployment)](https://vm553.ipp-vps.net)** – DHubBW Anwendung auf der VM (PostgreSQL + Backend + Frontend)
 - **[Projektstrukturplan (PSP)](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/epics/10)** – Hierarchische Gliederung aller Arbeitspakete und Meilensteine
 - **[Issue-Tracking](https://gitlab.com/dhbw-se/se-tinf24b2/gruppe-4/dhubbw/-/issues)** – Alle Issues, Bugs und Feature-Requests
 - **[Statusreports](https://sonstiges-42cd1e.gitlab.io)** – Wöchentliche Projektberichte als interaktive Webpräsentationen

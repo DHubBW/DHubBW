@@ -23,10 +23,12 @@ default:
 variables:
   BACKEND_IMAGE:               dhubbw-backend:latest
   FRONTEND_IMAGE:              dhubbw-frontend:latest
+  # node_modules + .expo + target/ werden zwischen Jobs wiederverwendet
   GIT_CLEAN_FLAGS:             -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/ -e frontend/docs/ -e frontend/playwright-report/ -e frontend/test-results/
   FRONTEND_COVERAGE_HARD_FAIL: "false"
   TEST_DOCKER_OPTS:            "--cpus=1.5 --memory=2g"
-  BUILD_DOCKER_OPTS:           "--cpus=1.5 --memory=2g"
+  RUN_DOCKER_OPTS:             "--cpus=1.5 --memory=2g"
+  BUILD_DOCKER_OPTS:           "--memory=2g"
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Templates (reusable job fragments)
@@ -43,6 +45,9 @@ variables:
 .main-only: &main-only
   if: $CI_COMMIT_BRANCH == "main"
 
+.not-main: &not-main
+  if: $CI_COMMIT_BRANCH != "main"
+
 .fix-backend-ownership:
   after_script:
     - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk
@@ -53,6 +58,12 @@ variables:
     - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine
         chown -R $(id -u):$(id -g) /app/test-results /app/playwright-report 2>/dev/null || true
 
+.frontend-npm-install: &frontend-npm-install
+  - |
+    if [ ! -d frontend/node_modules ] || git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -q "frontend/package-lock.json"; then
+      docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine npm ci --legacy-peer-deps
+    fi
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # BUILD – compile Docker images
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -62,12 +73,12 @@ pipeline-check:
   script:
     - echo "Pipeline is running."
   rules:
-    - if: $CI_COMMIT_BRANCH != "main"
+    - <<: *not-main
 
 build:backend:
   stage: build
   script:
-    - docker run --rm $BUILD_DOCKER_OPTS -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app
+    - docker run --rm $RUN_DOCKER_OPTS -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app
         eclipse-temurin:25-jdk ./mvnw clean package -DskipTests
     - docker build $BUILD_DOCKER_OPTS -f backend/docker/Dockerfile -t $BACKEND_IMAGE backend/
   rules:
@@ -135,16 +146,18 @@ test:backend:migrations:
 test:frontend:lint:
   stage: test
   script:
+    - *frontend-npm-install
     - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine
-        sh -c "npm ci && npm run lint"
+        npm run lint
   rules:
     - <<: *frontend-changes
 
 test:frontend:unit:
   stage: test
   script:
+    - *frontend-npm-install
     - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine
-        sh -c "npm ci && npm test -- --project=unit --passWithNoTests"
+        npm test -- --project=unit --passWithNoTests
   rules:
     - <<: *frontend-changes
 
@@ -152,18 +165,24 @@ test:frontend:e2e-web:
   extends: .fix-frontend-ownership
   stage: test
   script:
+    - *frontend-npm-install
     - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app --ipc=host
         mcr.microsoft.com/playwright:v1.60.0-noble
-        sh -c "npm ci && npx playwright install chromium && npm run test:e2e -- --project=chromium"
+        sh -c "npx playwright install chromium && npm run test:e2e -- --project=chromium"
   allow_failure: true
   rules:
-    - <<: *frontend-changes
+    - changes:
+        - frontend/app/**/*
+        - frontend/e2e/**/*
+        - frontend/components/**/*
+        - frontend/lib/**/*
 
 test:frontend:docs:
   stage: test
   script:
+    - *frontend-npm-install
     - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine
-        sh -c "npm ci && npm run docs"
+        npm run docs
   artifacts:
     paths:
       - frontend/docs/typedoc/
@@ -228,9 +247,9 @@ deploy:pages:
             <div class="card-title">JaCoCo – Test Coverage</div>
             <div class="card-desc">Testabdeckungsreport des Spring Boot Backends</div>
           </a>
-          <a class="card" href="http://vm553.ipp-vps.net:8080/swagger-ui.html" target="_blank">
+          <a class="card" href="https://vm553.ipp-vps.net/swagger-ui.html" target="_blank">
             <div class="card-title">Swagger UI – API Dokumentation</div>
-            <div class="card-desc">Interaktive REST-API-Dokumentation auf der VM (Backend Port 8080)</div>
+            <div class="card-desc">Interaktive REST-API-Dokumentation (erreichbar über nginx-Proxy)</div>
           </a>
           <a class="card" href="openapi.json">
             <div class="card-title">OpenAPI Spec</div>
@@ -260,10 +279,32 @@ deploy:vm:
     - job: test:backend:unit
       optional: true
   script:
+    # Sicherheitscheck: TLS-Zertifikat muss auf der VM existieren bevor Deploy
+    - |
+      test -f /etc/letsencrypt/live/vm553.ipp-vps.net/fullchain.pem || {
+        echo "ERROR: TLS-Zertifikat fehlt. Bitte certbot auf der VM ausfuehren:"
+        echo "  sudo certbot certonly --standalone -d vm553.ipp-vps.net"
+        exit 1
+      }
     - docker rm -f postgres backend frontend 2>/dev/null || true
     - docker rm -f $(docker ps -q --filter "publish=8080") 2>/dev/null || true
     - docker rm -f $(docker ps -q --filter "publish=80") 2>/dev/null || true
+    - docker rm -f $(docker ps -q --filter "publish=443") 2>/dev/null || true
     - docker compose --env-file /opt/projects/devstack/.env -f deploy/docker-compose.yml up -d --remove-orphans
+    # Smoke-Tests
+    - sleep 8
+    - |
+      HTTP_CODE=$(curl -sk -o /dev/null -w "%{http_code}" https://vm553.ipp-vps.net/ 2>/dev/null || echo "000")
+      echo "HTTPS smoke-test: $HTTP_CODE"
+      [ "$HTTP_CODE" = "200" ] || echo "WARNING: HTTPS returned $HTTP_CODE"
+    - |
+      REDIRECT=$(curl -s -o /dev/null -w "%{http_code}" http://vm553.ipp-vps.net/ 2>/dev/null || echo "000")
+      echo "HTTP-redirect smoke-test: $REDIRECT"
+      [ "$REDIRECT" = "301" ] || echo "WARNING: HTTP redirect returned $REDIRECT (expected 301)"
+    # Cleanup: dangling Images + überlaufenden Build-Cache entfernen.
+    - docker image prune -f || true
+    - docker builder prune -f --keep-storage=2gb || true
+    - docker volume prune -f || true
   rules:
     - <<: *main-only
       changes:

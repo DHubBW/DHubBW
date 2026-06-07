@@ -1,0 +1,6 @@
+# Let's Encrypt Auto-Renewal – täglich um 03:00 Uhr.
+# Zertifikat wird nur erneuert wenn es in <30 Tagen abläuft.
+# Nach Renewal: nginx-Reload ohne Container-Neustart (Zero-Downtime).
+# Installation: sudo cp deploy/certbot-renew.cron /etc/cron.d/certbot-renew
+#               sudo chmod 644 /etc/cron.d/certbot-renew
+0 3 * * * root certbot renew --webroot -w /var/www/certbot --quiet && docker exec frontend nginx -s reload
