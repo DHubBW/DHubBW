@@ -10,7 +10,7 @@ services:
     volumes:
       - /opt/projects/devstack/db/data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     networks:
       - devnet
     deploy:
