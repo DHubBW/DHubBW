@@ -30,6 +30,9 @@ springdoc:
     enabled: true
     path: /v3/api-docs
 
+openapi:
+  server-url: https://vm553.ipp-vps.net/api
+
 logging:
   level:
     org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
