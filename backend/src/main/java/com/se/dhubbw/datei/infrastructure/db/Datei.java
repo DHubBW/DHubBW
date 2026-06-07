@@ -65,13 +65,24 @@ public class Datei {
     private LocalDate zuletztBearbeitet;
 
     /**
-     * File data content.
+     * File data content (used in dev profile with H2).
+     * In production, data is stored as PostgreSQL Large Object
+     * referenced by {@link #dataOid}.
      */
     @Getter
     @Setter
     @Lob
     @Column(name = "data")
     private byte[] data;
+
+    /**
+     * OID reference to PostgreSQL Large Object (used in prod).
+     * Null in dev profile where {@link #data} is used directly.
+     */
+    @Getter
+    @Setter
+    @Column(name = "data_oid")
+    private Long dataOid;
 
     /**
      * Student who uploaded the file.

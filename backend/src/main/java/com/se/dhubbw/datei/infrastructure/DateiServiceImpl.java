@@ -2,6 +2,7 @@ package com.se.dhubbw.datei.infrastructure;
 
 import com.se.dhubbw.datei.application.dto.output.DateiDTO;
 import com.se.dhubbw.datei.application.dto.output.DateiDownloadDTO;
+import com.se.dhubbw.datei.domain.FileStorageStrategy;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegung;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegungRepository;
@@ -89,6 +90,13 @@ public class DateiServiceImpl
         kursBeitrittsAnfrageRepository;
 
     /**
+     * Strategy for binary file storage (profile-dependent).
+     * In dev: in-memory byte array storage.
+     * In prod: PostgreSQL Large Object storage.
+     */
+    private final FileStorageStrategy fileStorageStrategy;
+
+    /**
      * Maximum total platform storage in megabytes.
      */
     @Value("${dhubbw.storage.max-mb:1000.0}")
@@ -141,7 +149,12 @@ public class DateiServiceImpl
         datei.setZuletztBearbeitet(LocalDate.now());
         datei.setUploader(student);
         try {
-            datei.setData(file.getBytes());
+            byte[] bytes = file.getBytes();
+            long storageRef = fileStorageStrategy.store(bytes);
+            datei.setDataOid(storageRef);
+            if (fileStorageStrategy.requiresInlineData()) {
+                datei.setData(bytes);
+            }
         } catch (IOException ex) {
             ResponseStatusException rse = new ResponseStatusException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -217,6 +230,9 @@ public class DateiServiceImpl
         verifyModifyAuthorized(datei, student);
         dateiAnlegungRepository.findByDatei(datei)
             .ifPresent(dateiAnlegungRepository::delete);
+        if (datei.getDataOid() != null) {
+            fileStorageStrategy.delete(datei.getDataOid());
+        }
         dateiRepository.delete(datei);
     }
 
@@ -421,8 +437,14 @@ public class DateiServiceImpl
         verifyReadAuthorized(datei.getOrdner(), student);
         datei.setDownloadAnzahl(datei.getDownloadAnzahl() + 1);
         dateiRepository.save(datei);
-        return new DateiDownloadDTO(
-            datei.getName(), datei.getData());
+
+        byte[] data;
+        if (datei.getDataOid() != null) {
+            data = fileStorageStrategy.retrieve(datei.getDataOid());
+        } else {
+            data = datei.getData();
+        }
+        return new DateiDownloadDTO(datei.getName(), data);
     }
 
     /**
