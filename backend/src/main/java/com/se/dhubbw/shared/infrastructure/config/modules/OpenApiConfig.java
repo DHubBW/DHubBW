@@ -5,6 +5,8 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -25,6 +27,13 @@ import org.springframework.context.annotation.Profile;
 public class OpenApiConfig {
 
     /**
+     * Base URL des API-Servers (ohne trailing Slash).
+     * Dev: leer (relative Pfade), Prod: https://vm553.ipp-vps.net/api
+     */
+    @Value("${openapi.server-url:}")
+    private String serverUrl;
+
+    /**
      * Create custom OpenAPI specification with JWT Bearer
      * token security scheme.
      *
@@ -38,7 +47,7 @@ public class OpenApiConfig {
      */
     @Bean
     public OpenAPI customOpenAPI() {
-        return new OpenAPI()
+        OpenAPI openAPI = new OpenAPI()
             .info(new Info()
                 .title("DHubBW API")
                 .version("0.0.1-SNAPSHOT")
@@ -53,5 +62,9 @@ public class OpenApiConfig {
                         .scheme("bearer")
                         .bearerFormat("JWT")
                         .name("bearerAuth")));
+        if (serverUrl != null && !serverUrl.isBlank()) {
+            openAPI.addServersItem(new Server().url(serverUrl));
+        }
+        return openAPI;
     }
 }
