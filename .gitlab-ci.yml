@@ -247,7 +247,7 @@ deploy:pages:
             <div class="card-title">JaCoCo – Test Coverage</div>
             <div class="card-desc">Testabdeckungsreport des Spring Boot Backends</div>
           </a>
-          <a class="card" href="https://vm553.ipp-vps.net/swagger-ui.html" target="_blank">
+          <a class="card" href="https://vm553.ipp-vps.net/swagger-ui/index.html" target="_blank">
             <div class="card-title">Swagger UI – API Dokumentation</div>
             <div class="card-desc">Interaktive REST-API-Dokumentation (erreichbar über nginx-Proxy)</div>
           </a>
