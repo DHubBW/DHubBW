@@ -63,6 +63,10 @@ public class DateiServiceTest {
     private KursBeitrittsAnfrageRepository
         kursBeitrittsAnfrageRepository;
 
+    @Mock
+    private com.se.dhubbw.datei.domain.FileStorageStrategy
+        fileStorageStrategy;
+
     @InjectMocks
     private DateiServiceImpl dateiService;
 
@@ -113,6 +117,8 @@ public class DateiServiceTest {
 
         when(mockFile.getSize()).thenReturn(1024L);
         when(mockFile.getBytes()).thenReturn(new byte[]{1, 2, 3});
+        when(fileStorageStrategy.store(any(byte[].class)))
+            .thenReturn(1L);
         ReflectionTestUtils.setField(
             dateiService, "maxStorageMb", 1000.0);
     }
