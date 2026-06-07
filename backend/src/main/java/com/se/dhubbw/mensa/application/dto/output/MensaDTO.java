@@ -1,4 +1,4 @@
-package com.se.dhubbw.mensa.application.dto;
+package com.se.dhubbw.mensa.application.dto.output;
 
 import com.se.dhubbw.mensa.infrastructure.util.Ernaehrung;
 

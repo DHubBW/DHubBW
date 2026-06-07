@@ -1,9 +1,9 @@
 package com.se.dhubbw.student.application;
 
-import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
-import com.se.dhubbw.shared.application.dto.SmallResponseDTO;
+import com.se.dhubbw.shared.application.dto.output.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.output.SmallResponseDTO;
 import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
-import com.se.dhubbw.student.application.dto.StudentProfileDTO;
+import com.se.dhubbw.student.application.dto.output.StudentProfileDTO;
 import com.se.dhubbw.student.domain.StudentDashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

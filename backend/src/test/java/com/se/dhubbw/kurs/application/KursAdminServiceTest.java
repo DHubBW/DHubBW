@@ -1,6 +1,6 @@
 package com.se.dhubbw.kurs.application;
 
-import com.se.dhubbw.kurs.application.dto.KursanfrageDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursanfrageDTO;
 import com.se.dhubbw.kurs.infrastructure.KursAdminServiceImpl;
 import com.se.dhubbw.kurs.infrastructure.KursStudentHelper;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;

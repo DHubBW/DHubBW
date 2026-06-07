@@ -1,11 +1,11 @@
 package com.se.dhubbw.kurs.application;
 
-import com.se.dhubbw.kurs.application.dto.KursDTO;
-import com.se.dhubbw.kurs.application.dto.KursMitgliedRolleDTO;
-import com.se.dhubbw.kurs.application.dto.StudentDTO;
-import com.se.dhubbw.kurs.application.dto.SystemAdminStatsDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursMitgliedRolleDTO;
+import com.se.dhubbw.kurs.application.dto.output.StudentDTO;
+import com.se.dhubbw.kurs.application.dto.output.SystemAdminStatsDTO;
 import com.se.dhubbw.kurs.domain.PlattformVerwaltungService;
-import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.output.RequestStatusResponseDTO;
 import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

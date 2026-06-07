@@ -266,9 +266,10 @@ public class OrdnerControllerIT {
             throws Exception {
         MvcResult result = mockMvc.perform(
                 put("/student/ordner")
-                    .param("name", "Neuer Ordner")
-                    .param("isPublic", "true")
-                    .param("farbe", "DEFAULT"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"name\": \"Neuer Ordner\","
+                        + " \"isPublic\": true,"
+                        + " \"farbe\": \"DEFAULT\"}"))
             .andExpect(status().isCreated())
             .andReturn();
         String body = result.getResponse()
@@ -287,10 +288,12 @@ public class OrdnerControllerIT {
             throws Exception {
         mockMvc.perform(
                 put("/student/ordner")
-                    .param("ueberOrdnerId", TINF24B2_ROOT_ID)
-                    .param("name", "Unterpunkt")
-                    .param("isPublic", "true")
-                    .param("farbe", "BLUE"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"ueberOrdnerId\": \""
+                        + TINF24B2_ROOT_ID + "\","
+                        + " \"name\": \"Unterpunkt\","
+                        + " \"isPublic\": true,"
+                        + " \"farbe\": \"BLUE\"}"))
             .andExpect(status().isCreated());
     }
 
@@ -303,9 +306,10 @@ public class OrdnerControllerIT {
             throws Exception {
         mockMvc.perform(
                 put("/student/ordner")
-                    .param("name", "X")
-                    .param("isPublic", "true")
-                    .param("farbe", "DEFAULT"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"name\": \"X\","
+                        + " \"isPublic\": true,"
+                        + " \"farbe\": \"DEFAULT\"}"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -320,10 +324,12 @@ public class OrdnerControllerIT {
             throws Exception {
         mockMvc.perform(
                 put("/student/ordner")
-                    .param("ueberOrdnerId", TINF24B1_ROOT_ID)
-                    .param("name", "Fremd")
-                    .param("isPublic", "true")
-                    .param("farbe", "DEFAULT"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"ueberOrdnerId\": \""
+                        + TINF24B1_ROOT_ID + "\","
+                        + " \"name\": \"Fremd\","
+                        + " \"isPublic\": true,"
+                        + " \"farbe\": \"DEFAULT\"}"))
             .andExpect(status().isForbidden());
     }
 
@@ -340,9 +346,10 @@ public class OrdnerControllerIT {
             throws Exception {
         mockMvc.perform(
                 put("/student/ordner")
-                    .param("name", "Admin Ordner")
-                    .param("isPublic", "true")
-                    .param("farbe", "DEFAULT"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"name\": \"Admin Ordner\","
+                        + " \"isPublic\": true,"
+                        + " \"farbe\": \"DEFAULT\"}"))
             .andExpect(status().isCreated());
     }
 
@@ -361,7 +368,8 @@ public class OrdnerControllerIT {
             throws Exception {
         mockMvc.perform(
                 patch("/student/ordner/" + TINF24B2_ROOT_ID)
-                    .param("newName", "Umbenannt"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"newName\": \"Umbenannt\"}"))
             .andExpect(status().isOk());
     }
 
@@ -374,7 +382,8 @@ public class OrdnerControllerIT {
             throws Exception {
         mockMvc.perform(
                 patch("/student/ordner/" + TINF24B2_ROOT_ID)
-                    .param("newName", "X"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"newName\": \"X\"}"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -389,7 +398,8 @@ public class OrdnerControllerIT {
             throws Exception {
         mockMvc.perform(
                 patch("/student/ordner/" + TINF24B2_ROOT_ID)
-                    .param("newName", "Verboten"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"newName\": \"Verboten\"}"))
             .andExpect(status().isForbidden());
     }
 
@@ -405,7 +415,8 @@ public class OrdnerControllerIT {
             throws Exception {
         mockMvc.perform(
                 patch("/student/ordner/" + UNKNOWN_ID)
-                    .param("newName", "X"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"newName\": \"X\"}"))
             .andExpect(status().isNotFound());
     }
 

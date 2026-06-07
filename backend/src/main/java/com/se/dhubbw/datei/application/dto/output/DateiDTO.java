@@ -1,4 +1,4 @@
-package com.se.dhubbw.datei.application.dto;
+package com.se.dhubbw.datei.application.dto.output;
 
 import java.time.LocalDate;
 import java.util.UUID;

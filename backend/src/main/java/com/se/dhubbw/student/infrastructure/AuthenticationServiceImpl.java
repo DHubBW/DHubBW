@@ -2,8 +2,8 @@ package com.se.dhubbw.student.infrastructure;
 
 import com.se.dhubbw.shared.infrastructure.config.security.JwtService;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
-import com.se.dhubbw.student.application.dto.LoginRequestDTO;
-import com.se.dhubbw.student.application.dto.RegisterRequestDTO;
+import com.se.dhubbw.student.application.dto.input.LoginRequestDTO;
+import com.se.dhubbw.student.application.dto.input.RegisterRequestDTO;
 import com.se.dhubbw.student.domain.AuthenticationService;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;

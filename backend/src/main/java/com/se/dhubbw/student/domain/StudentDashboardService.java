@@ -1,6 +1,6 @@
 package com.se.dhubbw.student.domain;
 
-import com.se.dhubbw.student.application.dto.StudentProfileDTO;
+import com.se.dhubbw.student.application.dto.output.StudentProfileDTO;
 
 /**
  * Domain interface for student dashboard operations.

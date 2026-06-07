@@ -1,10 +1,10 @@
 package com.se.dhubbw.student.application;
 
-import com.se.dhubbw.shared.application.dto.SmallResponseDTO;
+import com.se.dhubbw.shared.application.dto.output.SmallResponseDTO;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
-import com.se.dhubbw.student.application.dto.AuthResponseDTO;
-import com.se.dhubbw.student.application.dto.LoginRequestDTO;
-import com.se.dhubbw.student.application.dto.RegisterRequestDTO;
+import com.se.dhubbw.student.application.dto.output.AuthResponseDTO;
+import com.se.dhubbw.student.application.dto.input.LoginRequestDTO;
+import com.se.dhubbw.student.application.dto.input.RegisterRequestDTO;
 import com.se.dhubbw.student.domain.AuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;

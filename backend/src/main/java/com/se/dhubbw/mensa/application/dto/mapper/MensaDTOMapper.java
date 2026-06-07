@@ -1,6 +1,6 @@
 package com.se.dhubbw.mensa.application.dto.mapper;
 
-import com.se.dhubbw.mensa.application.dto.MensaDTO;
+import com.se.dhubbw.mensa.application.dto.output.MensaDTO;
 import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import org.springframework.stereotype.Component;
 

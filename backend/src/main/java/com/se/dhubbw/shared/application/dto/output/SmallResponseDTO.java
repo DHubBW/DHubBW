@@ -1,4 +1,4 @@
-package com.se.dhubbw.shared.application.dto;
+package com.se.dhubbw.shared.application.dto.output;
 
 /**
  * Minimal data transfer object for simple text responses.

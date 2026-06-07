@@ -1,8 +1,8 @@
 package com.se.dhubbw.kurs.infrastructure;
 
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
-import com.se.dhubbw.kurs.application.dto.KursAdminStatsDTO;
-import com.se.dhubbw.kurs.application.dto.KursmemberDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursAdminStatsDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursmemberDTO;
 import com.se.dhubbw.kurs.domain.KursMitgliederService;
 import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;

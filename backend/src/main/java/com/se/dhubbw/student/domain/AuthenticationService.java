@@ -1,7 +1,7 @@
 package com.se.dhubbw.student.domain;
 
-import com.se.dhubbw.student.application.dto.LoginRequestDTO;
-import com.se.dhubbw.student.application.dto.RegisterRequestDTO;
+import com.se.dhubbw.student.application.dto.input.LoginRequestDTO;
+import com.se.dhubbw.student.application.dto.input.RegisterRequestDTO;
 
 /**
  * Domain interface for authentication.

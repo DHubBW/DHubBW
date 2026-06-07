@@ -1,6 +1,6 @@
 package com.se.dhubbw.kurs.infrastructure;
 
-import com.se.dhubbw.kurs.application.dto.KursYearDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursYearDTO;
 import com.se.dhubbw.kurs.domain.KursService;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;

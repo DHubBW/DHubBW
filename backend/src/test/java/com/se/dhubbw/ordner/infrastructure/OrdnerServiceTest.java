@@ -5,7 +5,7 @@ import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
-import com.se.dhubbw.ordner.application.dto.OrdnerDTO;
+import com.se.dhubbw.ordner.application.dto.output.OrdnerDTO;
 import com.se.dhubbw.ordner.domain.OrdnerFarbe;
 import com.se.dhubbw.ordner.infrastructure.db.Ordner;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegung;

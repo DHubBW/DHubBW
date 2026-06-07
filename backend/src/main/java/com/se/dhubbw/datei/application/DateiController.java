@@ -1,10 +1,11 @@
 package com.se.dhubbw.datei.application;
 
-import com.se.dhubbw.datei.application.dto.DateiDTO;
-import com.se.dhubbw.datei.application.dto.DateiDownloadDTO;
-import com.se.dhubbw.datei.application.dto.DateiUploadDTO;
+import com.se.dhubbw.datei.application.dto.input.RenameDateiRequestDTO;
+import com.se.dhubbw.datei.application.dto.output.DateiDTO;
+import com.se.dhubbw.datei.application.dto.output.DateiDownloadDTO;
+import com.se.dhubbw.datei.application.dto.output.DateiUploadDTO;
 import com.se.dhubbw.datei.domain.DateiService;
-import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.output.RequestStatusResponseDTO;
 import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -275,7 +277,7 @@ public class DateiController {
      * the folder has no course, the restriction is waived.</p>
      *
      * @param dateiId        the UUID of the file to rename
-     * @param newName        the new display name
+     * @param request        the rename request body
      * @param authentication the current user's security context
      * @return 200 if renamed successfully
      */
@@ -306,13 +308,12 @@ public class DateiController {
                     description = "UUID of the file to rename",
                     required = true)
             @PathVariable final UUID dateiId,
-            @Parameter(
-                    description = "New display name",
-                    required = true)
-            @RequestParam("newName") final String newName,
+            @RequestBody
+            final RenameDateiRequestDTO request,
             final Authentication authentication) {
         dateiService.renameDatei(
-            dateiId, newName, authentication.getName());
+            dateiId, request.getNewName(),
+            authentication.getName());
         return ResponseEntity
             .status(HttpStatus.OK).body(new RequestStatusResponseDTO(
             "Datei renamed successfully.", PersistenceOperation.UPDATE));

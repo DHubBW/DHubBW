@@ -1,9 +1,10 @@
 package com.se.dhubbw.ordner.application;
 
-import com.se.dhubbw.ordner.application.dto.OrdnerDTO;
+import com.se.dhubbw.ordner.application.dto.input.CreateOrdnerRequestDTO;
+import com.se.dhubbw.ordner.application.dto.input.RenameOrdnerRequestDTO;
+import com.se.dhubbw.ordner.application.dto.output.OrdnerDTO;
 import com.se.dhubbw.ordner.domain.OrdnerService;
-import com.se.dhubbw.ordner.domain.OrdnerFarbe;
-import com.se.dhubbw.shared.application.dto.SmallResponseDTO;
+import com.se.dhubbw.shared.application.dto.output.SmallResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,8 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -177,14 +178,10 @@ public class OrdnerController {
     /**
      * Create a new folder.
      *
-     * <p>If {@code ueberOrdnerId} is omitted, a root-level
-     * folder is created.</p>
+     * <p>If {@code ueberOrdnerId} is omitted in the request body,
+     * a root-level folder is created.</p>
      *
-     * @param ueberOrdnerId  the UUID of the parent folder,
-     *     optional
-     * @param name           the folder name
-     * @param isPublic       whether the folder is public
-     * @param farbe          the folder color
+     * @param request        the folder creation request body
      * @param authentication the current user's security context
      * @return 201 with the UUID of the created folder
      */
@@ -214,24 +211,12 @@ public class OrdnerController {
     @PreAuthorize("hasRole('STUDENT')")
     @PutMapping
     public ResponseEntity<UUID> createFolder(
-            @Parameter(description = "UUID of the parent folder")
-            @RequestParam(required = false)
-            final UUID ueberOrdnerId,
-            @Parameter(
-                description = "Folder name",
-                required = true)
-            @RequestParam final String name,
-            @Parameter(
-                description = "Whether the folder is public",
-                required = true)
-            @RequestParam final boolean isPublic,
-            @Parameter(
-                description = "Folder color",
-                required = true)
-            @RequestParam final OrdnerFarbe farbe,
+            @RequestBody
+            final CreateOrdnerRequestDTO request,
             final Authentication authentication) {
         UUID id = ordnerService.createFolder(
-            ueberOrdnerId, name, isPublic, farbe,
+            request.getUeberOrdnerId(), request.getName(),
+            request.isPublic(), request.getFarbe(),
             authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
@@ -240,7 +225,7 @@ public class OrdnerController {
      * Rename an existing folder.
      *
      * @param ordnerId       the UUID of the folder to rename
-     * @param newName        the new folder name
+     * @param request        the rename request body
      * @param authentication the current user's security context
      * @return 200 if renamed successfully
      */
@@ -270,13 +255,12 @@ public class OrdnerController {
                 description = "UUID of the folder to rename",
                 required = true)
             @PathVariable final UUID ordnerId,
-            @Parameter(
-                description = "New folder name",
-                required = true)
-            @RequestParam final String newName,
+            @RequestBody
+            final RenameOrdnerRequestDTO request,
             final Authentication authentication) {
         ordnerService.renameFolder(
-            ordnerId, newName, authentication.getName());
+            ordnerId, request.getNewName(),
+            authentication.getName());
         return ResponseEntity.status(HttpStatus.OK)
             .body(new SmallResponseDTO("Folder renamed successfully"));
     }

@@ -1,9 +1,9 @@
 package com.se.dhubbw.kurs.application;
 
-import com.se.dhubbw.kurs.application.dto.KursErstellungsAnfrageRequestDTO;
-import com.se.dhubbw.kurs.application.dto.KursYearDTO;
+import com.se.dhubbw.kurs.application.dto.input.KursErstellungsAnfrageRequestDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursYearDTO;
 import com.se.dhubbw.kurs.infrastructure.KursServiceImpl;
-import com.se.dhubbw.shared.application.dto.RequestStatusResponseDTO;
+import com.se.dhubbw.shared.application.dto.output.RequestStatusResponseDTO;
 import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
