@@ -23,6 +23,7 @@
 // - shared/application/dto/RequestStatusResponseDTO.java
 // - kurs/application/dto/KursYearDTO.java                (record)
 // - kurs/application/dto/KursErstellungsAnfrageRequestDTO.java (Lombok @Getter)
+// - datei/application/dto/output/DateiUploadDTO.java           (record)
 
 export interface LoginRequestDTO {
   dhbwMail: string;
@@ -119,4 +120,16 @@ export interface KursErstellungsAnfrageRequestDTO {
   jahrgang: string;
   /** Optional notes; omit or send `null` when empty. */
   additionalNotes?: string | null;
+}
+
+/**
+ * Response body for `PUT /student/dateien/upload` on a 201 Created.
+ *
+ * Mirrors the backend record `DateiUploadDTO(UUID dateiID)`. Field-name
+ * casing follows the Java record verbatim — note the upper-case `D` in
+ * `dateiID`, which Jackson preserves (same convention as `kursID`).
+ */
+export interface DateiUploadDTO {
+  /** UUID of the newly created file (string-encoded). */
+  dateiID: string;
 }
