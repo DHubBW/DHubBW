@@ -58,9 +58,9 @@ public class ProdSecurityConfiguration {
     private final UserDetailsService userDetailsService;
 
     /**
-     * Maximum header age.
+     * Maximum header age for HSTS (30 days).
      */
-    private static final int MAX_AGE_SECONDS = 86400;
+    private static final int MAX_AGE_SECONDS = 2592000;
 
     /**
      * Constructor.

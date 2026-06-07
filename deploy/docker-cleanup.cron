@@ -1,0 +1,7 @@
+# Docker Disk-Cleanup – täglich um 02:30 Uhr.
+# Entfernt Images die älter als 7 Tage sind und nicht aktiv genutzt werden.
+# Laufende Images (dhubbw-backend/frontend, postgres) bleiben erhalten.
+# Ergebnis wird in /var/log/docker-cleanup.log protokolliert.
+# Installation: sudo cp deploy/docker-cleanup.cron /etc/cron.d/docker-cleanup
+#               sudo chmod 644 /etc/cron.d/docker-cleanup
+30 2 * * * root docker image prune -af --filter "until=168h" 2>/dev/null ; docker volume prune -f 2>/dev/null ; journalctl --vacuum-size=100M 2>/dev/null ; echo "$(date): $(df -h / | tail -1)" >> /var/log/docker-cleanup.log
