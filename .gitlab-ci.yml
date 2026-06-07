@@ -23,8 +23,9 @@ default:
 variables:
   BACKEND_IMAGE:               dhubbw-backend:latest
   FRONTEND_IMAGE:              dhubbw-frontend:latest
-  GIT_CLEAN_FLAGS:             -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/ -e frontend/docs/
+  GIT_CLEAN_FLAGS:             -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/ -e frontend/docs/ -e frontend/playwright-report/ -e frontend/test-results/
   FRONTEND_COVERAGE_HARD_FAIL: "false"
+  TEST_DOCKER_OPTS:            "--cpus=1.5"
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Templates (reusable job fragments)
@@ -43,12 +44,12 @@ variables:
 
 .fix-backend-ownership:
   after_script:
-    - docker run --rm -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk
+    - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk
         chown -R $(id -u):$(id -g) /target 2>/dev/null || true
 
 .fix-frontend-ownership:
   after_script:
-    - docker run --rm -v "$PWD/frontend:/app" -w /app node:22-alpine
+    - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine
         chown -R $(id -u):$(id -g) /app/test-results /app/playwright-report 2>/dev/null || true
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -88,7 +89,7 @@ test:backend:unit:
   extends: .fix-backend-ownership
   stage: test
   script:
-    - docker run --rm -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app
+    - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app
         eclipse-temurin:25-jdk ./mvnw clean verify
   artifacts:
     paths:
@@ -114,7 +115,7 @@ test:backend:migrations:
         docker exec $PG_CONTAINER pg_isready -U postgres && break
         sleep 2
       done
-    - docker run --rm --network $NET_NAME
+    - docker run --rm $TEST_DOCKER_OPTS --network $NET_NAME
         -v "$PWD/backend/src/main/resources/db/migration:/flyway/sql"
         flyway/flyway:10
         -url=jdbc:postgresql://$PG_CONTAINER:5432/testdb
@@ -133,7 +134,7 @@ test:backend:migrations:
 test:frontend:lint:
   stage: test
   script:
-    - docker run --rm -v "$PWD/frontend:/app" -w /app node:22-alpine
+    - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine
         sh -c "npm ci && npm run lint"
   rules:
     - <<: *frontend-changes
@@ -141,7 +142,7 @@ test:frontend:lint:
 test:frontend:unit:
   stage: test
   script:
-    - docker run --rm -v "$PWD/frontend:/app" -w /app node:22-alpine
+    - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine
         sh -c "npm ci && npm test -- --project=unit --passWithNoTests"
   rules:
     - <<: *frontend-changes
@@ -150,7 +151,7 @@ test:frontend:e2e-web:
   extends: .fix-frontend-ownership
   stage: test
   script:
-    - docker run --rm -v "$PWD/frontend:/app" -w /app --ipc=host
+    - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app --ipc=host
         mcr.microsoft.com/playwright:v1.60.0-noble
         sh -c "npm ci && npx playwright install chromium && npm run test:e2e -- --project=chromium"
   allow_failure: true
@@ -160,7 +161,7 @@ test:frontend:e2e-web:
 test:frontend:docs:
   stage: test
   script:
-    - docker run --rm -v "$PWD/frontend:/app" -w /app node:22-alpine
+    - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine
         sh -c "npm ci && npm run docs"
   artifacts:
     paths:
