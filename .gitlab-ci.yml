@@ -26,6 +26,7 @@ variables:
   GIT_CLEAN_FLAGS:             -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/ -e frontend/docs/ -e frontend/playwright-report/ -e frontend/test-results/
   FRONTEND_COVERAGE_HARD_FAIL: "false"
   TEST_DOCKER_OPTS:            "--cpus=1.5 --memory=2g"
+  BUILD_DOCKER_OPTS:           "--cpus=1.5 --memory=2g"
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Templates (reusable job fragments)
@@ -66,9 +67,9 @@ pipeline-check:
 build:backend:
   stage: build
   script:
-    - docker run --rm -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app
+    - docker run --rm $BUILD_DOCKER_OPTS -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app
         eclipse-temurin:25-jdk ./mvnw clean package -DskipTests
-    - docker build -f backend/docker/Dockerfile -t $BACKEND_IMAGE backend/
+    - docker build $BUILD_DOCKER_OPTS -f backend/docker/Dockerfile -t $BACKEND_IMAGE backend/
   rules:
     - <<: *main-only
       <<: *backend-changes
@@ -76,7 +77,7 @@ build:backend:
 build:frontend:
   stage: build
   script:
-    - docker build -t $FRONTEND_IMAGE frontend/
+    - docker build $BUILD_DOCKER_OPTS -t $FRONTEND_IMAGE frontend/
   rules:
     - <<: *main-only
       <<: *frontend-changes
