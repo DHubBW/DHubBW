@@ -1,7 +1,7 @@
 package com.se.dhubbw.datei.domain;
 
-import com.se.dhubbw.datei.application.dto.DateiDTO;
-import com.se.dhubbw.datei.application.dto.DateiDownloadDTO;
+import com.se.dhubbw.datei.application.dto.output.DateiDTO;
+import com.se.dhubbw.datei.application.dto.output.DateiDownloadDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

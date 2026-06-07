@@ -1,9 +1,9 @@
 package com.se.dhubbw.kurs.domain;
 
-import com.se.dhubbw.kurs.application.dto.KursMitgliedRolleDTO;
-import com.se.dhubbw.kurs.application.dto.KursDTO;
-import com.se.dhubbw.kurs.application.dto.StudentDTO;
-import com.se.dhubbw.kurs.application.dto.SystemAdminStatsDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursMitgliedRolleDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursDTO;
+import com.se.dhubbw.kurs.application.dto.output.StudentDTO;
+import com.se.dhubbw.kurs.application.dto.output.SystemAdminStatsDTO;
 
 import java.util.List;
 import java.util.UUID;

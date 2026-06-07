@@ -1,6 +1,6 @@
 package com.se.dhubbw.kurs.application;
 
-import com.se.dhubbw.kurs.application.dto.KursErstellungsAnfrageRequestDTO;
+import com.se.dhubbw.kurs.application.dto.input.KursErstellungsAnfrageRequestDTO;
 import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

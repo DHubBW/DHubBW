@@ -1,4 +1,4 @@
-package com.se.dhubbw.student.application.dto;
+package com.se.dhubbw.student.application.dto.output;
 
 /**
  * Data transfer object for authentication responses (login/registration).

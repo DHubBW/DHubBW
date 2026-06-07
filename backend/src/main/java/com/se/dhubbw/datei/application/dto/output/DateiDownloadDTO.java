@@ -1,4 +1,4 @@
-package com.se.dhubbw.datei.application.dto;
+package com.se.dhubbw.datei.application.dto.output;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

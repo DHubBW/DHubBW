@@ -1,4 +1,4 @@
-package com.se.dhubbw.ordner.application.dto;
+package com.se.dhubbw.ordner.application.dto.output;
 
 import com.se.dhubbw.ordner.domain.OrdnerFarbe;
 import lombok.AllArgsConstructor;

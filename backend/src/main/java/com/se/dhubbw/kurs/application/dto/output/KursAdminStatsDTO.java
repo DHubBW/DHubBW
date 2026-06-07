@@ -1,4 +1,4 @@
-package com.se.dhubbw.kurs.application.dto;
+package com.se.dhubbw.kurs.application.dto.output;
 
 /**
  * Data transfer object with aggregated statistics for a course admin.

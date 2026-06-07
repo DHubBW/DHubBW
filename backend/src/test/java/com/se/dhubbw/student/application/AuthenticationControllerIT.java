@@ -1,8 +1,8 @@
 package com.se.dhubbw.student.application;
 
 import com.se.dhubbw.shared.testing.IntegrationTest;
-import com.se.dhubbw.student.application.dto.LoginRequestDTO;
-import com.se.dhubbw.student.application.dto.RegisterRequestDTO;
+import com.se.dhubbw.student.application.dto.input.LoginRequestDTO;
+import com.se.dhubbw.student.application.dto.input.RegisterRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;

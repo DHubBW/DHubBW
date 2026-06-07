@@ -1,4 +1,4 @@
-package com.se.dhubbw.student.application.dto;
+package com.se.dhubbw.student.application.dto.input;
 
 /**
  * Data transfer object for registration requests.

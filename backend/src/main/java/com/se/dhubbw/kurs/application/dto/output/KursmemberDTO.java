@@ -1,4 +1,4 @@
-package com.se.dhubbw.kurs.application.dto;
+package com.se.dhubbw.kurs.application.dto.output;
 
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 

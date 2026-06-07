@@ -1,9 +1,9 @@
 package com.se.dhubbw.dashboard.application;
 
 import com.se.dhubbw.dashboard.domain.DashboardService;
-import com.se.dhubbw.datei.application.dto.DateiDTO;
+import com.se.dhubbw.datei.application.dto.output.DateiDTO;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
-import com.se.dhubbw.mensa.application.dto.MensaDTO;
+import com.se.dhubbw.mensa.application.dto.output.MensaDTO;
 import com.se.dhubbw.mensa.application.dto.mapper.MensaDTOMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

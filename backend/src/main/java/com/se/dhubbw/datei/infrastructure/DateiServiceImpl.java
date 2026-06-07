@@ -1,7 +1,7 @@
 package com.se.dhubbw.datei.infrastructure;
 
-import com.se.dhubbw.datei.application.dto.DateiDTO;
-import com.se.dhubbw.datei.application.dto.DateiDownloadDTO;
+import com.se.dhubbw.datei.application.dto.output.DateiDTO;
+import com.se.dhubbw.datei.application.dto.output.DateiDownloadDTO;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegung;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegungRepository;

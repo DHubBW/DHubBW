@@ -1,6 +1,6 @@
 package com.se.dhubbw.kurs.domain;
 
-import com.se.dhubbw.kurs.application.dto.KursanfrageDTO;
+import com.se.dhubbw.kurs.application.dto.output.KursanfrageDTO;
 
 import java.util.List;
 import java.util.UUID;

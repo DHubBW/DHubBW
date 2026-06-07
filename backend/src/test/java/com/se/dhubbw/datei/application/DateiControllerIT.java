@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import org.springframework.http.MediaType;
+
 import static org.springframework.security.test.web.servlet.setup
     .SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request
@@ -181,7 +183,8 @@ public class DateiControllerIT {
             throws Exception {
         mockMvc.perform(
             patch("/student/dateien/" + DATEI_1_ID)
-                .param("newName", "umbenennt.pdf"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"newName\": \"umbenennt.pdf\"}"))
             .andExpect(status().isOk());
     }
 
@@ -191,7 +194,8 @@ public class DateiControllerIT {
             throws Exception {
         mockMvc.perform(
             patch("/student/dateien/" + DATEI_1_ID)
-                .param("newName", "new.pdf"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"newName\": \"new.pdf\"}"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -204,7 +208,8 @@ public class DateiControllerIT {
             throws Exception {
         mockMvc.perform(
             patch("/student/dateien/" + DATEI_1_ID)
-                .param("newName", "new.pdf"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"newName\": \"new.pdf\"}"))
             .andExpect(status().isForbidden());
     }
 
@@ -217,7 +222,8 @@ public class DateiControllerIT {
             throws Exception {
         mockMvc.perform(
             patch("/student/dateien/" + UNKNOWN_ID)
-                .param("newName", "new.pdf"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"newName\": \"new.pdf\"}"))
             .andExpect(status().isNotFound());
     }
 

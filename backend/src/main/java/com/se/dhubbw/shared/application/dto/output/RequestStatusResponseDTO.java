@@ -1,4 +1,4 @@
-package com.se.dhubbw.shared.application.dto;
+package com.se.dhubbw.shared.application.dto.output;
 
 import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
 

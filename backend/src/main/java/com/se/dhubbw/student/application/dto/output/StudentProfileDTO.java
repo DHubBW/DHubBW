@@ -1,4 +1,4 @@
-package com.se.dhubbw.student.application.dto;
+package com.se.dhubbw.student.application.dto.output;
 
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 import lombok.AllArgsConstructor;
