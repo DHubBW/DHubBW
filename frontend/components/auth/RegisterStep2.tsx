@@ -1,28 +1,28 @@
-import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
-import { Plus, Search } from 'lucide-react-native';
-import { useRef, useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
+import { Plus, Search } from "lucide-react-native";
+import { useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Pressable,
   Text,
   View,
-} from 'react-native';
-import { toast } from 'sonner-native';
+} from "react-native";
+import { toast } from "sonner-native";
 
-import { KursListItem } from '@/components/auth/KursListItem';
-import { NewKursDialog } from '@/components/auth/NewKursDialog';
-import { Button } from '@/components/ui/button';
-import { Icon } from '@/components/ui/icon';
-import { Input } from '@/components/ui/input';
-import { ApiError } from '@/lib/api/errors';
-import { fetchClient } from '@/lib/api/fetchClient';
-import type { KursYearDTO } from '@/lib/api/types.gen';
-import { useCookieConsent } from '@/lib/consent/useCookieConsent';
-import { fuzzyKursSearch } from '@/lib/kurse/fuzzyKursSearch';
+import { KursListItem } from "@/components/auth/KursListItem";
+import { NewKursDialog } from "@/components/auth/NewKursDialog";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
+import { ApiError } from "@/lib/api/errors";
+import { fetchClient } from "@/lib/api/fetchClient";
+import type { KursYearDTO } from "@/lib/api/types.gen";
+import { useCookieConsent } from "@/lib/consent/useCookieConsent";
+import { fuzzyKursSearch } from "@/lib/kurse/fuzzyKursSearch";
 
-const DASHBOARD_PATH = '/(app)/dashboard' as const;
+const DASHBOARD_PATH = "/(app)/dashboard" as const;
 
 /**
  * Props for {@link RegisterStep2}.
@@ -33,6 +33,12 @@ export interface RegisterStep2Props {
    * The parent screen typically flips its `step` state back to 1.
    */
   onBack: () => void;
+  /**
+   * When `true`, the "Später wählen" skip button is hidden.
+   * Used when the component is embedded in the dashboard where a separate
+   * "Zurück" button already serves as the exit action.
+   */
+  hideSkip?: boolean;
 }
 
 /**
@@ -66,10 +72,13 @@ export interface RegisterStep2Props {
  * @param props - {@link RegisterStep2Props}
  * @returns The course-selection step.
  */
-export function RegisterStep2({ onBack }: RegisterStep2Props) {
+export function RegisterStep2({
+  onBack,
+  hideSkip = false,
+}: RegisterStep2Props) {
   const router = useRouter();
   const { consent } = useCookieConsent();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [showNewKursDialog, setShowNewKursDialog] = useState(false);
@@ -77,9 +86,9 @@ export function RegisterStep2({ onBack }: RegisterStep2Props) {
   const submittingRef = useRef(false);
 
   const kurseQuery = useQuery<KursYearDTO[], ApiError>({
-    queryKey: ['kurse', 'list'],
+    queryKey: ["kurse", "list"],
     queryFn: async ({ signal }) => {
-      const res = await fetchClient('/student/kurse', { signal });
+      const res = await fetchClient("/student/kurse", { signal });
       return (await res.json()) as KursYearDTO[];
     },
   });
@@ -93,41 +102,41 @@ export function RegisterStep2({ onBack }: RegisterStep2Props) {
 
   async function handleJoin() {
     if (selectedId === null || submitting) return;
-    if (consent === 'rejected') return;
+    if (consent === "rejected") return;
     if (submittingRef.current) return;
     submittingRef.current = true;
     setSubmitting(true);
     try {
       await fetchClient(`/student/kurse/beitreten/${selectedId}`, {
-        method: 'POST',
+        method: "POST",
       });
-      toast.success('Beitrittsanfrage gesendet');
+      toast.success("Beitrittsanfrage gesendet");
       goToDashboard();
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 409) {
-          toast.error('Bereits in Kurs oder offene Anfrage');
+          toast.error("Bereits in Kurs oder offene Anfrage");
         } else if (err.status === 422) {
           // Backend liefert die Begründung im message-Feld.
           toast.error(err.message);
-        } else if (err.status === 0 && err.message === 'HTTP 404') {
+        } else if (err.status === 0 && err.message === "HTTP 404") {
           // 404 lands in the generic non-2xx branch of fetchClient
           // (`ApiErrorStatus` whitelist does not list 404); detect it via
           // the documented fallback message. The catalogue cache is now
           // stale — refetch alongside the toast so the next pick reflects
           // reality.
           toast.error(
-            'Dieser Kurs ist nicht mehr verfügbar — Liste wird neu geladen.',
+            "Dieser Kurs ist nicht mehr verfügbar — Liste wird neu geladen.",
           );
           setSelectedId(null);
           void kurseQuery.refetch();
         } else if (err.status === 0) {
-          toast.error('Netzwerkfehler. Bitte erneut versuchen.');
+          toast.error("Netzwerkfehler. Bitte erneut versuchen.");
         } else {
-          toast.error('Beitrittsanfrage fehlgeschlagen.');
+          toast.error("Beitrittsanfrage fehlgeschlagen.");
         }
       } else {
-        toast.error('Beitrittsanfrage fehlgeschlagen.');
+        toast.error("Beitrittsanfrage fehlgeschlagen.");
       }
     } finally {
       submittingRef.current = false;
@@ -135,8 +144,7 @@ export function RegisterStep2({ onBack }: RegisterStep2Props) {
     }
   }
 
-  const canJoin =
-    selectedId !== null && !submitting && consent !== 'rejected';
+  const canJoin = selectedId !== null && !submitting && consent !== "rejected";
 
   return (
     <View>
@@ -199,8 +207,8 @@ export function RegisterStep2({ onBack }: RegisterStep2Props) {
       ) : filteredKurse.length === 0 ? (
         <Text className="my-4 text-center text-xs text-muted-foreground">
           {allKurse.length === 0
-            ? 'Keine Kurse verfügbar. Lege einen neuen Kurs an oder überspringe.'
-            : 'Keine Kurse passen zur Suche.'}
+            ? "Keine Kurse verfügbar. Lege einen neuen Kurs an oder überspringe."
+            : "Keine Kurse passen zur Suche."}
         </Text>
       ) : (
         // The list itself is rendered as a `radiogroup` so screen readers
@@ -228,19 +236,21 @@ export function RegisterStep2({ onBack }: RegisterStep2Props) {
         className="mb-3"
       >
         <Text className="text-sm font-medium text-primary-foreground">
-          {submitting ? 'Sende…' : 'Beitrittsanfrage senden'}
+          {submitting ? "Sende…" : "Beitrittsanfrage senden"}
         </Text>
       </Button>
 
-      <Button
-        accessibilityLabel="Überspringen"
-        variant="outline"
-        onPress={goToDashboard}
-        disabled={submitting}
-        className="mb-3"
-      >
-        <Text className="text-sm font-medium">Später wählen</Text>
-      </Button>
+      {!hideSkip && (
+        <Button
+          accessibilityLabel="Überspringen"
+          variant="outline"
+          onPress={goToDashboard}
+          disabled={submitting}
+          className="mb-3"
+        >
+          <Text className="text-sm font-medium">Später wählen</Text>
+        </Button>
+      )}
 
       <Button
         accessibilityLabel="Zurück"

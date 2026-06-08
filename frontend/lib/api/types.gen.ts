@@ -165,3 +165,64 @@ export interface MensaDTO {
  * Keys are German weekday abbreviations: `"Mo"`, `"Di"`, `"Mi"`, `"Do"`, `"Fr"`.
  */
 export type WeekMealsMap = Record<string, MensaDTO[]>;
+
+/**
+ * File metadata returned by `GET /student/dashboard/dateien/latest`.
+ *
+ * Mirrors `DateiDTO` in the backend (`datei/application/dto/output/`).
+ * Binary content is excluded — display metadata only.
+ */
+export interface DateiDTO {
+  /** UUID of the file (string-encoded). */
+  dateiID: string;
+  /** File name including extension. */
+  name: string;
+  /** ISO `"YYYY-MM-DD"` date of last modification. */
+  zuletztBearbeitet: string;
+  /** File size in megabytes. */
+  fileSize: number;
+  /** Full name of the uploading student, or `null` when unknown. */
+  uploaderName: string | null;
+  /** UUID of the containing folder (string-encoded). */
+  ordnerID: string;
+  /** Display name of the containing folder. */
+  ordnerName: string;
+  /** Total download count. */
+  downloadAnzahl: number;
+}
+
+/**
+ * Aggregated stats for a course admin returned by
+ * `GET /kursadmin/mitglieder/stats`.
+ *
+ * Mirrors `KursAdminStatsDTO` in the backend.
+ */
+export interface KursAdminStatsDTO {
+  /** Total enrolled members in the course. */
+  anzahlMitglieder: number;
+  /** Total files in the course. */
+  anzahlDateien: number;
+  /** Open join requests pending approval. */
+  anzahlAnfragen: number;
+}
+
+/**
+ * Platform-wide KPI stats for a system admin returned by
+ * `GET /systemadmin/stats`.
+ *
+ * Mirrors `SystemAdminStatsDTO` in the backend.
+ */
+export interface SystemAdminStatsDTO {
+  /** Total number of courses. */
+  anzahlKurse: number;
+  /** Total registered users. */
+  anzahlNutzer: number;
+  /** Total files stored platform-wide. */
+  anzahlDateien: number;
+  /** Used storage in megabytes. */
+  megabyteBelegt: number;
+  /** Available storage in megabytes. */
+  megabyteVerfuegbar: number;
+  /** Pending course creation requests. */
+  anzahlKurserstellungsanfragen: number;
+}
