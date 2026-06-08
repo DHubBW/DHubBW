@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { ShieldCheck, X } from "lucide-react-native";
-import { Modal, Platform, Pressable, View } from "react-native";
+import { Modal, Platform, Pressable, useWindowDimensions, View } from "react-native";
 
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -26,6 +26,8 @@ export type CookieBannerProps = {
  */
 export function CookieBanner({ onRejectOverride }: CookieBannerProps) {
   const { consent, accept, reject } = useCookieConsent();
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
 
   if (Platform.OS !== "web") return null;
   if (consent !== "unknown") return null;
@@ -39,19 +41,31 @@ export function CookieBanner({ onRejectOverride }: CookieBannerProps) {
   }
 
   return (
-    // Fixed overlay that covers the entire viewport and blocks all interaction.
-    // `pointer-events: all` on the overlay + `inset-0` ensures nothing below
-    // is reachable via click or keyboard while consent is pending.
     <View
-      className="absolute bottom-0 left-0 right-0 top-0 items-end justify-end bg-black/40"
-      // On RN Web `pointerEvents` must be set as a prop, not className.
+      className="absolute bottom-0 left-0 right-0 top-0 bg-black/40"
       pointerEvents="box-none"
       style={{ position: "fixed" as never, zIndex: 9999 }}
     >
-      {/* Card */}
+      {/* Card — centred on mobile, bottom-right on desktop */}
       <View
         pointerEvents="auto"
-        className="m-4 w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-xl shadow-black/20"
+        style={
+          isMobile
+            ? {
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                margin: 16,
+              }
+            : {
+                position: "absolute",
+                bottom: 16,
+                right: 16,
+                maxWidth: 448,
+              }
+        }
+        className="rounded-2xl border border-border bg-card p-5 shadow-xl shadow-black/20"
       >
         {/* Header row */}
         <View className="mb-3 flex-row items-center gap-3">

@@ -20,15 +20,14 @@ describe("GET /student/dashboard/profile", () => {
     });
   });
 
-  it("returns the meals stub for a given date", async () => {
+  it("returns the current-week meals stub", async () => {
     const response = await fetch(
-      "http://localhost:8080/student/meals/2026-06-06",
+      "http://localhost:8080/student/meals/current-week",
     );
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(Array.isArray(body)).toBe(true);
-    expect(body[0]).toHaveProperty("date");
-    expect(body[0]).toHaveProperty("gerichte");
+    expect(body).toHaveProperty("Mo");
+    expect(Array.isArray(body.Mo)).toBe(true);
   });
 });
