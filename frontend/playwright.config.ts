@@ -5,9 +5,6 @@ const isCI = !!process.env.CI;
 /**
  * Playwright configuration for web E2E tests.
  *
- * Local: all three browser engines, no worker cap, 60 s timeout.
- * CI (vm553): Chromium only, 1 worker, 30 s timeout, 1 retry — keeps RAM
- * usage low on the shared CI runner.
  *
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -48,9 +45,10 @@ export default defineConfig({
       ],
 
   webServer: {
-    command: "npx expo start --web --port 8081",
+    command:
+      "npm run build-web && npx --yes serve dist --single --listen 8081",
     url: "http://localhost:8081",
     reuseExistingServer: !isCI,
-    timeout: 120_000,
+    timeout: 180_000,
   },
 });
