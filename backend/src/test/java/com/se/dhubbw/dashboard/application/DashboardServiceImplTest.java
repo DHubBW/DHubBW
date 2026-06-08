@@ -1,6 +1,7 @@
 package com.se.dhubbw.dashboard.application;
 
 import com.se.dhubbw.dashboard.infrastructure.DashboardServiceImpl;
+import com.se.dhubbw.datei.application.dto.output.DateiDTO;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
@@ -8,6 +9,7 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.mensa.domain.MensaService;
 import com.se.dhubbw.mensa.infrastructure.db.Mensa;
+import com.se.dhubbw.ordner.infrastructure.db.Ordner;
 import com.se.dhubbw.shared.testing.UnitTest;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
@@ -62,23 +64,23 @@ public class DashboardServiceImplTest {
     public void givenMoreThanFiveDateien_whenGetAllLatestDateien_thenLimitedToFive() {
         List<Datei> allDateien = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
-            allDateien.add(new Datei());
+            allDateien.add(buildDatei());
         }
         when(dateiRepository.findAllOrderByZuletztBearbeitetDesc())
             .thenReturn(allDateien);
 
-        List<Datei> result = dashboardServiceImpl.getAllLatestDateien();
+        List<DateiDTO> result = dashboardServiceImpl.getAllLatestDateien();
 
         assertEquals(5, result.size());
     }
 
     @Test
     public void givenFewDateien_whenGetAllLatestDateien_thenReturnsAll() {
-        List<Datei> allDateien = List.of(new Datei(), new Datei());
+        List<Datei> allDateien = List.of(buildDatei(), buildDatei());
         when(dateiRepository.findAllOrderByZuletztBearbeitetDesc())
             .thenReturn(allDateien);
 
-        List<Datei> result = dashboardServiceImpl.getAllLatestDateien();
+        List<DateiDTO> result = dashboardServiceImpl.getAllLatestDateien();
 
         assertEquals(2, result.size());
     }
@@ -88,7 +90,7 @@ public class DashboardServiceImplTest {
         when(studentRepository.findByDhbwMail("unknown@dhbw.de"))
             .thenReturn(Optional.empty());
 
-        Optional<List<Datei>> result =
+        Optional<List<DateiDTO>> result =
             dashboardServiceImpl.getLatestDateienForStudent("unknown@dhbw.de");
 
         assertTrue(result.isEmpty());
@@ -102,7 +104,7 @@ public class DashboardServiceImplTest {
         when(kursBeitrittsAnfrageRepository.findByStudentAndIsApprovedTrue(student))
             .thenReturn(Optional.empty());
 
-        Optional<List<Datei>> result =
+        Optional<List<DateiDTO>> result =
             dashboardServiceImpl.getLatestDateienForStudent("unapproved@dhbw.de");
 
         assertTrue(result.isEmpty());
@@ -116,7 +118,7 @@ public class DashboardServiceImplTest {
         kurs.setKursID(kursId);
         KursBeitrittsAnfrage anfrage = new KursBeitrittsAnfrage();
         anfrage.setKurs(kurs);
-        List<Datei> dateien = List.of(new Datei());
+        List<Datei> dateien = List.of(buildDatei());
         when(studentRepository.findByDhbwMail("approved@dhbw.de"))
             .thenReturn(Optional.of(student));
         when(kursBeitrittsAnfrageRepository.findByStudentAndIsApprovedTrue(student))
@@ -124,11 +126,11 @@ public class DashboardServiceImplTest {
         when(dateiRepository.findByKursIdOrderByZuletztBearbeitetDesc(kursId))
             .thenReturn(dateien);
 
-        Optional<List<Datei>> result =
+        Optional<List<DateiDTO>> result =
             dashboardServiceImpl.getLatestDateienForStudent("approved@dhbw.de");
 
         assertTrue(result.isPresent());
-        assertEquals(dateien, result.get());
+        assertEquals(1, result.get().size());
     }
 
     @Test
@@ -141,7 +143,7 @@ public class DashboardServiceImplTest {
         anfrage.setKurs(kurs);
         List<Datei> allDateien = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
-            allDateien.add(new Datei());
+            allDateien.add(buildDatei());
         }
         when(studentRepository.findByDhbwMail("approved@dhbw.de"))
             .thenReturn(Optional.of(student));
@@ -150,10 +152,27 @@ public class DashboardServiceImplTest {
         when(dateiRepository.findByKursIdOrderByZuletztBearbeitetDesc(kursId))
             .thenReturn(allDateien);
 
-        Optional<List<Datei>> result =
+        Optional<List<DateiDTO>> result =
             dashboardServiceImpl.getLatestDateienForStudent("approved@dhbw.de");
 
         assertTrue(result.isPresent());
         assertEquals(5, result.get().size());
+    }
+
+    /**
+     * Build a minimal {@link Datei} with enough state for {@code toDateiDto}
+     * to succeed: a non-null {@code ordner} with ID and name set.
+     */
+    private static Datei buildDatei() {
+        Ordner ordner = new Ordner();
+        ordner.setOrdnerID(UUID.randomUUID());
+        ordner.setName("Test-Ordner");
+        Datei datei = new Datei();
+        datei.setOrdner(ordner);
+        datei.setName("test.pdf");
+        datei.setZuletztBearbeitet(LocalDate.now());
+        datei.setFileSize(1.0f);
+        datei.setDownloadAnzahl(0);
+        return datei;
     }
 }

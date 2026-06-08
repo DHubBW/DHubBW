@@ -2,7 +2,6 @@ package com.se.dhubbw.dashboard.application;
 
 import com.se.dhubbw.dashboard.domain.DashboardService;
 import com.se.dhubbw.datei.application.dto.output.DateiDTO;
-import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.mensa.application.dto.output.MensaDTO;
 import com.se.dhubbw.mensa.application.dto.mapper.MensaDTOMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -118,22 +117,16 @@ public class DashboardController {
             final Authentication authentication) {
         if (isSystemAdmin(authentication)) {
             return ResponseEntity.ok(
-                dashboardService.getAllLatestDateien().stream()
-                    .map(DashboardController::toDateiDto)
-                    .toList()
+                dashboardService.getAllLatestDateien()
             );
         }
-        Optional<List<Datei>> dateien =
+        Optional<List<DateiDTO>> dateien =
             dashboardService.getLatestDateienForStudent(
                 authentication.getName());
         if (dateien.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        return ResponseEntity.ok(
-            dateien.get().stream()
-                .map(DashboardController::toDateiDto)
-                .toList()
-        );
+        return ResponseEntity.ok(dateien.get());
     }
 
     /**
@@ -146,26 +139,5 @@ public class DashboardController {
         return authentication.getAuthorities().stream()
             .anyMatch(auth ->
                 auth.getAuthority().equals(ROLE_SYSTEMADMIN));
-    }
-
-    /**
-     * Map a {@link Datei} entity to its DTO representation.
-     *
-     * @param datei the entity to convert
-     * @return the corresponding {@link DateiDTO}
-     */
-    private static DateiDTO toDateiDto(final Datei datei) {
-        String uploaderName = datei.getUploader() != null
-            ? datei.getUploader().getName() : null;
-        return new DateiDTO(
-            datei.getDateiID(),
-            datei.getName(),
-            datei.getZuletztBearbeitet(),
-            datei.getFileSize(),
-            uploaderName,
-            datei.getOrdner().getOrdnerID(),
-            datei.getOrdner().getName(),
-            datei.getDownloadAnzahl()
-        );
     }
 }

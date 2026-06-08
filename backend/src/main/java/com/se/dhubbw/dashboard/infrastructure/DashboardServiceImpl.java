@@ -1,6 +1,7 @@
 package com.se.dhubbw.dashboard.infrastructure;
 
 import com.se.dhubbw.dashboard.domain.DashboardService;
+import com.se.dhubbw.datei.application.dto.output.DateiDTO;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
@@ -11,6 +12,7 @@ import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -66,14 +68,19 @@ public class DashboardServiceImpl implements DashboardService {
 
     /** {@inheritDoc} */
     @Override
-    public List<Datei> getAllLatestDateien() {
+    @Transactional(readOnly = true)
+    public List<DateiDTO> getAllLatestDateien() {
         return dateiRepository.findAllOrderByZuletztBearbeitetDesc()
-            .stream().limit(DASHBOARD_LIMIT).toList();
+            .stream()
+            .limit(DASHBOARD_LIMIT)
+            .map(DashboardServiceImpl::toDateiDto)
+            .toList();
     }
 
     /** {@inheritDoc} */
     @Override
-    public Optional<List<Datei>> getLatestDateienForStudent(
+    @Transactional(readOnly = true)
+    public Optional<List<DateiDTO>> getLatestDateienForStudent(
         final String dhbwMail) {
         Optional<Student> student =
             studentRepository.findByDhbwMail(dhbwMail);
@@ -90,7 +97,36 @@ public class DashboardServiceImpl implements DashboardService {
         return Optional.of(
             dateiRepository
                 .findByKursIdOrderByZuletztBearbeitetDesc(kursId)
-                .stream().limit(DASHBOARD_LIMIT).toList()
+                .stream()
+                .limit(DASHBOARD_LIMIT)
+                .map(DashboardServiceImpl::toDateiDto)
+                .toList()
+        );
+    }
+
+    /**
+     * Map a {@link Datei} entity to its DTO representation.
+     *
+     * <p>Must be called within an active transaction so that
+     * the {@code ordner} and {@code uploader} associations are
+     * accessible without triggering a {@code LazyInitializationException}
+     * or a LOB-stream error on PostgreSQL Large Objects.</p>
+     *
+     * @param datei the entity to convert
+     * @return the corresponding {@link DateiDTO}
+     */
+    private static DateiDTO toDateiDto(final Datei datei) {
+        String uploaderName = datei.getUploader() != null
+            ? datei.getUploader().getName() : null;
+        return new DateiDTO(
+            datei.getDateiID(),
+            datei.getName(),
+            datei.getZuletztBearbeitet(),
+            datei.getFileSize(),
+            uploaderName,
+            datei.getOrdner().getOrdnerID(),
+            datei.getOrdner().getName(),
+            datei.getDownloadAnzahl()
         );
     }
 }

@@ -1,7 +1,7 @@
 package com.se.dhubbw.dashboard.application;
 
 import com.se.dhubbw.dashboard.domain.DashboardService;
-import com.se.dhubbw.datei.infrastructure.db.Datei;
+import com.se.dhubbw.datei.application.dto.output.DateiDTO;
 import com.se.dhubbw.mensa.infrastructure.db.Mensa;
 import com.se.dhubbw.shared.testing.IntegrationTest;
 import org.junit.jupiter.api.Assertions;
@@ -27,7 +27,7 @@ public class DashboardServiceIT {
     @Test
     public void givenDataSQL_whenGetAllLatestDateien_thenReturnsAll() {
         // DESCRIBE & ACT
-        List<Datei> actual = dashboardService.getAllLatestDateien();
+        List<DateiDTO> actual = dashboardService.getAllLatestDateien();
         // ASSERT
         Assertions.assertFalse(actual.isEmpty());
     }
@@ -43,7 +43,7 @@ public class DashboardServiceIT {
     @Test
     public void givenDataSQL_whenGetLatestDateienForUnknownStudent_thenEmpty() {
         // DESCRIBE & ACT
-        Optional<List<Datei>> actual = dashboardService
+        Optional<List<DateiDTO>> actual = dashboardService
             .getLatestDateienForStudent("unbekannt@dhbw.de");
         // ASSERT
         Assertions.assertTrue(actual.isEmpty());
@@ -52,7 +52,7 @@ public class DashboardServiceIT {
     @Test
     public void givenDataSQL_whenGetLatestDateienForUnapprovedStudent_thenEmpty() {
         // DESCRIBE & ACT
-        Optional<List<Datei>> actual = dashboardService
+        Optional<List<DateiDTO>> actual = dashboardService
             .getLatestDateienForStudent(NICO_MAIL);
         // ASSERT
         Assertions.assertTrue(actual.isEmpty());
@@ -61,7 +61,7 @@ public class DashboardServiceIT {
     @Test
     public void givenDataSQL_whenGetLatestDateienForApprovedStudent_thenPresent() {
         // DESCRIBE & ACT
-        Optional<List<Datei>> actual = dashboardService
+        Optional<List<DateiDTO>> actual = dashboardService
             .getLatestDateienForStudent(LINUS_MAIL);
         // ASSERT
         Assertions.assertTrue(actual.isPresent());
@@ -71,13 +71,14 @@ public class DashboardServiceIT {
     @Test
     public void givenDataSQL_whenGetLatestDateienForApprovedStudent_thenSortedDesc() {
         // DESCRIBE & ACT
-        List<Datei> actual = dashboardService
+        List<DateiDTO> actual = dashboardService
             .getLatestDateienForStudent(LINUS_MAIL)
             .orElseThrow();
         // ASSERT
         for (int i = 0; i < actual.size() - 1; i++) {
-          Assertions.assertFalse(
-              actual.get(i).getZuletztBearbeitet().isBefore(actual.get(i + 1).getZuletztBearbeitet()));
+            Assertions.assertFalse(
+                actual.get(i).zuletztBearbeitet()
+                    .isBefore(actual.get(i + 1).zuletztBearbeitet()));
         }
     }
 }
