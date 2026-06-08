@@ -185,7 +185,8 @@ function MensaPreviewCard({
       {!isLoading && !isError && meals.length > 0 && (
         <ScrollView
           className="max-h-56"
-          showsVerticalScrollIndicator={true}
+          showsVerticalScrollIndicator
+          indicatorStyle="black"
           nestedScrollEnabled
         >
           <View>
@@ -278,7 +279,8 @@ function LatestFilesCard({
       {!isLoading && !isError && sorted.length > 0 && (
         <ScrollView
           className="max-h-56"
-          showsVerticalScrollIndicator={true}
+          showsVerticalScrollIndicator
+          indicatorStyle="black"
           nestedScrollEnabled
         >
           <View>
