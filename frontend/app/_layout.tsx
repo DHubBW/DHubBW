@@ -1,18 +1,18 @@
-import '../global.css';
+import "../global.css";
 
-import { ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
-import { PortalHost } from '@rn-primitives/portal';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { Text, View } from 'react-native';
-import 'react-native-reanimated';
-import { Toaster } from 'sonner-native';
+import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
+import { PortalHost } from "@rn-primitives/portal";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Text, View } from "react-native";
+import "react-native-reanimated";
+import { Toaster } from "sonner-native";
 
-import { queryClient } from '@/lib/api/queryClient';
-import { AuthProvider, useAuth } from '@/lib/auth/AuthContext';
-import { NAV_THEME } from '@/lib/theme/nav-theme';
-import { ThemeProvider, useTheme } from '@/lib/theme/ThemeProvider';
+import { queryClient } from "@/lib/api/queryClient";
+import { AuthProvider, useAuth } from "@/lib/auth/AuthContext";
+import { NAV_THEME } from "@/lib/theme/nav-theme";
+import { ThemeProvider, useTheme } from "@/lib/theme/ThemeProvider";
 
 /**
  * Internal component that keeps the React Navigation theme provider in sync
@@ -29,13 +29,23 @@ function ThemedStack() {
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="(legal)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" options={{ title: 'Nicht gefunden' }} />
+        <Stack.Screen name="+not-found" options={{ title: "Nicht gefunden" }} />
       </Stack>
-      <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style={effectiveTheme === "dark" ? "light" : "dark"} />
       <Toaster
         theme={effectiveTheme}
+        position="bottom-right"
         toastOptions={{
-          style: { backgroundColor: 'transparent' },
+          style: {
+            backgroundColor: effectiveTheme === "dark" ? "#1e1e24" : "#ffffff",
+            borderWidth: 1,
+            borderColor: effectiveTheme === "dark" ? "#2d2d36" : "#e5e7eb",
+            borderRadius: 8,
+            shadowColor: "#000",
+            shadowOpacity: 0.12,
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 2 },
+          },
         }}
       />
       <PortalHost />

@@ -1,30 +1,27 @@
-import { Link, router, useLocalSearchParams } from 'expo-router';
-import { Eye, EyeOff } from 'lucide-react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, router, useLocalSearchParams } from "expo-router";
+import { Eye, EyeOff } from "lucide-react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
   Text,
   View,
-} from 'react-native';
-import { toast } from 'sonner-native';
+} from "react-native";
+import { toast } from "sonner-native";
 
-import { CookieBanner } from '@/components/CookieBanner';
-import { Footer } from '@/components/layout/Footer';
-import { Button } from '@/components/ui/button';
-import { Icon } from '@/components/ui/icon';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ApiError } from '@/lib/api/errors';
-import { useAuth } from '@/lib/auth/AuthContext';
-import { resolveReturnTo } from '@/lib/auth/resolveReturnTo';
-import {
-  getMailErrorMessage,
-  isValidDhbwMail,
-} from '@/lib/auth/validators';
-import { useExpiredReason } from '@/lib/auth/useExpiredReason';
-import { useCookieConsent } from '@/lib/consent/useCookieConsent';
+import { CookieBanner } from "@/components/CookieBanner";
+import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ApiError } from "@/lib/api/errors";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { resolveReturnTo } from "@/lib/auth/resolveReturnTo";
+import { getMailErrorMessage, isValidDhbwMail } from "@/lib/auth/validators";
+import { useExpiredReason } from "@/lib/auth/useExpiredReason";
+import { useCookieConsent } from "@/lib/consent/useCookieConsent";
 
 /** Hard cap on the password input — guards the form against accidental
  *  multi-megabyte paste loads while leaving plenty of room for any sane
@@ -74,8 +71,8 @@ export default function LoginScreen() {
   const { consent, reject } = useCookieConsent();
   const params = useLocalSearchParams<{ returnTo?: string | string[] }>();
 
-  const [mail, setMail] = useState('');
-  const [password, setPassword] = useState('');
+  const [mail, setMail] = useState("");
+  const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [mailError, setMailError] = useState<string | null>(null);
@@ -91,7 +88,7 @@ export default function LoginScreen() {
   // hook itself owns the once-per-mount ref-guard.
   // ---------------------------------------------------------------------
   const onExpired = useCallback(() => {
-    toast.error('Deine Sitzung ist abgelaufen. Bitte erneut anmelden.');
+    toast.error("Deine Sitzung ist abgelaufen. Bitte erneut anmelden.");
   }, []);
   useExpiredReason(onExpired);
 
@@ -101,10 +98,10 @@ export default function LoginScreen() {
   // keep firing toasts after the screen unmounts.
   // ---------------------------------------------------------------------
   useEffect(() => {
-    if (Platform.OS !== 'web') return;
+    if (Platform.OS !== "web") return;
     setOnCookieDisabled(() => {
       toast.error(
-        'Cookies sind blockiert — Login ist ohne Cookie nicht möglich. Bitte Cookies für diese Seite erlauben.',
+        "Cookies sind blockiert — Login ist ohne Cookie nicht möglich. Bitte Cookies für diese Seite erlauben.",
       );
     });
     return () => {
@@ -128,7 +125,7 @@ export default function LoginScreen() {
     isValidDhbwMail(mail.trim()) &&
     password.length > 0 &&
     !submitting &&
-    consent !== 'rejected';
+    consent !== "rejected";
 
   async function handleSubmit() {
     if (!canSubmit) return;
@@ -146,18 +143,18 @@ export default function LoginScreen() {
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 401) {
-          toast.error('Falsche Zugangsdaten.');
+          toast.error("Falsche Zugangsdaten.");
         } else if (err.status === 422) {
           // Backend liefert die Begründung im message-Feld
           // (AuthenticationController.java Z. 91-105).
           toast.error(err.message);
         } else if (err.status === 0) {
-          toast.error('Netzwerkfehler. Bitte erneut versuchen.');
+          toast.error("Netzwerkfehler. Bitte erneut versuchen.");
         } else {
-          toast.error('Anmeldung fehlgeschlagen.');
+          toast.error("Anmeldung fehlgeschlagen.");
         }
       } else {
-        toast.error('Anmeldung fehlgeschlagen.');
+        toast.error("Anmeldung fehlgeschlagen.");
       }
     } finally {
       submittingRef.current = false;
@@ -168,15 +165,17 @@ export default function LoginScreen() {
   return (
     <View className="flex-1 bg-background">
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1"
       >
         <View className="flex-1 items-center justify-center px-6">
           <View className="w-full max-w-sm">
-            {consent === 'rejected' && (
+            {consent === "rejected" && (
               <View className="mb-4 rounded-lg bg-destructive/10 px-4 py-3">
                 <Text className="text-sm text-destructive">
-                  {'Cookies sind erforderlich, um sich anzumelden. Bitte akzeptiere die Cookies über „Cookie-Einstellungen" im Footer, um fortzufahren.'}
+                  {
+                    'Cookies sind erforderlich, um sich anzumelden. Bitte akzeptiere die Cookies über „Cookie-Einstellungen" im Footer, um fortzufahren.'
+                  }
                 </Text>
               </View>
             )}
@@ -204,7 +203,9 @@ export default function LoginScreen() {
                 editable={!submitting}
               />
               {mailError !== null && (
-                <Text className="mt-1 text-xs text-destructive">{mailError}</Text>
+                <Text className="mt-1 text-xs text-destructive">
+                  {mailError}
+                </Text>
               )}
             </View>
 
@@ -231,13 +232,16 @@ export default function LoginScreen() {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={
-                    showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'
+                    showPassword ? "Passwort verbergen" : "Passwort anzeigen"
                   }
                   onPress={() => setShowPassword((v) => !v)}
                   className="h-10 w-10 items-center justify-center rounded-md border border-border sm:h-9 sm:w-9"
                   disabled={submitting}
                 >
-                  <Icon as={showPassword ? EyeOff : Eye} className="size-4 text-muted-foreground" />
+                  <Icon
+                    as={showPassword ? EyeOff : Eye}
+                    className="size-4 text-muted-foreground"
+                  />
                 </Pressable>
               </View>
             </View>
@@ -249,7 +253,7 @@ export default function LoginScreen() {
               className="mb-4"
             >
               <Text className="text-sm font-medium text-primary-foreground">
-                {submitting ? 'Anmelden…' : 'Anmelden'}
+                {submitting ? "Anmelden…" : "Anmelden"}
               </Text>
             </Button>
 

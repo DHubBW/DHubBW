@@ -1,36 +1,76 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Pressable, Text, View } from 'react-native';
+import { Image } from "expo-image";
+import { Moon, Settings, Sun, SunMoon } from "lucide-react-native";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
 
-import { useTheme } from '@/lib/theme/ThemeProvider';
+import { SettingsModal } from "@/components/SettingsModal";
+import { Icon } from "@/components/ui/icon";
+import { useTheme, type ThemePreference } from "@/lib/theme/ThemeProvider";
+
+const LOGO = require("@/assets/images/icon.png") as number;
+
+const THEME_ICONS: Record<ThemePreference, typeof Sun> = {
+  light: Sun,
+  dark: Moon,
+  system: SunMoon,
+};
+
+const NEXT_THEME: Record<ThemePreference, ThemePreference> = {
+  light: "dark",
+  dark: "system",
+  system: "light",
+};
 
 /**
  * Mobile app header bar at the top of the screen.
  *
- * Shows the app name and a settings button. The button is currently a
- * placeholder — implementation is tracked in the FE-Settings issue.
+ * Shows the DHubBW logo mark + wordmark, a theme-cycle button and a settings
+ * button that opens {@link SettingsModal}. Mounted by {@link AppLayout} below
+ * 768 px.
  *
- * @returns The header bar with the app logo and settings icon.
+ * @returns The header bar.
  */
 export function Header() {
-  const { effectiveTheme } = useTheme();
-  // Ionicons does not accept a className prop, so the color is derived from
-  // the theme (foreground-light = #1D2939, foreground-dark = #F2F2F5).
-  const iconColor = effectiveTheme === 'dark' ? '#F2F2F5' : '#1D2939';
+  const { theme, setTheme } = useTheme();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const ThemeIcon = THEME_ICONS[theme];
 
   return (
-    <View className="flex-row items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-3">
-      <Text className="text-lg font-semibold text-sidebar-foreground">DHubBW</Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Einstellungen öffnen"
-        onPress={() => {
-          // TODO FE-Settings: opens <SettingsModal> from the FE-Settings issue.
-          console.log('TODO: open SettingsModal');
-        }}
-        hitSlop={8}
-      >
-        <Ionicons name="settings-outline" size={22} color={iconColor} />
-      </Pressable>
+    <View className="w-full flex-row items-center border-b border-sidebar-border bg-sidebar px-4 py-2.5">
+      {/* Logo */}
+      <Image
+        source={LOGO}
+        style={{ width: 160, height: 50 }}
+        contentFit="contain"
+        contentPosition="left"
+      />
+
+      {/* Actions pushed to the right via ml-auto */}
+      <View className="ml-auto flex-row items-center gap-1">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Design wechseln"
+          onPress={() => setTheme(NEXT_THEME[theme])}
+          className="rounded-md p-2 active:bg-sidebar-accent/60"
+          hitSlop={8}
+        >
+          <Icon as={ThemeIcon} size={20} className="text-sidebar-foreground" />
+        </Pressable>
+
+        <Pressable
+          testID="header-settings-button"
+          accessibilityRole="button"
+          accessibilityLabel="Einstellungen öffnen"
+          onPress={() => setSettingsOpen(true)}
+          className="rounded-md p-2 active:bg-sidebar-accent/60"
+          hitSlop={8}
+        >
+          <Icon as={Settings} size={20} className="text-sidebar-foreground" />
+        </Pressable>
+      </View>
+
+      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
     </View>
   );
 }

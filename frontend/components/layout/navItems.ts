@@ -1,4 +1,12 @@
-import type { AuthUser } from '@/lib/auth/AuthContext';
+import type { LucideIcon } from "lucide-react-native";
+import {
+  FileText,
+  LayoutDashboard,
+  Settings,
+  UtensilsCrossed,
+} from "lucide-react-native";
+
+import type { AuthUser } from "@/lib/auth/AuthContext";
 
 /** A single navigation entry shown in the sidebar and bottom nav. */
 export type NavItem = {
@@ -6,17 +14,29 @@ export type NavItem = {
   label: string;
   /** Expo Router path of the target screen. */
   href: string;
+  /** Lucide icon for the nav entry. */
+  icon: LucideIcon;
   /** When `true`, the entry is only shown if the user belongs to a course. */
   requiresKurs?: boolean;
   /** Minimum role the user must have for the entry to be visible. */
-  requiresRole?: 'KURSADMIN' | 'SYSTEMADMIN';
+  requiresRole?: "KURSADMIN" | "SYSTEMADMIN";
 };
 
 export const ITEMS: NavItem[] = [
-  { label: 'Dashboard', href: '/(app)/dashboard' },
-  { label: 'Mensa', href: '/(app)/mensa' },
-  { label: 'Dateien', href: '/(app)/dateien', requiresKurs: true },
-  { label: 'Verwaltung', href: '/(app)/verwaltung', requiresRole: 'KURSADMIN' },
+  { label: "Dashboard", href: "/(app)/dashboard", icon: LayoutDashboard },
+  {
+    label: "Dateien",
+    href: "/(app)/dateien",
+    icon: FileText,
+    requiresKurs: true,
+  },
+  { label: "Mensa", href: "/(app)/mensa", icon: UtensilsCrossed },
+  {
+    label: "Verwaltung",
+    href: "/(app)/verwaltung",
+    icon: Settings,
+    requiresRole: "KURSADMIN",
+  },
 ];
 
 /**
@@ -33,16 +53,18 @@ export const ITEMS: NavItem[] = [
  * @param user - The currently logged-in user, or `null`.
  * @returns `true` if the entry should be displayed.
  */
-// TODO: when SYSTEMADMIN-only routes appear, add a `requiresRole: 'SYSTEMADMIN'`
-// item — the visible() helper already supports it.
 export function visible(item: NavItem, user: AuthUser | null): boolean {
   if (!user) return false;
   if (item.requiresKurs && !user.kursName) return false;
   if (item.requiresRole) {
-    if (item.requiresRole === 'KURSADMIN') {
-      if (user.studentType !== 'KURSADMIN' && user.studentType !== 'SYSTEMADMIN') return false;
-    } else if (item.requiresRole === 'SYSTEMADMIN') {
-      if (user.studentType !== 'SYSTEMADMIN') return false;
+    if (item.requiresRole === "KURSADMIN") {
+      if (
+        user.studentType !== "KURSADMIN" &&
+        user.studentType !== "SYSTEMADMIN"
+      )
+        return false;
+    } else if (item.requiresRole === "SYSTEMADMIN") {
+      if (user.studentType !== "SYSTEMADMIN") return false;
     }
   }
   return true;
