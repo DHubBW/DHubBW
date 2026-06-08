@@ -44,7 +44,7 @@ export interface AuthResponseDTO {
   expiresAt: number;
 }
 
-export type StudentType = 'STUDENT' | 'KURSADMIN' | 'SYSTEMADMIN';
+export type StudentType = "STUDENT" | "KURSADMIN" | "SYSTEMADMIN";
 
 /**
  * Pending course request shown on the student dashboard.
@@ -54,7 +54,7 @@ export type StudentType = 'STUDENT' | 'KURSADMIN' | 'SYSTEMADMIN';
  * request has been confirmed.
  */
 export interface PendingKursRequestDTO {
-  type: 'BEITRITT' | 'ERSTELLUNG';
+  type: "BEITRITT" | "ERSTELLUNG";
   /** Target course name. May be null for `ERSTELLUNG` before confirmation. */
   kursName: string | null;
   /**
@@ -88,7 +88,7 @@ export interface SmallResponseDTO {
 
 export interface RequestStatusResponseDTO {
   response: string;
-  persistenceOperation: 'INSERT' | 'UPDATE' | 'DELETE';
+  persistenceOperation: "INSERT" | "UPDATE" | "DELETE";
 }
 
 /**
@@ -133,3 +133,35 @@ export interface DateiUploadDTO {
   /** UUID of the newly created file (string-encoded). */
   dateiID: string;
 }
+
+/** Dietary classification of a Mensa dish. */
+export type Ernaehrung = "VEGETARISCH" | "VEGAN" | "FLEISCH";
+
+/**
+ * Single dish entry returned by the Mensa week endpoints.
+ *
+ * Mirrors `MensaDTO` in the backend (`mensa/application/dto/`).
+ */
+export interface MensaDTO {
+  /** UUID of the dish (string-encoded). */
+  gerichtID: string;
+  /** Serving date as ISO `"YYYY-MM-DD"`. */
+  datum: string;
+  /** Display name of the dish. */
+  essensbezeichnung: string;
+  /** Comma-separated allergen list, e.g. `"Gluten, Laktose"`. */
+  allergene: string;
+  /** Price in EUR (student tariff). */
+  preis: number;
+  ernaehrung: Ernaehrung;
+  /** Serving line label, e.g. `"Wahlessen 1"`, `"Beilagen"`, `"Suppe"`. */
+  linie: string;
+}
+
+/**
+ * Map returned by `GET /student/meals/current-week` and
+ * `GET /student/meals/next-week`.
+ *
+ * Keys are German weekday abbreviations: `"Mo"`, `"Di"`, `"Mi"`, `"Do"`, `"Fr"`.
+ */
+export type WeekMealsMap = Record<string, MensaDTO[]>;

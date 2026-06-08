@@ -90,13 +90,22 @@ async function _readJsonSafe(res: Response): Promise<unknown> {
   try {
     const text = await res.text();
     if (!text) return undefined;
-    return JSON.parse(text);
+    try {
+      return JSON.parse(text);
+    } catch {
+      // Response is plain text (e.g. GlobalExceptionHandler returns
+      // ResponseEntity<String> → Spring writes text/plain). Keep the raw
+      // string so callers can inspect it for error-case detection.
+      return text;
+    }
   } catch {
     return undefined;
   }
 }
 
 function _extractMessage(body: unknown, fallback: string): string {
+  // Plain-text body (e.g. GlobalExceptionHandler → ResponseEntity<String>)
+  if (typeof body === 'string' && body.length > 0) return body;
   if (body && typeof body === 'object') {
     const m = (body as Record<string, unknown>).message;
     if (typeof m === 'string' && m.length > 0) return m;
