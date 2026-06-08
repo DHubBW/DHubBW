@@ -373,14 +373,32 @@ function DayContent({ meals, isLoading, isError }: DayContentProps) {
 
 // ─── Screen ──────────────────────────────────────────────────────────────────
 
+/** Maps JS getDay() (0=So … 6=Sa) to the nearest school day defaults. */
+function getTodayDefaults(): { week: WeekSelector; day: WeekdayKey } {
+  const dow = new Date().getDay(); // 0=So,1=Mo,2=Di,3=Mi,4=Do,5=Fr,6=Sa
+  const DOW_TO_KEY: Record<number, WeekdayKey> = {
+    1: "Mo",
+    2: "Di",
+    3: "Mi",
+    4: "Do",
+    5: "Fr",
+  };
+  if (DOW_TO_KEY[dow]) {
+    return { week: "this", day: DOW_TO_KEY[dow] };
+  }
+  // Wochenende → Montag nächste Woche vorauswählen
+  return { week: "next", day: "Mo" };
+}
+
 /**
  * Mensa screen — entry point rendered by Expo Router.
  *
  * @returns The Mensa screen with toggle, day tabs and meal cards.
  */
 export default function MensaScreen() {
-  const [weekSelector, setWeekSelector] = useState<WeekSelector>("this");
-  const [activeDay, setActiveDay] = useState<WeekdayKey>("Mo");
+  const { week: defaultWeek, day: defaultDay } = getTodayDefaults();
+  const [weekSelector, setWeekSelector] = useState<WeekSelector>(defaultWeek);
+  const [activeDay, setActiveDay] = useState<WeekdayKey>(defaultDay);
 
   const thisWeek = useMensaThisWeek();
   const nextWeek = useMensaNextWeek();
