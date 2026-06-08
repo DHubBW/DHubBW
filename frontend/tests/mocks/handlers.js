@@ -934,6 +934,17 @@ const handlers = [
       { status: 200 },
     ),
   ),
+
+  http.get("http://localhost:8080/student/dashboard/leave-kurs", () =>
+    HttpResponse.json({ response: "Kurs verlassen" }, { status: 200 }),
+  ),
+
+  http.delete("http://localhost:8080/student/dashboard/delete-account", () =>
+    HttpResponse.json(
+      { response: "Successfully deleted account", persistenceOperation: "DELETE" },
+      { status: 200 },
+    ),
+  ),
 ];
 
 module.exports = { handlers };
