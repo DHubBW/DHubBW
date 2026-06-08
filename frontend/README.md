@@ -22,6 +22,9 @@ Das Frontend bildet die Benutzeroberfläche der DHubBW-Plattform. Es kommunizier
 # Abhängigkeiten installieren
 npm install
 
+# .env aus Vorlage erstellen und anpassen
+cp .env.example .env
+
 # Expo Dev Server starten (QR-Code für Expo Go)
 npm start
 
@@ -36,6 +39,44 @@ npm run lint
 # Web-Bundle für Deployment bauen
 npm run build-web    # Ausgabe: dist/
 ```
+
+### `.env`-Konfiguration
+
+Erstelle eine `.env`-Datei im `frontend/`-Verzeichnis (Vorlage: `.env.example`):
+
+| Variable                         | Beispiel                | Beschreibung                                                                                |
+| -------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------- |
+| `EXPO_PUBLIC_API_BASE_URL`       | `http://localhost:8080` | Backend-URL. Für Expo Go auf Smartphone: LAN-IP verwenden (z.B. `http://192.168.1.42:8080`) |
+| `EXPO_PUBLIC_MAX_UPLOAD_MB`      | `10`                    | Maximale Dateigröße für Uploads in MB                                                       |
+| `EXPO_PUBLIC_ENABLE_QUICK_LOGIN` | `false`                 | Quick-Login-Modus (siehe unten)                                                             |
+
+### Quick-Login-Flag
+
+`EXPO_PUBLIC_ENABLE_QUICK_LOGIN=true` aktiviert vorbelegte Login-Felder für die Entwicklung:
+
+- Zeigt Demo-Accounts direkt im Login-Formular an (Student, Kursadmin, Systemadmin)
+- **Nur für lokale Entwicklung verwenden — nie in Produktion setzen**
+
+### Native Build mit EAS
+
+Das Projekt nutzt [Expo Application Services (EAS)](https://expo.dev/eas) für native iOS- und Android-Builds:
+
+```bash
+# EAS CLI installieren (einmalig)
+npm install -g eas-cli
+
+# Beim Expo-Account anmelden
+eas login
+
+# Development Build erstellen (für physisches Gerät)
+eas build --profile development --platform ios
+eas build --profile development --platform android
+
+# Production Build erstellen
+eas build --profile production --platform all
+```
+
+> **Hinweis:** EAS-Builds benötigen ein Expo-Konto und sind für CI/CD-Pipelines konfigurierbar. Für reine Web-Deployments genügt `npm run build-web`.
 
 ---
 
@@ -152,6 +193,7 @@ Verwendet das Expo-ESLint-Preset. Linting vor dem Commit: `npm run lint`.
 ### `Dockerfile` (Web-Deployment)
 
 Multi-stage Build:
+
 1. `node:22-alpine` – `npm ci` + `npm run build-web` → erzeugt `dist/`
 2. `nginx:alpine` – serviert `dist/` über Port 80
 
@@ -161,12 +203,12 @@ Im Produktivbetrieb wird das Image durch die CI/CD-Pipeline gebaut und via `dock
 
 ## Vorsicht – diese Dateien nicht einfach so ändern
 
-| Datei / Verzeichnis | Warum Vorsicht |
-|---|---|
+| Datei / Verzeichnis        | Warum Vorsicht                                                                                                                             |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `scripts/reset-project.js` | Löscht den gesamten App-Inhalt und ersetzt ihn durch ein leeres Starter-Template – **nie versehentlich** `npm run reset-project` ausführen |
-| `dist/` | Wird durch `npm run build-web` generiert – **nicht committen** |
-| `app/_layout.tsx` | Root-Layout mit Fonts und Splash Screen – fehlerhafte Änderungen hier führen zu einem weißen Startbildschirm |
-| `components/ui/` | rn-reusables/shadcn-generierte Primitives – **nicht manuell bearbeiten** |
+| `dist/`                    | Wird durch `npm run build-web` generiert – **nicht committen**                                                                             |
+| `app/_layout.tsx`          | Root-Layout mit Fonts und Splash Screen – fehlerhafte Änderungen hier führen zu einem weißen Startbildschirm                               |
+| `components/ui/`           | rn-reusables/shadcn-generierte Primitives – **nicht manuell bearbeiten**                                                                   |
 
 ---
 
@@ -174,12 +216,13 @@ Im Produktivbetrieb wird das Image durch die CI/CD-Pipeline gebaut und via `dock
 
 Die Seiten unter `app/(legal)/` sind statisch und öffentlich zugänglich (kein Auth-Guard):
 
-| Route | Datei | Beschreibung |
-|---|---|---|
-| `/impressum` | `app/(legal)/impressum.tsx` | Impressum gemäß § 5 TMG |
+| Route          | Datei                         | Beschreibung                             |
+| -------------- | ----------------------------- | ---------------------------------------- |
+| `/impressum`   | `app/(legal)/impressum.tsx`   | Impressum gemäß § 5 TMG                  |
 | `/datenschutz` | `app/(legal)/datenschutz.tsx` | Datenschutzerklärung gemäß DSGVO / TTDSG |
 
 Der `Footer` (`components/layout/Footer.tsx`) verlinkt beide Seiten und ist in:
+
 - `components/layout/AppLayout.tsx` — alle authentifizierten Screens
 - `app/(auth)/login.tsx` und `app/(auth)/register.tsx` — Login/Register
 
@@ -197,6 +240,7 @@ Consent immer `'accepted'` (kein Browser-Cookie-Konzept).
 **[https://vm553.ipp-vps.net](https://vm553.ipp-vps.net)** – Produktiv-Deployment der Anwendung (PostgreSQL + Backend + Frontend via Docker Compose auf VM `vm553.ipp-vps.net`)
 
 ### Wiki
+
 - **[GUI-Entwurf](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/GUI-Entwurf)** – Grafische Benutzeroberfläche und User Experience
 - **[Architektur](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/Architektur)** – Systemarchitektur und Designentscheidungen
 - **[Frontend-Technologien](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Technologieabwägung/Frontend-Technologien)** – Technologieabwägung und -auswahl
