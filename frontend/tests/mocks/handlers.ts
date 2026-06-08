@@ -34,12 +34,21 @@ export const handlers = [
     HttpResponse.json({ message: "Login erfolgreich" }, { status: 200 }),
   ),
 
-  http.post("http://localhost:8080/public/auth/logout", () =>
-    new HttpResponse(null, { status: 204 }),
+  http.post(
+    "http://localhost:8080/public/auth/logout",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+
+  http.post(
+    "http://localhost:8080/student/dashboard/logout",
+    () => new HttpResponse(null, { status: 204 }),
   ),
 
   http.post("http://localhost:8080/public/auth/register", () =>
-    HttpResponse.json({ message: "Registrierung erfolgreich" }, { status: 201 }),
+    HttpResponse.json(
+      { message: "Registrierung erfolgreich" },
+      { status: 201 },
+    ),
   ),
 
   http.get("http://localhost:8080/student/dashboard/profile", () =>

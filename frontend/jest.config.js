@@ -2,6 +2,9 @@
 const config = {
   preset: "jest-expo",
   setupFilesAfterEnv: ["./jest.setup.js"],
+  // Force Jest to exit after all tests complete even if async handles remain
+  // open (e.g. MSW server, timers). Without this the CI job hangs indefinitely.
+  forceExit: true,
   moduleNameMapper: {
     // Prevent react-native-css-interop from accessing Platform before RN is
     // fully initialised in the Jest environment — map to the identity pass-through.

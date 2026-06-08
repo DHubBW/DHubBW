@@ -39,8 +39,8 @@
  * - {@link StudentType} — re-exported from `types.gen.ts` for the same
  *   reason.
  */
-import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import {
   createContext,
   useCallback,
@@ -50,24 +50,24 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from 'react';
-import { Platform } from 'react-native';
+} from "react";
+import { Platform } from "react-native";
 
-import { ApiError } from '@/lib/api/errors';
-import { fetchClient, setUnauthorizedHandler } from '@/lib/api/fetchClient';
+import { ApiError } from "@/lib/api/errors";
+import { fetchClient, setUnauthorizedHandler } from "@/lib/api/fetchClient";
 import type {
   AuthResponseDTO,
   LoginRequestDTO,
   RegisterRequestDTO,
   StudentProfileDTO,
   StudentType,
-} from '@/lib/api/types.gen';
+} from "@/lib/api/types.gen";
 import {
   createCookieDisabledDetector,
   type CookieDisabledDetector,
-} from '@/lib/auth/cookieDisabledDetection';
-import { PROFILE_QUERY_KEY, useProfile } from '@/lib/auth/useProfile';
-import secureStorage from '@/lib/storage/secureStorage';
+} from "@/lib/auth/cookieDisabledDetection";
+import { PROFILE_QUERY_KEY, useProfile } from "@/lib/auth/useProfile";
+import secureStorage from "@/lib/storage/secureStorage";
 
 /**
  * Backwards-compat alias. The FE-S2 stub typed the user as `AuthUser`; the
@@ -120,8 +120,8 @@ export interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 /** Path the global 401-handler redirects to. */
-const LOGIN_REDIRECT_PATH = '/(auth)/login';
-const LOGIN_EXPIRED_PATH = '/(auth)/login?reason=expired';
+const LOGIN_REDIRECT_PATH = "/(auth)/login";
+const LOGIN_EXPIRED_PATH = "/(auth)/login?reason=expired";
 
 /**
  * Wraps the app subtree and provides the {@link useAuth} hook.
@@ -152,9 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // populated and the gate stays open for the rest of the session.
   // ---------------------------------------------------------------------
   const [bootstrapDone, setBootstrapDone] = useState(false);
-  const cachedProfile = queryClient.getQueryData<StudentProfileDTO>(
-    PROFILE_QUERY_KEY,
-  );
+  const cachedProfile =
+    queryClient.getQueryData<StudentProfileDTO>(PROFILE_QUERY_KEY);
   const profile = useProfile(!bootstrapDone || cachedProfile !== undefined);
   useEffect(() => {
     if (!bootstrapDone && (profile.isFetched || profile.isError)) {
@@ -173,17 +172,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Web-only behaviour; the detector is a no-op on Native.
   // ---------------------------------------------------------------------
   useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    if (profile.status === 'success') {
-      detectorRef.current?.signal('profile-success');
+    if (Platform.OS !== "web") return;
+    if (profile.status === "success") {
+      detectorRef.current?.signal("profile-success");
       return;
     }
     if (
-      profile.status === 'error' &&
+      profile.status === "error" &&
       profile.error instanceof ApiError &&
       profile.error.status === 401
     ) {
-      detectorRef.current?.signal('profile-401');
+      detectorRef.current?.signal("profile-401");
     }
   }, [profile.status, profile.error]);
 
@@ -267,15 +266,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (dhbwMail: string, password: string) => {
       const body: LoginRequestDTO = { dhbwMail, password };
-      const res = await fetchClient('/public/auth/login', {
-        method: 'POST',
+      const res = await fetchClient("/public/auth/login", {
+        method: "POST",
         body: JSON.stringify(body),
       });
       const data = (await res.json()) as AuthResponseDTO;
 
-      if (Platform.OS !== 'web') {
+      if (Platform.OS !== "web") {
         if (!data.token || !data.expiresAt) {
-          throw new ApiError(0, 'Auth response missing token/expiresAt');
+          throw new ApiError(0, "Auth response missing token/expiresAt");
         }
         await secureStorage.setToken({
           token: data.token,
@@ -285,7 +284,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // On Web body.token is intentionally ignored — the HttpOnly jwt cookie
       // set by the same response is the only place the token lives.
 
-      detectorRef.current?.signal('login-success');
+      detectorRef.current?.signal("login-success");
       // Re-open the bootstrap gate so the post-login refetch runs even if
       // we were previously in the "logged-out, polling disabled" state.
       setBootstrapDone(false);
@@ -300,15 +299,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (dhbwMail: string, name: string, password: string) => {
       const body: RegisterRequestDTO = { dhbwMail, name, password };
-      const res = await fetchClient('/public/auth/register', {
-        method: 'POST',
+      const res = await fetchClient("/public/auth/register", {
+        method: "POST",
         body: JSON.stringify(body),
       });
       const data = (await res.json()) as AuthResponseDTO;
 
-      if (Platform.OS !== 'web') {
+      if (Platform.OS !== "web") {
         if (!data.token || !data.expiresAt) {
-          throw new ApiError(0, 'Auth response missing token/expiresAt');
+          throw new ApiError(0, "Auth response missing token/expiresAt");
         }
         await secureStorage.setToken({
           token: data.token,
@@ -316,7 +315,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       }
 
-      detectorRef.current?.signal('login-success');
+      detectorRef.current?.signal("login-success");
       // Re-open the bootstrap gate — see login() for rationale.
       setBootstrapDone(false);
       await queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
@@ -327,22 +326,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // ---------------------------------------------------------------------
   // logout — manual flow, ordering per Handover Z. 67:
   // best-effort POST /student/dashboard/logout (with token / cookie) →
-  // secureStorage.clear (Native) → queryClient.clear → router.replace
-  // ('/(auth)/login').
+  // secureStorage.clear (Native) → queryClient.clear → redirect.
   //
-  // The POST goes BEFORE clear because the backend endpoint itself needs
-  // the auth credential — clearing first would turn every logout into a
-  // 401. `user = null` happens implicitly: queryClient.clear drops the
-  // ['profile'] cache, and useProfile is gated to disabled once
-  // bootstrapDone+no-cached-data, so we never refetch.
+  // On Web we use window.location.replace() instead of router.replace():
+  // the hard navigation flushes the React tree, clears any stale UI, and
+  // reliably lands on the login screen even if Expo Router's internal
+  // state is out of sync after queryClient.clear(). On Native the standard
+  // router.replace() path is preserved.
   // ---------------------------------------------------------------------
   const logout = useCallback(async () => {
     try {
-      await fetchClient('/student/dashboard/logout', { method: 'POST' });
+      await fetchClient("/student/dashboard/logout", { method: "POST" });
     } catch {
       // 401/network — accept, the user wants to log out anyway
     }
     await localCleanup();
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      window.location.replace("/login");
+      return;
+    }
     try {
       router.replace(LOGIN_REDIRECT_PATH);
     } catch {
@@ -371,10 +373,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Derive the public state.
   // ---------------------------------------------------------------------
   const user: AuthUser | null = profile.data ?? null;
-  // isLoading is true ONLY during the initial bootstrap. After the first
-  // profile call resolves we never block the UI again — refetches happen
-  // in the background.
-  const isLoading = profile.isPending && !profile.isFetched;
+  // isLoading is true ONLY during the initial bootstrap network call.
+  // A disabled query (fetchStatus='idle') after logout also has isPending=true
+  // but no active fetch — exclude it so the AuthGate doesn't get stuck on the
+  // splash screen after logout while waiting for a refetch that never fires.
+  const isLoading =
+    profile.isPending && !profile.isFetched && profile.fetchStatus !== "idle";
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -399,7 +403,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (ctx === null) {
-    throw new Error('useAuth() must be called within <AuthProvider>');
+    throw new Error("useAuth() must be called within <AuthProvider>");
   }
   return ctx;
 }
