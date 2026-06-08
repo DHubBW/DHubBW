@@ -11,6 +11,7 @@ import {
 import { toast } from 'sonner-native';
 
 import { CookieBanner } from '@/components/CookieBanner';
+import { EmailInput } from '@/components/auth/EmailInput';
 import { RegisterStep2 } from '@/components/auth/RegisterStep2';
 import { StepIndicator } from '@/components/auth/StepIndicator';
 import { Footer } from '@/components/layout/Footer';
@@ -166,19 +167,14 @@ export default function RegisterScreen() {
                   <Label nativeID="register-mail-label" className="mb-1.5">
                     DHBW-Mail
                   </Label>
-                  <Input
+                  <EmailInput
                     accessibilityLabel="DHBW-Mail"
                     aria-labelledby="register-mail-label"
                     value={mail}
                     onChangeText={setMail}
                     onBlur={handleMailBlur}
-                    autoCapitalize="none"
-                    autoComplete="email"
-                    autoCorrect={false}
-                    keyboardType="email-address"
-                    inputMode="email"
-                    placeholder="nachname.vorname.a24@student.dhbw-karlsruhe.de"
                     editable={!submitting}
+                    testID="register-email"
                   />
                   {mailError !== null && (
                     <Text className="mt-1 text-xs text-destructive">{mailError}</Text>

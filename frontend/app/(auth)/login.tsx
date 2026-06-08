@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner-native";
 
 import { CookieBanner } from "@/components/CookieBanner";
+import { EmailInput } from '@/components/auth/EmailInput';
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -188,19 +189,14 @@ export default function LoginScreen() {
               <Label nativeID="login-mail-label" className="mb-1.5">
                 DHBW-Mail
               </Label>
-              <Input
+              <EmailInput
                 accessibilityLabel="DHBW-Mail"
                 aria-labelledby="login-mail-label"
                 value={mail}
                 onChangeText={setMail}
                 onBlur={handleMailBlur}
-                autoCapitalize="none"
-                autoComplete="email"
-                autoCorrect={false}
-                keyboardType="email-address"
-                inputMode="email"
-                placeholder="nachname.vorname.a24@student.dhbw-karlsruhe.de"
                 editable={!submitting}
+                testID="login-email"
               />
               {mailError !== null && (
                 <Text className="mt-1 text-xs text-destructive">

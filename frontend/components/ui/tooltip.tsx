@@ -16,6 +16,23 @@ const TooltipTrigger = TooltipPrimitive.Trigger;
 const FullWindowOverlay = Platform.OS === 'ios' ? RNFullWindowOverlay : React.Fragment;
 
 /**
+ * Compute entering/exiting animations only on native to avoid Reanimated web
+ * warnings about unsupported modifiers (`.withInitialValues` is not supported
+ * on web). On web, CSS animations via Tailwind handle the tooltip animation.
+ */
+function getEnteringAnimation(side: string) {
+  if (Platform.OS === 'web') return undefined;
+  return side === 'top'
+    ? FadeInDown.withInitialValues({ transform: [{ translateY: 3 }] }).duration(150)
+    : FadeInUp.withInitialValues({ transform: [{ translateY: -5 }] });
+}
+
+function getExitingAnimation() {
+  if (Platform.OS === 'web') return undefined;
+  return FadeOut;
+}
+
+/**
  * Animated tooltip content with portal support.
  *
  * Renders inside a portal and applies an entrance/exit animation depending on
