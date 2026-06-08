@@ -929,5 +929,75 @@ export const handlers = [
       { status: 200 },
     ),
   ),
-
+  http.get("http://localhost:8080/student/dashboard/meals/today", () =>
+    HttpResponse.json(
+      [
+        {
+          gerichtID: "aaaa0001-0000-0000-0000-000000000001",
+          datum: "2026-06-08",
+          essensbezeichnung: "Hähnchenbrust gegrillt",
+          allergene: "[Se]",
+          preis: 4.2,
+          ernaehrung: "FLEISCH",
+          linie: "Wahlessen 1",
+        },
+        {
+          gerichtID: "aaaa0001-0000-0000-0000-000000000002",
+          datum: "2026-06-08",
+          essensbezeichnung: "Gemüse-Lasagne",
+          allergene: "[ML,We]",
+          preis: 3.8,
+          ernaehrung: "VEGETARISCH",
+          linie: "Wahlessen 2",
+        },
+      ],
+      { status: 200 },
+    ),
+  ),
+  http.get("http://localhost:8080/student/dashboard/dateien/latest", () =>
+    HttpResponse.json(
+      [
+        {
+          dateiID: "bbbb0001-0000-0000-0000-000000000001",
+          name: "SE2_Notizen_Microservices.md",
+          zuletztBearbeitet: "2026-06-07",
+          fileSize: 0.12,
+          uploaderName: "Anna Schmidt",
+          ordnerID: "cccc0001-0000-0000-0000-000000000001",
+          ordnerName: "SE2",
+          downloadAnzahl: 37,
+        },
+        {
+          dateiID: "bbbb0001-0000-0000-0000-000000000002",
+          name: "SE2_Aufgabenblatt_2_Architekturmuster.pdf",
+          zuletztBearbeitet: "2026-06-06",
+          fileSize: 0.45,
+          uploaderName: "Prof. Schätzle",
+          ordnerID: "cccc0001-0000-0000-0000-000000000001",
+          ordnerName: "SE2",
+          downloadAnzahl: 74,
+        },
+      ],
+      { status: 200 },
+    ),
+  ),
+  http.get("http://localhost:8080/kursadmin/mitglieder/stats", () =>
+    HttpResponse.json(
+      { anzahlMitglieder: 5, anzahlDateien: 67, anzahlAnfragen: 2 },
+      { status: 200 },
+    ),
+  ),
+  http.get("http://localhost:8080/systemadmin/stats", () =>
+    HttpResponse.json(
+      {
+        anzahlKurse: 3,
+        anzahlNutzer: 8,
+        anzahlDateien: 67,
+        megabyteBelegt: 120.5,
+        megabyteVerfuegbar: 879.5,
+        anzahlKurserstellungsanfragen: 1,
+      },
+      { status: 200 },
+    ),
+  ),
 ];
