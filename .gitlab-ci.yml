@@ -23,6 +23,7 @@ default:
 variables:
   BACKEND_IMAGE:               dhubbw-backend:latest
   FRONTEND_IMAGE:              dhubbw-frontend:latest
+  FRONTEND_BUILD_CACHE:        dhubbw-frontend:build-cache
   # node_modules + .expo + target/ werden zwischen Jobs wiederverwendet
   GIT_CLEAN_FLAGS:             -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/ -e frontend/docs/ -e frontend/playwright-report/ -e frontend/test-results/
   FRONTEND_COVERAGE_HARD_FAIL: "false"
@@ -88,8 +89,19 @@ build:backend:
 build:frontend:
   stage: build
   script:
+    - docker pull $FRONTEND_BUILD_CACHE 2>/dev/null || true
     - docker pull $FRONTEND_IMAGE 2>/dev/null || true
-    - docker build $BUILD_DOCKER_OPTS --cache-from $FRONTEND_IMAGE -t $FRONTEND_IMAGE frontend/
+    - docker build $BUILD_DOCKER_OPTS
+        --cache-from $FRONTEND_BUILD_CACHE
+        --cache-from $FRONTEND_IMAGE
+        --target build
+        -t $FRONTEND_BUILD_CACHE
+        frontend/
+    - docker build $BUILD_DOCKER_OPTS
+        --cache-from $FRONTEND_BUILD_CACHE
+        --cache-from $FRONTEND_IMAGE
+        -t $FRONTEND_IMAGE
+        frontend/
   rules:
     - <<: *main-only
       <<: *frontend-changes
