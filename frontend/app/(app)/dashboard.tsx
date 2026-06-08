@@ -715,7 +715,7 @@ export default function DashboardScreen() {
           </View>
 
           {/* ── No-course / pending-request state ───────────── */}
-          {!hasKurs && !isSysAdmin && (
+          {!hasKurs && (
             <View className="mb-4">
               {user?.pendingKursRequest ? (
                 <PendingRequestCard pending={user.pendingKursRequest} />
