@@ -166,6 +166,39 @@ export interface MensaDTO {
  */
 export type WeekMealsMap = Record<string, MensaDTO[]>;
 
+/** Folder colour as defined in the backend `OrdnerFarbe` enum. */
+export type OrdnerFarbe = "DEFAULT" | "RED" | "BLUE" | "GREEN";
+
+/**
+ * Folder metadata returned by the `/student/ordner` endpoints.
+ *
+ * Mirrors `OrdnerDTO` in the backend (`ordner/application/dto/output/`).
+ * Field-name casing follows the Java DTO verbatim — note the upper-case
+ * `D` in `ordnerID` / `ueberOrdnerID` / `kursID` (Lombok `@Getter` for
+ * `private UUID ordnerID;` keeps the property name through Jackson),
+ * and the `public` field, which Jackson derives from the boolean
+ * accessor `isPublic()` (Java-Beans convention strips the `is` prefix).
+ */
+export interface OrdnerDTO {
+  /** UUID of the folder (string-encoded). */
+  ordnerID: string;
+  /** Folder name. */
+  name: string;
+  /** Nesting level (0 = root). */
+  level: number;
+  /** Folder colour. */
+  farbe: OrdnerFarbe;
+  /**
+   * Whether the folder is publicly visible. Backend property is
+   * `private boolean isPublic;`, Jackson serialises this as `public`.
+   */
+  public: boolean;
+  /** Parent folder UUID, or `null` for root folders. */
+  ueberOrdnerID: string | null;
+  /** UUID of the course this folder belongs to. */
+  kursID: string;
+}
+
 /**
  * File metadata returned by `GET /student/dashboard/dateien/latest`.
  *
