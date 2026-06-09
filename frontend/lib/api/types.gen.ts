@@ -306,11 +306,42 @@ export interface KursMitgliedRolleDTO {
 }
 
 /**
- * Aggregated stats for a course admin returned by
- * `GET /kursadmin/mitglieder/stats`.
+ * Course-member entry returned by `GET /kursadmin/mitglieder`.
  *
- * Mirrors `KursAdminStatsDTO` in the backend.
+ * Mirrors `KursmemberDTO` in the backend (`kurs/application/dto/output/`).
+ * Note: field is `studentType` (not `rolle`) — different from the sysadmin
+ * variant `KursMitgliedRolleDTO`.
  */
+export interface KursmemberDTO {
+  /** UUID of the course member (string-encoded). */
+  studentID: string;
+  /** Full name of the course member. */
+  name: string;
+  /** DHBW email address. */
+  dhbwMail: string;
+  /** Current role of the course member. */
+  studentType: StudentType;
+}
+
+/**
+ * Enrollment request returned by `GET /kursadmin/anfragen`.
+ *
+ * Mirrors `KursanfrageDTO` in the backend (`kurs/application/dto/output/`).
+ */
+export interface KursanfrageDTO {
+  /** UUID of the enrollment request (string-encoded). */
+  anfrageID: string;
+  /** UUID of the target course (string-encoded). */
+  kursID: string;
+  /** Name of the target course. */
+  kursName: string;
+  /** UUID of the requesting student (string-encoded). */
+  studentID: string;
+  /** Full name of the requesting student. */
+  studentName: string;
+  /** Submission date as ISO `"YYYY-MM-DD"`. */
+  anfrageDatum: string;
+}
 export interface KursAdminStatsDTO {
   /** Total enrolled members in the course. */
   anzahlMitglieder: number;

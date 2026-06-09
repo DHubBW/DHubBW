@@ -165,9 +165,12 @@ export function useAddSysAdmin() {
         await fetchClient(`/systemadmin/studenten/${studentId}/add-sysadmin`, {
           method: "PATCH",
         });
-        await queryClient.invalidateQueries({
-          queryKey: SYSADMIN_STUDENTEN_QUERY_KEY,
-        });
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: SYSADMIN_STUDENTEN_QUERY_KEY,
+          }),
+          queryClient.invalidateQueries({ queryKey: SYSADMIN_STATS_QUERY_KEY }),
+        ]);
       } catch (err) {
         if (err instanceof ApiError) throw err;
         throw new ApiError(0, "Network error");
@@ -203,9 +206,12 @@ export function useRemoveSysAdmin() {
           `/systemadmin/studenten/${studentId}/remove-sysadmin`,
           { method: "PATCH" },
         );
-        await queryClient.invalidateQueries({
-          queryKey: SYSADMIN_STUDENTEN_QUERY_KEY,
-        });
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: SYSADMIN_STUDENTEN_QUERY_KEY,
+          }),
+          queryClient.invalidateQueries({ queryKey: SYSADMIN_STATS_QUERY_KEY }),
+        ]);
       } catch (err) {
         if (err instanceof ApiError) throw err;
         throw new ApiError(0, "Network error");

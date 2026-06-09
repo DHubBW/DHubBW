@@ -1104,4 +1104,70 @@ export const handlers = [
         { status: 200 },
       ),
   ),
+  http.patch(
+    "http://localhost:8080/kursadmin/anfragen/:id/approve",
+    () =>
+      HttpResponse.json(
+        { response: "approved", persistenceOperation: "UPDATE" },
+        { status: 200 },
+      ),
+  ),
+  http.delete(
+    "http://localhost:8080/kursadmin/anfragen/:id",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+  http.get("http://localhost:8080/kursadmin/anfragen", () =>
+    HttpResponse.json(
+      [
+        {
+          anfrageID: "eeee0001-0000-0000-0000-000000000001",
+          kursID: "aaaa0001-0000-0000-0000-000000000001",
+          kursName: "TINF24B2",
+          studentID: "ffff0001-0000-0000-0000-000000000001",
+          studentName: "Lisa Bauer",
+          anfrageDatum: "2026-06-01",
+        },
+      ],
+      { status: 200 },
+    ),
+  ),
+  http.get("http://localhost:8080/kursadmin/mitglieder", () =>
+    HttpResponse.json(
+      [
+        {
+          studentID: "ffff0001-0000-0000-0000-000000000002",
+          name: "Max Müller",
+          dhbwMail: "max.mueller@dhbw-karlsruhe.de",
+          studentType: "KURSADMIN",
+        },
+        {
+          studentID: "ffff0001-0000-0000-0000-000000000003",
+          name: "Anna Schmidt",
+          dhbwMail: "anna.schmidt@dhbw-karlsruhe.de",
+          studentType: "STUDENT",
+        },
+      ],
+      { status: 200 },
+    ),
+  ),
+  http.patch(
+    "http://localhost:8080/kursadmin/mitglieder/add-kursadmin/:studentId",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+  http.patch(
+    "http://localhost:8080/kursadmin/mitglieder/remove-kursadmin/:studentId",
+    () =>
+      HttpResponse.json(
+        { response: "removed", persistenceOperation: "UPDATE" },
+        { status: 200 },
+      ),
+  ),
+  http.delete(
+    "http://localhost:8080/kursadmin/mitglieder/:studentId",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+  http.patch(
+    "http://localhost:8080/kursadmin/mitglieder/resign",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
 ];

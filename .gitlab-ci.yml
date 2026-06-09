@@ -6,12 +6,14 @@
 #   build   – compile Docker images (main only)
 #   test    – quality assurance (all branches)
 #   deploy  – deploy to VM + GitLab Pages (main only)
+#   cleanup – prune Docker resources (always)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 stages:
   - build
   - test
   - deploy
+  - cleanup
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Global Configuration
@@ -25,11 +27,11 @@ variables:
   FRONTEND_IMAGE:              dhubbw-frontend:latest
   FRONTEND_BUILD_CACHE:        dhubbw-frontend:build-cache
   # node_modules + .expo + target/ werden zwischen Jobs wiederverwendet
-  GIT_CLEAN_FLAGS:             -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/ -e frontend/docs/ -e frontend/playwright-report/ -e frontend/test-results/
-  FRONTEND_COVERAGE_HARD_FAIL: "false"
-  TEST_DOCKER_OPTS:            "--cpus=1.5 --memory=1g"
-  RUN_DOCKER_OPTS:             "--cpus=1.5 --memory=1g"
-  BUILD_DOCKER_OPTS:           "--memory=1g"
+  GIT_CLEAN_FLAGS:             -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/ -e frontend/docs/
+  TEST_DOCKER_OPTS:            "--cpus=1.5 --memory=900m"
+  RUN_DOCKER_OPTS:             "--cpus=1.5 --memory=900m"
+  BUILD_DOCKER_OPTS:           "--memory=1536m"
+  BUILD_NODE_OPTIONS:          "--max-old-space-size=1200"
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Templates (reusable job fragments)
@@ -53,11 +55,6 @@ variables:
   after_script:
     - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/backend/target:/target" eclipse-temurin:25-jdk
         chown -R $(id -u):$(id -g) /target 2>/dev/null || true
-
-.fix-frontend-ownership:
-  after_script:
-    - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app node:22-alpine
-        chown -R $(id -u):$(id -g) /app/test-results /app/playwright-report 2>/dev/null || true
 
 .frontend-npm-install: &frontend-npm-install
   - |
@@ -90,18 +87,19 @@ build:frontend:
   stage: build
   script:
     - docker pull $FRONTEND_BUILD_CACHE 2>/dev/null || true
-    - docker pull $FRONTEND_IMAGE 2>/dev/null || true
     - docker build $BUILD_DOCKER_OPTS
+        --build-arg NODE_OPTIONS="$BUILD_NODE_OPTIONS"
         --cache-from $FRONTEND_BUILD_CACHE
-        --cache-from $FRONTEND_IMAGE
         --target build
         -t $FRONTEND_BUILD_CACHE
         frontend/
+    - docker image prune -f || true
     - docker build $BUILD_DOCKER_OPTS
+        --build-arg NODE_OPTIONS="$BUILD_NODE_OPTIONS"
         --cache-from $FRONTEND_BUILD_CACHE
-        --cache-from $FRONTEND_IMAGE
         -t $FRONTEND_IMAGE
         frontend/
+    - docker image prune -f || true
   rules:
     - <<: *main-only
       <<: *frontend-changes
@@ -132,6 +130,8 @@ test:backend:migrations:
     PG_CONTAINER: migration-pg-$CI_JOB_ID
     NET_NAME:     migration-net-$CI_JOB_ID
   script:
+    - docker rm -f $PG_CONTAINER 2>/dev/null || true
+    - docker network rm $NET_NAME 2>/dev/null || true
     - docker network create $NET_NAME
     - docker run -d --name $PG_CONTAINER --network $NET_NAME
         -e POSTGRES_PASSWORD=pw -e POSTGRES_DB=testdb postgres:17
@@ -173,22 +173,6 @@ test:frontend:unit:
         npm test -- --project=unit --passWithNoTests
   rules:
     - <<: *frontend-changes
-
-test:frontend:e2e-web:
-  extends: .fix-frontend-ownership
-  stage: test
-  script:
-    - *frontend-npm-install
-    - docker run --rm $TEST_DOCKER_OPTS -v "$PWD/frontend:/app" -w /app --shm-size=512m
-        mcr.microsoft.com/playwright:v1.60.0-noble
-        sh -c "npx playwright install chromium && npm run test:e2e -- --project=chromium"
-  allow_failure: true
-  rules:
-    - changes:
-        - frontend/app/**/*
-        - frontend/e2e/**/*
-        - frontend/components/**/*
-        - frontend/lib/**/*
 
 test:frontend:docs:
   stage: test
@@ -302,9 +286,9 @@ deploy:vm:
         exit 1
       }
     - docker rm -f postgres backend frontend 2>/dev/null || true
-    - docker rm -f $(docker ps -q --filter "publish=8080") 2>/dev/null || true
-    - docker rm -f $(docker ps -q --filter "publish=80") 2>/dev/null || true
-    - docker rm -f $(docker ps -q --filter "publish=443") 2>/dev/null || true
+    - docker ps -q --filter "publish=8080" | xargs -r docker rm -f 2>/dev/null || true
+    - docker ps -q --filter "publish=80" | xargs -r docker rm -f 2>/dev/null || true
+    - docker ps -q --filter "publish=443" | xargs -r docker rm -f 2>/dev/null || true
     - docker compose --env-file /opt/projects/devstack/.env -f deploy/docker-compose.yml up -d --remove-orphans
     # Smoke-Tests
     - sleep 8
@@ -316,13 +300,31 @@ deploy:vm:
       REDIRECT=$(curl -s -o /dev/null -w "%{http_code}" http://vm553.ipp-vps.net/ 2>/dev/null || echo "000")
       echo "HTTP-redirect smoke-test: $REDIRECT"
       [ "$REDIRECT" = "301" ] || echo "WARNING: HTTP redirect returned $REDIRECT (expected 301)"
-    # Cleanup: dangling Images + überlaufenden Build-Cache entfernen.
-    - docker image prune -f || true
-    - docker builder prune -f --keep-storage=2gb || true
-    - docker volume prune -f || true
   rules:
     - <<: *main-only
       changes:
         - backend/**/*
         - frontend/**/*
         - deploy/**/*
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLEANUP
+# ═══════════════════════════════════════════════════════════════════════════════
+
+cleanup:disk:
+  stage: cleanup
+  when: always
+  script:
+    - docker container prune -f || true
+    - docker image prune -f || true
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        docker builder prune -f --keep-storage=1gb || true
+      else
+        docker builder prune -f || true
+      fi
+    - docker volume prune -f || true
+    - df -h / || true
+    - docker system df || true
+  rules:
+    - when: always

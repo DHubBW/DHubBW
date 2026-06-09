@@ -91,6 +91,24 @@ jest.mock("@/hooks/useKursadminBySysAdmin", () => ({
     isPending: false,
   }),
 }));
+// KursAdmin-Hooks für den KURSADMIN-Zweig
+jest.mock("@/hooks/useKursAdminStats", () => ({
+  useKursAdminStats: () => ({ data: null, isLoading: false, isError: false }),
+}));
+jest.mock("@/hooks/useKursAdminAnfragen", () => ({
+  useKursAdminAnfragen: () => ({ data: [], isLoading: false }),
+}));
+jest.mock("@/hooks/useKursAdminMitglieder", () => ({
+  useKursAdminMitglieder: () => ({ data: [], isLoading: false }),
+}));
+jest.mock("@/hooks/useKursAdminActions", () => ({
+  useKursAdminApproveAnfrage: () => ({ approveAnfrage: jest.fn() }),
+  useKursAdminDeclineAnfrage: () => ({ declineAnfrage: jest.fn() }),
+  useKursAdminResign: () => ({ resign: jest.fn() }),
+  useKursAdminAddKursadmin: () => ({ addKursadmin: jest.fn() }),
+  useKursAdminRemoveKursadmin: () => ({ removeKursadmin: jest.fn() }),
+  useKursAdminRemoveMember: () => ({ removeMember: jest.fn() }),
+}));
 
 jest.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => children,
@@ -113,6 +131,9 @@ jest.mock("@tanstack/react-query", () => ({
 
 jest.mock("expo-router", () => ({
   Redirect: ({ href }: { href: string }) => null,
+  useRouter: () => ({ replace: jest.fn(), push: jest.fn(), setParams: jest.fn() }),
+  useLocalSearchParams: () => ({}),
+  Link: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 jest.mock("sonner-native", () => ({
@@ -144,7 +165,8 @@ describe("VerwaltungScreen — SYSTEMADMIN", () => {
 
   it("zeigt die Seitenüberschrift Systemverwaltung", () => {
     render(<VerwaltungScreen />);
-    expect(screen.getByText("Systemverwaltung")).toBeTruthy();
+    // Tab-Switcher + Seitenüberschrift können beide "Systemverwaltung" enthalten
+    expect(screen.getAllByText("Systemverwaltung").length).toBeGreaterThan(0);
   });
 
   it("rendert alle fünf KPI-Karten", () => {

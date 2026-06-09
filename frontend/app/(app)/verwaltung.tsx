@@ -3,7 +3,8 @@
  * - SYSTEMADMIN: platform KPIs, course-creation requests, courses table
  *   with per-member KA-assign/revoke inline, students table with SA-role
  *   actions and scrollable list.
- * - KURSADMIN: placeholder.
+ * - KURSADMIN: stats, enrollment requests, member list with role actions,
+ *   resign button.
  * - Other roles: redirected by AdminRoute.
  */
 import {
@@ -15,7 +16,6 @@ import {
   BookOpen,
   HardDrive,
   Search,
-  Shield,
   Trash2,
   UserCheck,
   UserMinus,
@@ -31,6 +31,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { toast } from "sonner-native";
 
 import { AdminRoute } from "@/components/auth/AdminRoute";
@@ -45,6 +46,17 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  useKursAdminAddKursadmin,
+  useKursAdminApproveAnfrage,
+  useKursAdminDeclineAnfrage,
+  useKursAdminRemoveKursadmin,
+  useKursAdminRemoveMember,
+  useKursAdminResign,
+} from "@/hooks/useKursAdminActions";
+import { useKursAdminAnfragen } from "@/hooks/useKursAdminAnfragen";
+import { useKursAdminMitglieder } from "@/hooks/useKursAdminMitglieder";
+import { useKursAdminStats } from "@/hooks/useKursAdminStats";
 import {
   useAddKursadminBySysAdmin,
   useRemoveKursadminBySysAdmin,
@@ -65,6 +77,8 @@ import { ApiError } from "@/lib/api/errors";
 import type {
   KursDTO,
   KursErstellungsAnfrageDTO,
+  KursmemberDTO,
+  KursanfrageDTO,
   KursMitgliedRolleDTO,
   StudentDTO,
   SystemAdminStatsDTO,
@@ -94,10 +108,10 @@ const ROLLE_CONFIG = {
   KURSADMIN: {
     label: "KA",
     full: "Kursadmin",
-    bg: "bg-[hsl(45.4_93.4%_47.5%/0.2)]",
-    text: "text-[hsl(45.4,93.4%,32%)]",
-    tooltipBg: "bg-[hsl(45.4,93.4%,40%)]",
-    tooltipText: "text-white",
+    bg: "bg-[hsl(var(--warning)/0.2)]",
+    text: "text-[hsl(var(--warning))]",
+    tooltipBg: "bg-[hsl(var(--warning))]",
+    tooltipText: "text-foreground",
   },
   STUDENT: {
     label: "S",
@@ -379,16 +393,29 @@ function KursanfragenSection({
           onApprove={async () => {
             try {
               await approveAnfrage(anfrage.anfrageID);
-              toast.success(`Kurs "${anfrage.kursName}" genehmigt`);
+              toast.success(
+                t(
+                  "verwaltung.anfragen.approveSuccess",
+                  `Kurs "${anfrage.kursName}" genehmigt`,
+                ),
+              );
             } catch (err) {
               if (err instanceof ApiError && err.status === 409) {
                 toast.error(
                   err instanceof ApiError && err.message
                     ? err.message
-                    : `Genehmigung fehlgeschlagen`,
+                    : t(
+                        "verwaltung.anfragen.approveError",
+                        "Genehmigung fehlgeschlagen",
+                      ),
                 );
               } else {
-                toast.error("Genehmigung fehlgeschlagen");
+                toast.error(
+                  t(
+                    "verwaltung.anfragen.approveError",
+                    "Genehmigung fehlgeschlagen",
+                  ),
+                );
               }
               throw err;
             }
@@ -466,12 +493,21 @@ function MitgliedRow({
             onConfirm={async () => {
               try {
                 await onAddKa();
-                toast.success(`${mitglied.studentName} ist jetzt Kursadmin`);
+                toast.success(
+                  t(
+                    "verwaltung.kurse.addKaSuccess",
+                    `${mitglied.studentName} ist jetzt Kursadmin`,
+                  ),
+                );
               } catch (err) {
                 if (err instanceof ApiError && err.status === 409) {
-                  toast.error("Bereits Kursadmin");
+                  toast.error(
+                    t("verwaltung.kurse.alreadyKa", "Bereits Kursadmin"),
+                  );
                 } else {
-                  toast.error("Aktion fehlgeschlagen");
+                  toast.error(
+                    t("verwaltung.kurse.actionError", "Aktion fehlgeschlagen"),
+                  );
                 }
                 throw err;
               }
@@ -494,13 +530,23 @@ function MitgliedRow({
               try {
                 await onRemoveKa();
                 toast.success(
-                  `${mitglied.studentName} ist kein Kursadmin mehr`,
+                  t(
+                    "verwaltung.kurse.removeKaSuccess",
+                    `${mitglied.studentName} ist kein Kursadmin mehr`,
+                  ),
                 );
               } catch (err) {
                 if (err instanceof ApiError && err.status === 409) {
-                  toast.error("Letzter Kursadmin — Entziehen nicht möglich");
+                  toast.error(
+                    t(
+                      "verwaltung.kurse.lastKaError",
+                      "Letzter Kursadmin — Entziehen nicht möglich",
+                    ),
+                  );
                 } else {
-                  toast.error("Aktion fehlgeschlagen");
+                  toast.error(
+                    t("verwaltung.kurse.actionError", "Aktion fehlgeschlagen"),
+                  );
                 }
                 throw err;
               }
@@ -614,9 +660,14 @@ function KursRow({ kurs }: { kurs: KursDTO }) {
           try {
             await deleteKurs(kurs.kursID);
             setExpanded(false);
-            toast.success(`Kurs "${kurs.kursName}" gelöscht`);
+            toast.success(
+              t(
+                "verwaltung.kurse.deleteSuccess",
+                `Kurs "${kurs.kursName}" gelöscht`,
+              ),
+            );
           } catch {
-            toast.success(`Kurs "${kurs.kursName}" gelöscht`);
+            toast.error(t("verwaltung.kurse.deleteError", "Kurs löschen fehlgeschlagen"));
           }
         }}
       />
@@ -721,12 +772,27 @@ function StudentRow({
             onConfirm={async () => {
               try {
                 await addSysAdmin(student.studentID);
-                toast.success(`${student.name} ist jetzt Systemadmin`);
+                toast.success(
+                  t(
+                    "verwaltung.studenten.addSaSuccess",
+                    `${student.name} ist jetzt Systemadmin`,
+                  ),
+                );
               } catch (err) {
                 if (err instanceof ApiError && err.status === 409) {
-                  toast.error("Bereits Systemadmin");
+                  toast.error(
+                    t(
+                      "verwaltung.studenten.alreadySa",
+                      "Bereits Systemadmin",
+                    ),
+                  );
                 } else {
-                  toast.error("Aktion fehlgeschlagen");
+                  toast.error(
+                    t(
+                      "verwaltung.studenten.actionError",
+                      "Aktion fehlgeschlagen",
+                    ),
+                  );
                 }
                 throw err;
               }
@@ -772,14 +838,27 @@ function StudentRow({
             onConfirm={async () => {
               try {
                 await removeSysAdmin(student.studentID);
-                toast.success(`${student.name} ist kein Systemadmin mehr`);
+                toast.success(
+                  t(
+                    "verwaltung.studenten.removeSaSuccess",
+                    `${student.name} ist kein Systemadmin mehr`,
+                  ),
+                );
               } catch (err) {
                 if (err instanceof ApiError && err.status === 409) {
                   toast.error(
-                    "Aktion fehlgeschlagen — diese Rolle ist die letzte",
+                    t(
+                      "verwaltung.studenten.lastSaError",
+                      "Aktion fehlgeschlagen — diese Rolle ist die letzte",
+                    ),
                   );
                 } else {
-                  toast.error("Aktion fehlgeschlagen");
+                  toast.error(
+                    t(
+                      "verwaltung.studenten.actionError",
+                      "Aktion fehlgeschlagen",
+                    ),
+                  );
                 }
                 throw err;
               }
@@ -932,26 +1011,565 @@ function SystemverwaltungContent() {
   );
 }
 
-// ─── KURSADMIN placeholder ────────────────────────────────────────────────────
+// ─── KURSADMIN view ───────────────────────────────────────────────────────────
+
+function KaAnfrageCard({
+  anfrage,
+  onApprove,
+  onDecline,
+}: {
+  anfrage: KursanfrageDTO;
+  onApprove: () => Promise<void>;
+  onDecline: () => Promise<void>;
+}) {
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [declineOpen, setDeclineOpen] = useState(false);
+
+  return (
+    <View className="rounded-xl border border-border bg-card px-5 py-4">
+      <View className="mb-1 flex-row items-center gap-2">
+        <View className="h-2.5 w-2.5 rounded-full bg-destructive" />
+        <Text className="text-base font-semibold text-foreground">
+          {anfrage.studentName}
+        </Text>
+      </View>
+      <Text className="mb-3 text-sm text-muted-foreground">
+        {t("verwaltung.ka.anfragen.datum", "Eingereicht am")}:{" "}
+        {anfrage.anfrageDatum}
+      </Text>
+      <View className="flex-row gap-3">
+        <Button
+          variant="default"
+          className="flex-1"
+          onPress={() => setApproveOpen(true)}
+        >
+          <Check size={14} color="white" />
+          <Text className="text-sm text-primary-foreground">
+            {t("verwaltung.ka.anfragen.annehmen", "Annehmen")}
+          </Text>
+        </Button>
+        <Button
+          variant="outline"
+          className="flex-1 border-destructive"
+          onPress={() => setDeclineOpen(true)}
+        >
+          <X size={14} color="hsl(var(--destructive))" />
+          <Text className="text-sm text-destructive">
+            {t("verwaltung.ka.anfragen.ablehnen", "Ablehnen")}
+          </Text>
+        </Button>
+      </View>
+
+      <ConfirmDialog
+        open={approveOpen}
+        onOpenChange={setApproveOpen}
+        title={t("verwaltung.ka.anfragen.approveTitle", "Anfrage annehmen")}
+        message={t(
+          "verwaltung.ka.anfragen.approveMsg",
+          `${anfrage.studentName} wird dem Kurs hinzugefügt.`,
+        )}
+        confirmLabel={t("verwaltung.ka.anfragen.annehmen", "Annehmen")}
+        onConfirm={onApprove}
+      />
+      <ConfirmDialog
+        open={declineOpen}
+        onOpenChange={setDeclineOpen}
+        title={t("verwaltung.ka.anfragen.declineTitle", "Anfrage ablehnen")}
+        message={t(
+          "verwaltung.ka.anfragen.declineMsg",
+          `Die Beitrittsanfrage von ${anfrage.studentName} wird abgelehnt.`,
+        )}
+        confirmLabel={t("verwaltung.ka.anfragen.ablehnen", "Ablehnen")}
+        variant="destructive"
+        onConfirm={onDecline}
+      />
+    </View>
+  );
+}
+
+function KaAnfragenSection({
+  anfragen,
+  isLoading,
+}: {
+  anfragen: KursanfrageDTO[];
+  isLoading: boolean;
+}) {
+  const { approveAnfrage } = useKursAdminApproveAnfrage();
+  const { declineAnfrage } = useKursAdminDeclineAnfrage();
+
+  if (isLoading)
+    return (
+      <View className="items-center py-8">
+        <ActivityIndicator />
+      </View>
+    );
+  if (anfragen.length === 0)
+    return (
+      <Text className="py-2 text-sm text-muted-foreground">
+        {t("verwaltung.ka.anfragen.empty", "Keine offenen Anfragen.")}
+      </Text>
+    );
+
+  return (
+    <View className="gap-3">
+      {anfragen.map((anfrage) => (
+        <KaAnfrageCard
+          key={anfrage.anfrageID}
+          anfrage={anfrage}
+          onApprove={async () => {
+            try {
+              await approveAnfrage(anfrage.anfrageID);
+              toast.success(
+                t(
+                  "verwaltung.ka.anfragen.approveSuccess",
+                  `${anfrage.studentName} aufgenommen`,
+                ),
+              );
+            } catch (err) {
+              if (err instanceof ApiError && err.status === 409) {
+                toast.error(
+                  err.message ?? t("verwaltung.ka.error", "Aktion fehlgeschlagen"),
+                );
+              } else {
+                toast.error(t("verwaltung.ka.error", "Aktion fehlgeschlagen"));
+              }
+              throw err;
+            }
+          }}
+          onDecline={async () => {
+            await declineAnfrage(anfrage.anfrageID);
+            toast.success(t("verwaltung.ka.anfragen.declineSuccess", "Abgelehnt"));
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
+function KaMitgliedRow({
+  mitglied,
+  currentUserMail,
+  onSelfDemoted,
+}: {
+  mitglied: KursmemberDTO;
+  currentUserMail: string | undefined;
+  onSelfDemoted?: () => void;
+}) {
+  const [addKaOpen, setAddKaOpen] = useState(false);
+  const [removeKaOpen, setRemoveKaOpen] = useState(false);
+  const [removeOpen, setRemoveOpen] = useState(false);
+  const { addKursadmin } = useKursAdminAddKursadmin();
+  const { removeKursadmin } = useKursAdminRemoveKursadmin();
+  const { removeMember } = useKursAdminRemoveMember();
+
+  const isKa = mitglied.studentType === "KURSADMIN";
+  const isSa = mitglied.studentType === "SYSTEMADMIN";
+  const isSelf = mitglied.dhbwMail === currentUserMail;
+
+  const actionButton = (
+    icon: React.ReactNode,
+    onPress: () => void,
+    borderClass: string,
+    tooltip: string,
+  ) => {
+    const btn = (
+      <TouchableOpacity
+        onPress={onPress}
+        accessibilityRole="button"
+        className={cn("rounded border px-2 py-1", borderClass)}
+      >
+        {icon}
+      </TouchableOpacity>
+    );
+    if (Platform.OS !== "web") return btn;
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{btn}</TooltipTrigger>
+        <TooltipContent side="top">
+          <Text className="text-xs font-semibold text-primary-foreground">
+            {tooltip}
+          </Text>
+        </TooltipContent>
+      </Tooltip>
+    );
+  };
+
+  return (
+    <View className="flex-row items-center gap-3 py-2.5">
+      <View className="h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary">
+        <Text className="text-sm font-semibold text-secondary-foreground">
+          {mitglied.name.slice(0, 2).toUpperCase()}
+        </Text>
+      </View>
+      <View className="flex-1">
+        <Text
+          className="text-sm font-semibold text-foreground"
+          numberOfLines={1}
+        >
+          {mitglied.name}
+        </Text>
+        <Text className="text-xs text-muted-foreground" numberOfLines={1}>
+          {mitglied.dhbwMail}
+        </Text>
+      </View>
+      <RolleBadge rolle={mitglied.studentType} />
+
+      {isSa ? null : (
+        <>
+          {!isKa
+            ? actionButton(
+                <UserCheck size={13} color="hsl(var(--primary))" />,
+                () => setAddKaOpen(true),
+                "border-border",
+                t("verwaltung.ka.mitglieder.addKaBtn", "Ernennen"),
+              )
+            : actionButton(
+                <UserMinus size={13} color="hsl(var(--destructive))" />,
+                () => setRemoveKaOpen(true),
+                "border-destructive/50",
+                t("verwaltung.ka.mitglieder.removeKaBtn", "Entziehen"),
+              )}
+
+          {!isKa &&
+            !isSelf &&
+            actionButton(
+              <Trash2 size={13} color="hsl(var(--destructive))" />,
+              () => setRemoveOpen(true),
+              "border-destructive/50",
+              t("verwaltung.ka.mitglieder.removeBtn", "Entfernen"),
+            )}
+
+          <ConfirmDialog
+            open={addKaOpen}
+            onOpenChange={setAddKaOpen}
+            title={t(
+              "verwaltung.ka.mitglieder.addKaTitle",
+              "Zum Kursadmin ernennen",
+            )}
+            message={t(
+              "verwaltung.ka.mitglieder.addKaMsg",
+              `${mitglied.name} erhält die Kursadmin-Rolle.`,
+            )}
+            confirmLabel={t("verwaltung.ka.mitglieder.addKaBtn", "Ernennen")}
+            onConfirm={async () => {
+              try {
+                await addKursadmin(mitglied.studentID);
+                toast.success(
+                  t(
+                    "verwaltung.ka.mitglieder.addKaSuccess",
+                    `${mitglied.name} ist jetzt Kursadmin`,
+                  ),
+                );
+              } catch (err) {
+                if (err instanceof ApiError && err.status === 409) {
+                  toast.error(
+                    t(
+                      "verwaltung.ka.mitglieder.alreadyKa",
+                      "Bereits Kursadmin",
+                    ),
+                  );
+                } else {
+                  toast.error(
+                    t("verwaltung.ka.error", "Aktion fehlgeschlagen"),
+                  );
+                }
+                throw err;
+              }
+            }}
+          />
+          <ConfirmDialog
+            open={removeKaOpen}
+            onOpenChange={setRemoveKaOpen}
+            title={t(
+              "verwaltung.ka.mitglieder.removeKaTitle",
+              "Kursadmin-Rolle entziehen",
+            )}
+            message={t(
+              "verwaltung.ka.mitglieder.removeKaMsg",
+              `${mitglied.name} wird auf Student zurückgestuft.`,
+            )}
+            confirmLabel={t(
+              "verwaltung.ka.mitglieder.removeKaBtn",
+              "Entziehen",
+            )}
+            variant="destructive"
+            onConfirm={async () => {
+              try {
+                await removeKursadmin(mitglied.studentID);
+                toast.success(
+                  t(
+                    "verwaltung.ka.mitglieder.removeKaSuccess",
+                    `${mitglied.name} ist kein Kursadmin mehr`,
+                  ),
+                );
+                if (isSelf) onSelfDemoted?.();
+              } catch (err) {
+                if (err instanceof ApiError && err.status === 409) {
+                  toast.error(
+                    t(
+                      "verwaltung.ka.mitglieder.lastKaError",
+                      "Mind. 1 Kursadmin pro Kurs erforderlich",
+                    ),
+                  );
+                } else {
+                  toast.error(
+                    t("verwaltung.ka.error", "Aktion fehlgeschlagen"),
+                  );
+                }
+                throw err;
+              }
+            }}
+          />
+          <ConfirmDialog
+            open={removeOpen}
+            onOpenChange={setRemoveOpen}
+            title={t(
+              "verwaltung.ka.mitglieder.removeTitle",
+              "Aus Kurs entfernen",
+            )}
+            message={t(
+              "verwaltung.ka.mitglieder.removeMsg",
+              `${mitglied.name} wird aus dem Kurs entfernt.`,
+            )}
+            confirmLabel={t(
+              "verwaltung.ka.mitglieder.removeBtn",
+              "Entfernen",
+            )}
+            variant="destructive"
+            onConfirm={async () => {
+              try {
+                await removeMember(mitglied.studentID);
+                toast.success(
+                  t(
+                    "verwaltung.ka.mitglieder.removeSuccess",
+                    `${mitglied.name} entfernt`,
+                  ),
+                );
+              } catch (err) {
+                if (err instanceof ApiError && err.status === 409) {
+                  toast.error(
+                    t(
+                      "verwaltung.ka.mitglieder.removeRoleError",
+                      "Kursadmins müssen zuerst zurückgestuft werden",
+                    ),
+                  );
+                } else {
+                  toast.error(
+                    t("verwaltung.ka.error", "Aktion fehlgeschlagen"),
+                  );
+                }
+                throw err;
+              }
+            }}
+          />
+        </>
+      )}
+    </View>
+  );
+}
+
+function KaMitgliederSection({
+  mitglieder,
+  isLoading,
+  currentUserMail,
+  onSelfDemoted,
+}: {
+  mitglieder: KursmemberDTO[];
+  isLoading: boolean;
+  currentUserMail: string | undefined;
+  onSelfDemoted?: () => void;
+}) {
+  const [search, setSearch] = useState("");
+
+  const filtered = search.trim()
+    ? mitglieder.filter(
+        (m) =>
+          m.name.toLowerCase().includes(search.toLowerCase()) ||
+          m.dhbwMail.toLowerCase().includes(search.toLowerCase()),
+      )
+    : mitglieder;
+
+  return (
+    <View>
+      <View className="mb-3 flex-row items-center gap-2 rounded-lg border border-border bg-background px-3 py-2.5">
+        <Search size={15} color="hsl(var(--muted-foreground))" />
+        <TextInput
+          value={search}
+          onChangeText={setSearch}
+          placeholder={t(
+            "verwaltung.ka.mitglieder.search",
+            "Name oder E-Mail suchen …",
+          )}
+          placeholderTextColor="hsl(var(--muted-foreground))"
+          className="flex-1 text-sm text-foreground"
+          autoCapitalize="none"
+          autoCorrect={false}
+          clearButtonMode="while-editing"
+        />
+      </View>
+
+      {isLoading ? (
+        <View className="items-center py-8">
+          <ActivityIndicator />
+        </View>
+      ) : filtered.length === 0 ? (
+        <Text className="py-2 text-sm text-muted-foreground">
+          {search.trim()
+            ? t("verwaltung.ka.mitglieder.noResults", "Keine Treffer.")
+            : t("verwaltung.ka.mitglieder.empty", "Keine Mitglieder.")}
+        </Text>
+      ) : (
+        <ScrollView
+          className="max-h-96"
+          nestedScrollEnabled
+          showsVerticalScrollIndicator
+        >
+          {filtered.map((m, idx) => (
+            <View key={m.studentID}>
+              {idx > 0 && <Separator className="opacity-30" />}
+              <KaMitgliedRow mitglied={m} currentUserMail={currentUserMail} onSelfDemoted={onSelfDemoted} />
+            </View>
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
 
 function KursadminContent() {
+  const { user, refresh } = useAuth();
+  const router = useRouter();
+  const [resignOpen, setResignOpen] = useState(false);
+  const { resign } = useKursAdminResign();
+
+  const stats = useKursAdminStats();
+  const anfragen = useKursAdminAnfragen();
+  const mitglieder = useKursAdminMitglieder();
+
+  const anfrageCount = anfragen.data?.length ?? 0;
+
   return (
-    <View className="flex-1 items-center justify-center bg-background px-6">
-      <Shield
-        size={40}
-        color="hsl(var(--muted-foreground))"
-        strokeWidth={1.5}
-      />
-      <Text className="mt-4 text-lg font-semibold text-foreground">
-        {t("verwaltung.kursadmin.title", "Kursverwaltung")}
-      </Text>
-      <Text className="mt-2 text-center text-sm text-muted-foreground">
-        {t(
-          "verwaltung.kursadmin.placeholder",
-          "Die Kursverwaltung für Kursadmins wird in einem späteren Sprint implementiert.",
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
+      <View className="flex-1 gap-5 px-5 py-6">
+        {/* Header */}
+        <Text className="text-2xl font-bold text-foreground">
+          {t("verwaltung.ka.title", "Kursverwaltung")}
+        </Text>
+
+        {/* KPI-Kacheln inkl. Kursname */}
+        {stats.isLoading ? (
+          <View className="items-center py-4">
+            <ActivityIndicator />
+          </View>
+        ) : stats.isError ? (
+          <View className="flex-row items-center gap-2 rounded-xl bg-destructive/10 px-4 py-3">
+            <AlertCircle size={16} color="hsl(var(--destructive))" />
+            <Text className="text-sm text-destructive">
+              {t(
+                "verwaltung.stats.error",
+                "KPIs konnten nicht geladen werden.",
+              )}
+            </Text>
+          </View>
+        ) : stats.data ? (
+          <View className="flex-row flex-wrap gap-3">
+            {user?.kursName ? (
+              <KpiCard
+                icon={BookOpen}
+                iconColor="hsl(var(--primary))"
+                value={user.kursName}
+                label={t("verwaltung.ka.kursname", "Dein Kurs")}
+              />
+            ) : null}
+            <KpiCard
+              icon={Users}
+              iconColor="hsl(var(--primary))"
+              value={stats.data.anzahlMitglieder}
+              label={t("verwaltung.ka.stats.mitglieder", "Mitglieder")}
+            />
+            <KpiCard
+              icon={File}
+              iconColor="hsl(var(--success))"
+              value={stats.data.anzahlDateien}
+              label={t("verwaltung.ka.stats.dateien", "Dateien")}
+            />
+            <KpiCard
+              icon={AlertCircle}
+              iconColor="hsl(var(--destructive))"
+              value={stats.data.anzahlAnfragen}
+              label={t("verwaltung.ka.stats.anfragen", "Offene Anfragen")}
+              badge={
+                stats.data.anzahlAnfragen > 0
+                  ? stats.data.anzahlAnfragen
+                  : undefined
+              }
+            />
+          </View>
+        ) : null}
+
+        <Card className="gap-0 px-5 py-5">
+          <SectionHeader
+            icon={AlertCircle}
+            label={t("verwaltung.ka.anfragen.title", "Beitrittsanfragen")}
+            badge={anfrageCount}
+          />
+          <KaAnfragenSection
+            anfragen={anfragen.data ?? []}
+            isLoading={anfragen.isLoading}
+          />
+        </Card>
+
+        <Card className="gap-0 px-5 py-5">
+          <SectionHeader
+            icon={Users}
+            label={t("verwaltung.ka.mitglieder.title", "Mitglieder")}
+          />
+          <KaMitgliederSection
+            mitglieder={mitglieder.data ?? []}
+            isLoading={mitglieder.isLoading}
+            currentUserMail={user?.dhbwMail}
+            onSelfDemoted={async () => {
+              await refresh();
+              router.replace("/(app)/dashboard");
+            }}
+          />
+        </Card>
+      </View>
+
+      <ConfirmDialog
+        open={resignOpen}
+        onOpenChange={setResignOpen}
+        title={t("verwaltung.ka.resignTitle", "Als Kursadmin zurücktreten")}
+        message={t(
+          "verwaltung.ka.resignMsg",
+          "Du wirst zum normalen Mitglied. Es muss mindestens ein weiterer Kursadmin im Kurs sein.",
         )}
-      </Text>
-    </View>
+        confirmLabel={t("verwaltung.ka.resignConfirm", "Zurücktreten")}
+        variant="destructive"
+        onConfirm={async () => {
+          try {
+            await resign();
+            await refresh();
+            router.replace("/(app)/dashboard");
+          } catch (err) {
+            if (err instanceof ApiError && err.status === 409) {
+              toast.error(
+                t(
+                  "verwaltung.ka.resignLastError",
+                  "Bist letzter Kursadmin — ernenne zuerst einen anderen",
+                ),
+              );
+            } else {
+              toast.error(t("verwaltung.ka.error", "Aktion fehlgeschlagen"));
+            }
+            throw err;
+          }
+        }}
+      />
+    </ScrollView>
   );
 }
 
@@ -964,11 +1582,71 @@ function KursadminContent() {
  */
 export default function VerwaltungScreen() {
   const { user } = useAuth();
+  const router = useRouter();
   const isSysAdmin = user?.studentType === "SYSTEMADMIN";
+  const hasKurs = Boolean(user?.kursName);
+  const showTabs = isSysAdmin && hasKurs;
+
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
+  const activeTab: "system" | "kurs" = tab === "kurs" ? "kurs" : "system";
 
   return (
     <AdminRoute>
-      {isSysAdmin ? <SystemverwaltungContent /> : <KursadminContent />}
+      {showTabs ? (
+        <View className="flex-1 bg-background">
+          {/* Tab switcher pill */}
+          <View className="flex-row items-center gap-1 self-center rounded-full bg-muted px-1 py-1 mt-4 mb-2">
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => router.setParams({ tab: "system" })}
+              className={cn(
+                "rounded-full px-4 py-1.5",
+                activeTab === "system" ? "bg-background" : "",
+              )}
+            >
+              <Text
+                className={cn(
+                  "text-sm font-medium",
+                  activeTab === "system"
+                    ? "text-foreground"
+                    : "text-muted-foreground",
+                )}
+              >
+                {t("verwaltung.tab.system", "Systemverwaltung")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => router.setParams({ tab: "kurs" })}
+              className={cn(
+                "rounded-full px-4 py-1.5",
+                activeTab === "kurs" ? "bg-background" : "",
+              )}
+            >
+              <Text
+                className={cn(
+                  "text-sm font-medium",
+                  activeTab === "kurs"
+                    ? "text-foreground"
+                    : "text-muted-foreground",
+                )}
+              >
+                {t("verwaltung.tab.kurs", "Kursverwaltung")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {/* Only mount the active content — prevents inactive tab's hooks from firing */}
+          {activeTab === "system" ? (
+            <SystemverwaltungContent />
+          ) : (
+            <KursadminContent />
+          )}
+        </View>
+      ) : isSysAdmin ? (
+        <SystemverwaltungContent />
+      ) : (
+        <KursadminContent />
+      )}
     </AdminRoute>
   );
 }
