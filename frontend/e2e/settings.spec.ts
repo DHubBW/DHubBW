@@ -1,6 +1,5 @@
 import { type Page } from "@playwright/test";
-import { test, expect, STUB_PROFILE_WITH_KURS } from "./fixtures/auth";
-import { setupAuthenticatedPage } from "./fixtures/auth";
+import { test, expect, STUB_PROFILE_WITH_KURS, setupAuthenticatedPage } from "./fixtures/auth";
 
 /**
  * E2E tests for the SettingsModal "Kurs verlassen" and "Account löschen" flows.
@@ -20,13 +19,19 @@ async function openSettingsModal(page: Page): Promise<void> {
   const sidebarBtn = page.getByTestId("sidebar-settings-button");
   const headerBtn = page.getByTestId("header-settings-button");
 
+  // Wait for either button to appear before deciding which to click
+  await Promise.race([
+    sidebarBtn.waitFor({ state: "visible", timeout: 10_000 }).catch(() => null),
+    headerBtn.waitFor({ state: "visible", timeout: 10_000 }).catch(() => null),
+  ]);
+
   if (await sidebarBtn.isVisible()) {
     await sidebarBtn.click();
   } else {
     await headerBtn.click();
   }
 
-  await expect(page.getByText("Einstellungen")).toBeVisible();
+  await expect(page.getByText("Einstellungen", { exact: true })).toBeVisible();
 }
 
 test.describe("SettingsModal – Kurs verlassen", () => {
@@ -59,7 +64,7 @@ test.describe("SettingsModal – Kurs verlassen", () => {
     await page.getByTestId("confirm-dialog-cancel").click();
 
     await expect(page.getByText("Kurs verlassen?")).not.toBeVisible();
-    await expect(page.getByText("Einstellungen")).toBeVisible();
+    await expect(page.getByText("Einstellungen", { exact: true })).toBeVisible();
   });
 
   test("'Kurs verlassen' button is hidden when user has no kursName", async ({
@@ -136,6 +141,6 @@ test.describe("SettingsModal – Account löschen", () => {
     await expect(
       authenticatedPage.getByText("Account löschen?"),
     ).not.toBeVisible();
-    await expect(authenticatedPage.getByText("Einstellungen")).toBeVisible();
+    await expect(authenticatedPage.getByText("Einstellungen", { exact: true })).toBeVisible();
   });
 });

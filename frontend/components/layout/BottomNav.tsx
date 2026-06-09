@@ -23,9 +23,12 @@ export function BottomNav() {
   return (
     <View className="flex-row border-t border-sidebar-border bg-sidebar">
       {items.map((it) => {
+        const basePath = (it.activePath ?? it.href)
+          .replace("/(app)", "")
+          .split("?")[0];
         const isActive =
-          pathname === it.href.replace("/(app)", "") ||
-          pathname.startsWith(it.href.replace("/(app)", "") + "/");
+          pathname === basePath ||
+          pathname.startsWith(basePath + "/");
         return (
           <Link key={it.href} href={it.href as never} asChild>
             <Pressable className="flex-1 items-center gap-0.5 py-2.5">

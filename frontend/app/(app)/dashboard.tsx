@@ -497,7 +497,7 @@ function KursAdminStatsSection({
         </Text>
       ) : (
         <TouchableOpacity
-          onPress={() => router.push("/(app)/verwaltung")}
+          onPress={() => router.push("/(app)/verwaltung?tab=kurs")}
           accessibilityRole="button"
           className="flex-row justify-between gap-4"
         >
@@ -523,7 +523,7 @@ function KursAdminStatsSection({
         </TouchableOpacity>
       )}
       <TouchableOpacity
-        onPress={() => router.push("/(app)/verwaltung")}
+        onPress={() => router.push("/(app)/verwaltung?tab=kurs")}
         accessibilityRole="link"
         className="mt-3 flex-row items-center gap-1"
       >

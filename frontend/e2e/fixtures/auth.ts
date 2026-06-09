@@ -1,10 +1,11 @@
 import { test as base, expect, type Page } from "@playwright/test";
+import type { StudentProfileDTO } from "../../lib/api/types.gen";
 
 /**
  * Stub profile that mirrors the MSW handler in tests/mocks/handlers.ts.
  * Kept in sync manually — field names must match StudentProfileDTO exactly.
  */
-const STUB_PROFILE = {
+const STUB_PROFILE: StudentProfileDTO = {
   name: "Test Student",
   dhbwMail: "test.student@dhbw-karlsruhe.de",
   studentType: "STUDENT",
