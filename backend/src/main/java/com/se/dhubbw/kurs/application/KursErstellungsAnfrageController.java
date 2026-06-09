@@ -120,7 +120,12 @@ public class KursErstellungsAnfrageController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new RequestStatusResponseDTO(
-                    "KursErstellungsAnfrage approved successfully",
+                    "Kurs mit diesem Namen existiert bereits",
+                    PersistenceOperation.UPDATE));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new RequestStatusResponseDTO(
+                    "Student ist bereits einem Kurs zugeordnet",
                     PersistenceOperation.UPDATE));
         }
     }

@@ -187,7 +187,7 @@ export function NewKursDialog({
               accessibilityLabel="Kursname"
               aria-labelledby="new-kurs-name-label"
               value={kursName}
-              onChangeText={setKursName}
+              onChangeText={(v) => setKursName(v.toUpperCase())}
               autoCapitalize="characters"
               autoCorrect={false}
               placeholder="z. B. TINF24B2"

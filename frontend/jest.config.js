@@ -50,6 +50,8 @@ const config = {
           "react-navigation|@react-navigation|" +
           "@sentry/react-native|native-base|" +
           "@rn-primitives|" +
+          "react-native-reanimated|" +
+          "react-native-screens|" +
           "lucide-react-native|" +
           "nativewind|" +
           "class-variance-authority|" +

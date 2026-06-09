@@ -35,6 +35,17 @@ public interface OrdnerRepository extends JpaRepository<Ordner, UUID> {
     List<Ordner> findByKursAndUeberOrdnerIsNull(Kurs kurs);
 
     /**
+     * Find all root-level public folders not belonging to the given course.
+     *
+     * <p>Used to show public folders from other courses to students who are
+     * enrolled in a different course.</p>
+     *
+     * @param kurs the course to exclude
+     * @return list of root-level public folders from other courses
+     */
+    List<Ordner> findByKursNotAndUeberOrdnerIsNullAndIsPublicTrue(Kurs kurs);
+
+    /**
      * Find all root-level folders across all courses.
      *
      * @return list of all root folders, may be empty

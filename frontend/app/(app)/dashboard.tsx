@@ -420,7 +420,14 @@ function KursEinrichtenCard() {
         onOpenChange={setNewKursOpen}
         onCreated={async () => {
           setNewKursOpen(false);
-          await queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+          if (
+            typeof window !== "undefined" &&
+            typeof window.location?.replace === "function"
+          ) {
+            window.location.replace("/dashboard");
+          } else {
+            await queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+          }
         }}
       />
     </>

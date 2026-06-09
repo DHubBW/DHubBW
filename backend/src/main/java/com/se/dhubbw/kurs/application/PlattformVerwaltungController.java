@@ -321,4 +321,67 @@ public class PlattformVerwaltungController {
             new RequestStatusResponseDTO(
             "SysAdmin removed successfully.", PersistenceOperation.UPDATE));
     }
+
+    /**
+     * Promote a course member to KURSADMIN (system-admin variant).
+     *
+     * @param kursId    the ID of the course
+     * @param studentId the ID of the student to promote
+     * @return 204 on success, 404 if not found/not member,
+     *     409 if already KURSADMIN, 400 if SYSTEMADMIN
+     */
+    @Operation(
+            summary = "Promote course member to KURSADMIN",
+            description = "Grants KURSADMIN role to an approved "
+                + "course member. SYSTEMADMIN cannot be promoted."
+    )
+    @ApiResponse(responseCode = "204",
+            description = "KURSADMIN role granted")
+    @ApiResponse(responseCode = "404",
+            description = "Student or course not found")
+    @ApiResponse(responseCode = "409",
+            description = "Student is already KURSADMIN")
+    @PreAuthorize("hasRole('SYSTEMADMIN')")
+    @PatchMapping("/kurse/{kursId}/kursadmin/{studentId}/add")
+    public ResponseEntity<RequestStatusResponseDTO> addKursadminForCourse(
+            @PathVariable final UUID kursId,
+            @PathVariable final UUID studentId) {
+        plattformVerwaltungService.addKursadminForCourse(kursId, studentId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            new RequestStatusResponseDTO(
+                "Kursadmin added successfully.",
+                PersistenceOperation.UPDATE));
+    }
+
+    /**
+     * Revoke KURSADMIN role from a course member (system-admin variant).
+     *
+     * @param kursId    the ID of the course
+     * @param studentId the ID of the student to demote
+     * @return 204 on success, 404 if not found/not member,
+     *     400 if not KURSADMIN
+     */
+    @Operation(
+            summary = "Revoke KURSADMIN role from course member",
+            description = "Removes KURSADMIN role from an approved "
+                + "course member."
+    )
+    @ApiResponse(responseCode = "204",
+            description = "KURSADMIN role revoked")
+    @ApiResponse(responseCode = "404",
+            description = "Student or course not found")
+    @ApiResponse(responseCode = "400",
+            description = "Student is not a KURSADMIN")
+    @PreAuthorize("hasRole('SYSTEMADMIN')")
+    @PatchMapping("/kurse/{kursId}/kursadmin/{studentId}/remove")
+    public ResponseEntity<RequestStatusResponseDTO> removeKursadminForCourse(
+            @PathVariable final UUID kursId,
+            @PathVariable final UUID studentId) {
+        plattformVerwaltungService.removeKursadminForCourse(
+            kursId, studentId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            new RequestStatusResponseDTO(
+                "Kursadmin removed successfully.",
+                PersistenceOperation.UPDATE));
+    }
 }

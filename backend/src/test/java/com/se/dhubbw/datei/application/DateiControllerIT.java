@@ -296,10 +296,25 @@ public class DateiControllerIT {
     @WithMockUser(
             username = FELIX_MAIL,
             roles = {"KURSADMIN", "STUDENT"})
-    public void givenNonMember_whenGetDateienForOrdner_thenReturns403()
+    public void givenNonMember_whenGetDateienForPublicOrdner_thenReturns200()
             throws Exception {
+        // TINF24B2_ORDNER_ID is a public folder — Felix is in TINF24B1 but
+        // still has access because public folders are visible to any student
+        // who belongs to any course.
         mockMvc.perform(
             get("/student/dateien/ordner/" + TINF24B2_ORDNER_ID))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(32)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenNonMember_whenGetDateienForPrivateOrdner_thenReturns403()
+            throws Exception {
+        // TINF24B1_ORDNER_ID is a private folder — Linus is in TINF24B2 and
+        // must not access private folders of other courses.
+        mockMvc.perform(
+            get("/student/dateien/ordner/" + TINF24B1_ORDNER_ID))
             .andExpect(status().isForbidden());
     }
 
@@ -368,11 +383,13 @@ public class DateiControllerIT {
     @WithMockUser(
             username = FELIX_MAIL,
             roles = {"KURSADMIN", "STUDENT"})
-    public void givenNonMember_whenDownloadDatei_thenReturns403()
+    public void givenNonMember_whenDownloadDateiInPublicOrdner_thenReturns200()
             throws Exception {
+        // DATEI_1_ID is in a public folder — Felix (TINF24B1) can download it
+        // because public-folder files are accessible to any enrolled student.
         mockMvc.perform(
             get("/student/dateien/" + DATEI_1_ID + "/download"))
-            .andExpect(status().isForbidden());
+            .andExpect(status().isOk());
     }
 
     @Test

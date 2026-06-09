@@ -1,7 +1,41 @@
-// Mock react-native-reanimated (required for Expo 54 + reanimated 4.x)
-jest.mock("react-native-reanimated", () =>
-  require("react-native-reanimated/mock"),
-);
+// Mock react-native-reanimated (reanimated 4.x dropped /mock export — inline stub)
+jest.mock("react-native-reanimated", () => {
+  const Animated = require("react-native").Animated; // eslint-disable-line @typescript-eslint/no-require-imports
+  return {
+    __esModule: true,
+    default: {
+      View: require("react-native").View, // eslint-disable-line @typescript-eslint/no-require-imports
+      Text: require("react-native").Text, // eslint-disable-line @typescript-eslint/no-require-imports
+      Image: require("react-native").Image, // eslint-disable-line @typescript-eslint/no-require-imports
+      ScrollView: require("react-native").ScrollView, // eslint-disable-line @typescript-eslint/no-require-imports
+      FlatList: require("react-native").FlatList, // eslint-disable-line @typescript-eslint/no-require-imports
+      createAnimatedComponent: (c) => c,
+    },
+    Easing: { linear: (t) => t, ease: (t) => t, bezier: () => (t) => t, in: (e) => e, out: (e) => e, inOut: (e) => e },
+    useAnimatedStyle: (fn) => fn(),
+    useAnimatedProps: (fn) => fn(),
+    useSharedValue: (v) => ({ value: v }),
+    useDerivedValue: (fn) => ({ value: fn() }),
+    useAnimatedRef: () => ({ current: null }),
+    useAnimatedScrollHandler: () => {},
+    useAnimatedGestureHandler: () => {},
+    withTiming: (v) => v,
+    withSpring: (v) => v,
+    withDecay: () => 0,
+    withDelay: (_d, v) => v,
+    withRepeat: (v) => v,
+    withSequence: (...vs) => vs[vs.length - 1],
+    runOnJS: (fn) => fn,
+    runOnUI: (fn) => fn,
+    makeMutable: (v) => ({ value: v }),
+    FadeIn: { duration: () => ({ withInitialValues: () => ({}) }) },
+    FadeInDown: { withInitialValues: () => ({ duration: () => ({}) }), duration: () => ({}) },
+    FadeInUp: { withInitialValues: () => ({}) },
+    FadeOut: {},
+    Layout: {},
+    createAnimatedComponent: (c) => c,
+  };
+});
 
 // Mock react-native-worklets (peer dependency of reanimated 4.x)
 jest.mock("react-native-worklets", () => ({

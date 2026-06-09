@@ -41,7 +41,7 @@ export function CourseRoute({ children }: { children: ReactNode }) {
   if (user === null) {
     return <Redirect href={'/(auth)/login' as never} />;
   }
-  if (user.kursName === null) {
+  if (user.kursName === null && user.studentType !== 'SYSTEMADMIN') {
     return <Redirect href={'/(app)/dashboard' as never} />;
   }
   return <>{children}</>;

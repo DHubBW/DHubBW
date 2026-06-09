@@ -97,7 +97,14 @@ export function RegisterStep2({
   const filteredKurse = fuzzyKursSearch(allKurse, query);
 
   function goToDashboard() {
-    router.replace(DASHBOARD_PATH);
+    if (
+      typeof window !== "undefined" &&
+      typeof window.location?.replace === "function"
+    ) {
+      window.location.replace("/dashboard");
+    } else {
+      router.replace(DASHBOARD_PATH);
+    }
   }
 
   async function handleJoin() {

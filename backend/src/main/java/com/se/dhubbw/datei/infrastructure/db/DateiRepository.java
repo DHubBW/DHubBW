@@ -64,6 +64,24 @@ public interface DateiRepository extends JpaRepository<Datei, UUID> {
         @Param("kursId") UUID kursId);
 
     /**
+     * Retrieve all files in public root-level folders that do not
+     * belong to the given course.
+     *
+     * <p>Used to include public files from other courses in the
+     * file listing for students who are in a course.</p>
+     *
+     * @param kursId the course to exclude (the caller's own course)
+     * @return list of files in public root folders of other courses
+     */
+    @Query("SELECT d FROM Datei d JOIN d.ordner o "
+        + "WHERE o.isPublic = TRUE "
+        + "AND o.ueberOrdner IS NULL "
+        + "AND o.kurs.kursID <> :kursId "
+        + "ORDER BY d.name ASC")
+    List<Datei> findInPublicRootFoldersExcludingKurs(
+        @Param("kursId") UUID kursId);
+
+    /**
      * Compute the sum of all file sizes stored on the platform.
      *
      * @return total file size in megabytes, or 0.0 if no files

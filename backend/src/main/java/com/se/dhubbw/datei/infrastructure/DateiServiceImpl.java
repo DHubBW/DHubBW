@@ -27,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -402,12 +403,22 @@ public class DateiServiceImpl
         }
         return kursBeitrittsAnfrageRepository
             .findByStudentAndIsApprovedTrue(student)
-            .map(anfrage -> dateiRepository
-                .findByKursIdOrderByNameAsc(
-                    anfrage.getKurs().getKursID())
-                .stream()
-                .map(this::toDateiDto)
-                .toList())
+            .map(anfrage -> {
+                UUID eigenerKursId = anfrage.getKurs().getKursID();
+                List<DateiDTO> own = dateiRepository
+                    .findByKursIdOrderByNameAsc(eigenerKursId)
+                    .stream()
+                    .map(this::toDateiDto)
+                    .toList();
+                List<DateiDTO> publicOther = dateiRepository
+                    .findInPublicRootFoldersExcludingKurs(eigenerKursId)
+                    .stream()
+                    .map(this::toDateiDto)
+                    .toList();
+                List<DateiDTO> combined = new ArrayList<>(own);
+                combined.addAll(publicOther);
+                return combined;
+            })
             .orElse(List.of());
     }
 
@@ -463,6 +474,17 @@ public class DateiServiceImpl
             return;
         }
         if (ordner.getKurs() == null) {
+            return;
+        }
+        // Public folders: only students who belong to any course can read.
+        if (ordner.isPublic()) {
+            boolean hasCourse = kursBeitrittsAnfrageRepository
+                .existsByStudentAndIsApprovedTrue(student);
+            if (!hasCourse) {
+                throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Kein Zugriff auf diesen Ordner");
+            }
             return;
         }
         if (isMemberOfKurs(student, ordner.getKurs())) {

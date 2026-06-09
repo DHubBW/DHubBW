@@ -174,6 +174,7 @@ function TreeNode({
         <Pressable
           onPress={() => {
             onSelect(folder);
+            setExpanded(true);
             onAfterSelect?.();
           }}
           accessibilityRole="button"

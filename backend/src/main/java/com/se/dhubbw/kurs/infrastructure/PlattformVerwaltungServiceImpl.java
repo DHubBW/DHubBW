@@ -234,6 +234,7 @@ public class PlattformVerwaltungServiceImpl
         return kursBeitrittsAnfrageRepository
             .findByKursAndIsApprovedTrue(kurs).stream()
             .map(enrollment -> new KursMitgliedRolleDTO(
+                enrollment.getStudent().getStudentID(),
                 enrollment.getStudent().getName(),
                 enrollment.getStudent().getStudentType()))
             .toList();
@@ -345,6 +346,60 @@ public class PlattformVerwaltungServiceImpl
         return kursRepository.findById(kursId)
             .orElseThrow(() -> new NoSuchElementException(
                 "Kurs not found: " + kursId));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @RetryableTransactional
+    public void addKursadminForCourse(
+            final UUID kursId, final UUID studentId) {
+        findKursOrThrow(kursId);
+        Student target = kursStudentHelper.findStudentById(studentId);
+        boolean isMember = kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(target)
+            .filter(e -> e.getKurs().getKursID().equals(kursId))
+            .isPresent();
+        if (!isMember) {
+            throw new NoSuchElementException(
+                "Student is not a member of the course");
+        }
+        if (target.getStudentType() == StudentType.SYSTEMADMIN) {
+            throw new IllegalArgumentException(
+                "Cannot promote SYSTEMADMIN to KURSADMIN");
+        }
+        if (target.getStudentType() == StudentType.KURSADMIN) {
+            throw new IllegalStateException(
+                "Student is already KURSADMIN");
+        }
+        target.setStudentType(StudentType.KURSADMIN);
+        studentRepository.save(target);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @RetryableTransactional
+    public void removeKursadminForCourse(
+            final UUID kursId, final UUID studentId) {
+        findKursOrThrow(kursId);
+        Student target = kursStudentHelper.findStudentById(studentId);
+        boolean isMember = kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(target)
+            .filter(e -> e.getKurs().getKursID().equals(kursId))
+            .isPresent();
+        if (!isMember) {
+            throw new NoSuchElementException(
+                "Student is not a member of the course");
+        }
+        if (target.getStudentType() != StudentType.KURSADMIN) {
+            throw new IllegalArgumentException(
+                "Student is not a KURSADMIN");
+        }
+        target.setStudentType(StudentType.STUDENT);
+        studentRepository.save(target);
     }
 }
 
