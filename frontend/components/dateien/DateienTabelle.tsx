@@ -2,18 +2,13 @@
  * Tabular file view used on the Dateien screen for wide layouts.
  *
  * Sorting is client-side and exposed via clickable column headers.
- * Each row has a Download action button.
+ * Each row exposes a slot of action callbacks — when none are provided
+ * the actions column is empty (back-compat for callers that have not yet
+ * wired CRUD).
  */
-import { ArrowDown, ArrowUp, ArrowUpDown, Download } from "lucide-react-native";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  ScrollView,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
 import { Text } from "@/components/ui/text";
 import type { DateiDTO } from "@/lib/api/types.gen";
@@ -29,11 +24,16 @@ import { t } from "@/lib/i18n/t";
 import { cn } from "@/lib/utils";
 
 import { EmptyFolderHint, ErrorHint } from "./EmptyStates";
+import { RowActions } from "./RowActions";
 
 export interface DateienTabelleProps {
   dateien: DateiDTO[];
   isLoading: boolean;
   isError: boolean;
+  /** Per-row callbacks. When omitted, the actions column stays empty. */
+  onDownload?: (datei: DateiDTO) => void;
+  onRename?: (datei: DateiDTO) => void;
+  onDelete?: (datei: DateiDTO) => void;
 }
 
 const COLUMN_WIDTHS = {
@@ -42,7 +42,7 @@ const COLUMN_WIDTHS = {
   modified: "w-28",
   size: "w-24",
   downloads: "w-28",
-  actions: "w-16",
+  actions: "w-28",
 } as const;
 
 interface ColumnDef {
@@ -62,6 +62,9 @@ export function DateienTabelle({
   dateien,
   isLoading,
   isError,
+  onDownload,
+  onRename,
+  onDelete,
 }: DateienTabelleProps) {
   const [sort, setSort] = useState<SortState>({
     column: "name",
@@ -130,7 +133,14 @@ export function DateienTabelle({
       {/* Rows */}
       <View>
         {sortedDateien.map((datei, idx) => (
-          <Row key={datei.dateiID} datei={datei} striped={idx % 2 === 1} />
+          <Row
+            key={datei.dateiID}
+            datei={datei}
+            striped={idx % 2 === 1}
+            onDownload={onDownload}
+            onRename={onRename}
+            onDelete={onDelete}
+          />
         ))}
       </View>
     </ScrollView>
@@ -182,18 +192,16 @@ function HeaderCell({ column, sort, onPress }: HeaderCellProps) {
   );
 }
 
-function Row({ datei, striped }: { datei: DateiDTO; striped: boolean }) {
-  const FileIconCmp = fileIconFor(datei.name);
-  const downloadUrl = `${process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://localhost:8080"}/student/dateien/${datei.dateiID}/download`;
+interface RowProps {
+  datei: DateiDTO;
+  striped: boolean;
+  onDownload?: (datei: DateiDTO) => void;
+  onRename?: (datei: DateiDTO) => void;
+  onDelete?: (datei: DateiDTO) => void;
+}
 
-  function handleDownload() {
-    if (Platform.OS === "web" && typeof window !== "undefined") {
-      const a = document.createElement("a");
-      a.href = downloadUrl;
-      a.download = datei.name;
-      a.click();
-    }
-  }
+function Row({ datei, striped, onDownload, onRename, onDelete }: RowProps) {
+  const FileIconCmp = fileIconFor(datei.name);
 
   return (
     <View
@@ -247,20 +255,14 @@ function Row({ datei, striped }: { datei: DateiDTO; striped: boolean }) {
       </View>
 
       {/* Actions */}
-      <View
-        className={cn(
-          "flex-row items-center justify-end",
-          COLUMN_WIDTHS.actions,
+      <View className={COLUMN_WIDTHS.actions}>
+        {(onDownload || onRename || onDelete) && (
+          <RowActions
+            onDownload={() => onDownload?.(datei)}
+            onRename={() => onRename?.(datei)}
+            onDelete={() => onDelete?.(datei)}
+          />
         )}
-      >
-        <TouchableOpacity
-          onPress={handleDownload}
-          accessibilityRole="button"
-          accessibilityLabel={t("dateien.download", "Herunterladen")}
-          className="rounded-md p-1.5 active:bg-accent"
-        >
-          <Download size={15} color="hsl(var(--primary))" />
-        </TouchableOpacity>
       </View>
     </View>
   );

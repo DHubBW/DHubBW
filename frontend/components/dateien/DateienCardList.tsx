@@ -1,16 +1,18 @@
 /**
  * Card-based file list used on screens narrower than the table breakpoint.
+ *
+ * Action callbacks (`onDownload`, `onRename`, `onDelete`) are forwarded to
+ * a {@link RowActions} group on each card. When none are provided, the
+ * card renders without action icons (back-compat).
  */
-import { Download } from "lucide-react-native";
 import {
   ActivityIndicator,
-  Platform,
   ScrollView,
-  TouchableOpacity,
   View,
 } from "react-native";
-import { Text } from "@/components/ui/text";
+
 import { Separator } from "@/components/ui/separator";
+import { Text } from "@/components/ui/text";
 import type { DateiDTO } from "@/lib/api/types.gen";
 import { fileIconFor } from "@/lib/files/fileIcons";
 import { formatFileSize, formatIsoDate } from "@/lib/files/formatters";
@@ -18,11 +20,15 @@ import { sortDateien } from "@/lib/files/sortDateien";
 import { t } from "@/lib/i18n/t";
 
 import { EmptyFolderHint, ErrorHint } from "./EmptyStates";
+import { RowActions } from "./RowActions";
 
 export interface DateienCardListProps {
   dateien: DateiDTO[];
   isLoading: boolean;
   isError: boolean;
+  onDownload?: (datei: DateiDTO) => void;
+  onRename?: (datei: DateiDTO) => void;
+  onDelete?: (datei: DateiDTO) => void;
 }
 
 /**
@@ -35,6 +41,9 @@ export function DateienCardList({
   dateien,
   isLoading,
   isError,
+  onDownload,
+  onRename,
+  onDelete,
 }: DateienCardListProps) {
   if (isLoading) {
     return (
@@ -54,7 +63,12 @@ export function DateienCardList({
         {sorted.map((datei, idx) => (
           <View key={datei.dateiID}>
             {idx > 0 && <Separator className="opacity-40" />}
-            <FileRow datei={datei} />
+            <FileRow
+              datei={datei}
+              onDownload={onDownload}
+              onRename={onRename}
+              onDelete={onDelete}
+            />
           </View>
         ))}
       </View>
@@ -62,18 +76,16 @@ export function DateienCardList({
   );
 }
 
-function FileRow({ datei }: { datei: DateiDTO }) {
-  const FileIconCmp = fileIconFor(datei.name);
-  const downloadUrl = `${process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://localhost:8080"}/student/dateien/${datei.dateiID}/download`;
+interface FileRowProps {
+  datei: DateiDTO;
+  onDownload?: (datei: DateiDTO) => void;
+  onRename?: (datei: DateiDTO) => void;
+  onDelete?: (datei: DateiDTO) => void;
+}
 
-  function handleDownload() {
-    if (Platform.OS === "web" && typeof window !== "undefined") {
-      const a = document.createElement("a");
-      a.href = downloadUrl;
-      a.download = datei.name;
-      a.click();
-    }
-  }
+function FileRow({ datei, onDownload, onRename, onDelete }: FileRowProps) {
+  const FileIconCmp = fileIconFor(datei.name);
+  const hasActions = Boolean(onDownload || onRename || onDelete);
 
   return (
     <View className="flex-row items-center gap-3 py-3">
@@ -106,15 +118,13 @@ function FileRow({ datei }: { datei: DateiDTO }) {
         </View>
       </View>
 
-      {/* Download */}
-      <TouchableOpacity
-        onPress={handleDownload}
-        accessibilityRole="button"
-        accessibilityLabel={t("dateien.download", "Herunterladen")}
-        className="rounded-lg border border-border p-2 active:bg-accent"
-      >
-        <Download size={16} color="hsl(var(--primary))" />
-      </TouchableOpacity>
+      {hasActions && (
+        <RowActions
+          onDownload={() => onDownload?.(datei)}
+          onRename={() => onRename?.(datei)}
+          onDelete={() => onDelete?.(datei)}
+        />
+      )}
     </View>
   );
 }

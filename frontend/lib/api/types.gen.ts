@@ -134,6 +134,19 @@ export interface DateiUploadDTO {
   dateiID: string;
 }
 
+/**
+ * Request body for `PATCH /student/dateien/{dateiId}`.
+ *
+ * Mirrors `RenameDateiRequestDTO` in the backend
+ * (`datei/application/dto/input/RenameDateiRequestDTO.java`). The single
+ * `newName` property is the file's new display name; backend trims and
+ * validates it (non-blank).
+ */
+export interface RenameDateiRequestDTO {
+  /** New display name for the file. */
+  newName: string;
+}
+
 /** Dietary classification of a Mensa dish. */
 export type Ernaehrung = "VEGETARISCH" | "VEGAN" | "FLEISCH";
 
