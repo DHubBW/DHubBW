@@ -94,4 +94,35 @@ public interface PlattformVerwaltungService {
      *     SYSTEMADMIN on the platform
      */
     void removeSysAdmin(UUID studentId);
+
+    /**
+     * Promote a course member to KURSADMIN (system-admin variant).
+     *
+     * <p>The student must be an approved member of the given course
+     * and must not already be KURSADMIN or SYSTEMADMIN.</p>
+     *
+     * @param kursId    the ID of the course
+     * @param studentId the ID of the student to promote
+     * @throws java.util.NoSuchElementException if the course or
+     *     student is not found, or the student is not a member
+     * @throws IllegalStateException if already KURSADMIN
+     * @throws IllegalArgumentException if target is SYSTEMADMIN
+     */
+    void addKursadminForCourse(UUID kursId, UUID studentId);
+
+    /**
+     * Revoke the KURSADMIN role from a course member
+     * (system-admin variant).
+     *
+     * <p>The student must be a KURSADMIN and approved member of
+     * the given course.</p>
+     *
+     * @param kursId    the ID of the course
+     * @param studentId the ID of the student to demote
+     * @throws java.util.NoSuchElementException if the course or
+     *     student is not found, or the student is not a member
+     * @throws IllegalArgumentException if target is not KURSADMIN
+     * @throws IllegalStateException if target is the only KURSADMIN
+     */
+    void removeKursadminForCourse(UUID kursId, UUID studentId);
 }

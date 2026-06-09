@@ -271,10 +271,11 @@ describe('RegisterStep2', () => {
     renderStep2();
 
     fireEvent.press(screen.getByLabelText('Neuen Kurs anlegen'));
-    fireEvent.changeText(screen.getByLabelText('Kursname'), 'tinf24b2');
+    // Use a value that stays invalid after toUpperCase() (no digits/wrong format).
+    fireEvent.changeText(screen.getByLabelText('Kursname'), 'INVALID');
     fireEvent.changeText(screen.getByLabelText('Jahrgang'), '2024');
 
-    // Lowercase value misses the BE pattern → warning is rendered.
+    // Value misses the BE pattern → warning is rendered.
     expect(screen.getByText(/Hinweis: Der Name folgt nicht dem üblichen Format/i)).toBeTruthy();
     // Submit stays enabled — the warning is advisory, not blocking.
     const submit = screen.getByLabelText('Anfrage senden');

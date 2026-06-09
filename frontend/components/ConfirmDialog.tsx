@@ -80,16 +80,19 @@ export function ConfirmDialog({
   }
 
   async function handleConfirm() {
-    // Guard against double-invocation: set pending synchronously before
-    // calling onConfirm so the button is disabled in the same render batch.
     setIsPending(true);
+    let succeeded = false;
     try {
       await Promise.resolve(onConfirm());
+      succeeded = true;
     } catch {
-      // Rejection is handled by the caller (e.g. toast / error state).
-      // The dialog stays open; isPending is cleared in finally.
+      // Rejection handled by caller (toast / error state).
+      // Dialog stays open on failure.
     } finally {
       setIsPending(false);
+    }
+    if (succeeded) {
+      onOpenChange(false);
     }
   }
 

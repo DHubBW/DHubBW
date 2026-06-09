@@ -225,6 +225,74 @@ export interface DateiDTO {
 }
 
 /**
+ * Course entry returned by `GET /systemadmin/kurse`.
+ *
+ * Mirrors `KursDTO` in the backend.
+ */
+export interface KursDTO {
+  /** UUID of the course (string-encoded). */
+  kursID: string;
+  /** Display name, e.g. `"TINF24B2"`. */
+  kursName: string;
+  /** Cohort year as free-text, e.g. `"2024"`. */
+  jahrgang: string;
+}
+
+/**
+ * Course-creation request entry returned by `GET /systemadmin/anfragen`.
+ *
+ * Mirrors `KursErstellungsAnfrageDTO` in the backend.
+ */
+export interface KursErstellungsAnfrageDTO {
+  /** UUID of the creation request (string-encoded). */
+  anfrageID: string;
+  /** UUID of the requesting student (string-encoded). */
+  studentID: string;
+  /** Full name of the requesting student. */
+  studentName: string;
+  /** Desired course name. */
+  kursName: string;
+  /** Desired cohort year. */
+  jahrgang: string;
+  /** Submission date as ISO `"YYYY-MM-DD"`. */
+  anfrageDatum: string;
+  /** Optional notes provided with the request. */
+  requestNotes: string | null;
+}
+
+/**
+ * Student entry returned by `GET /systemadmin/studenten`.
+ *
+ * Mirrors `StudentDTO` in the backend.
+ */
+export interface StudentDTO {
+  /** UUID of the student (string-encoded). */
+  studentID: string;
+  /** Full name of the student. */
+  name: string;
+  /** DHBW email address. */
+  dhbwMail: string;
+  /** Current role of the student. */
+  studentType: StudentType;
+  /** Course name — null if the student has no course. */
+  kursName?: string | null;
+}
+
+/**
+ * Course-member entry returned by `GET /systemadmin/kurse/{id}/mitglieder`.
+ *
+ * Mirrors `KursMitgliedRolleDTO` in the backend.
+ */
+export interface KursMitgliedRolleDTO {
+  /** UUID of the course member (string-encoded). */
+  studentID: string;
+  /** Full name of the course member. */
+  studentName: string;
+  /** Current role of the course member. */
+  rolle: StudentType;
+}
+
+/**
  * Aggregated stats for a course admin returned by
  * `GET /kursadmin/mitglieder/stats`.
  *

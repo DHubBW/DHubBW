@@ -94,8 +94,12 @@ public class KursSystemAdminServiceImpl implements KursSystemAdminService {
         neuerKurs.setJahrgang(anfrage.getJahrgang());
         kursRepository.save(neuerKurs);
 
-        student.setStudentType(StudentType.KURSADMIN);
-        studentRepository.save(student);
+        // Promote to KURSADMIN only if not already SYSTEMADMIN —
+        // a SYSTEMADMIN who submitted the request keeps their elevated role.
+        if (student.getStudentType() != StudentType.SYSTEMADMIN) {
+            student.setStudentType(StudentType.KURSADMIN);
+            studentRepository.save(student);
+        }
 
         KursBeitrittsAnfrage beitritt = new KursBeitrittsAnfrage();
         beitritt.setKurs(neuerKurs);

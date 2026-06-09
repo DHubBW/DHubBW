@@ -111,11 +111,19 @@ public class OrdnerServiceImpl implements OrdnerService {
                 .collect(Collectors.toList());
         }
         Kurs kurs = findKursOrThrow(student);
-        return ordnerRepository
+        List<OrdnerDTO> ownRootFolders = ordnerRepository
             .findByKursAndUeberOrdnerIsNull(kurs)
             .stream()
             .map(this::toDto)
             .collect(Collectors.toList());
+        List<OrdnerDTO> publicFoldersOtherKurse = ordnerRepository
+            .findByKursNotAndUeberOrdnerIsNullAndIsPublicTrue(kurs)
+            .stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
+        List<OrdnerDTO> combined = new ArrayList<>(ownRootFolders);
+        combined.addAll(publicFoldersOtherKurse);
+        return combined;
     }
 
     /**
@@ -279,6 +287,10 @@ public class OrdnerServiceImpl implements OrdnerService {
             return;
         }
         Kurs kurs = findKursOrThrow(student);
+        // Public folders are readable by any student who is in a course.
+        if (ordner.isPublic()) {
+            return;
+        }
         if (ordner.getKurs() == null
                 || !ordner.getKurs().getKursID()
                     .equals(kurs.getKursID())) {

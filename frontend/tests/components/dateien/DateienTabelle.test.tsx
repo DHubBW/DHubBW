@@ -2,6 +2,14 @@
  * Unit tests for the DateienTabelle component.
  */
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import { View } from "react-native";
+
+// Stub lucide icons so SVG rendering doesn't produce react-native-svg warnings.
+jest.mock("lucide-react-native", () => {
+  const { View: V } = require("react-native"); // eslint-disable-line @typescript-eslint/no-require-imports
+  const stub = (props: object) => <V {...props} />;
+  return new Proxy({}, { get: () => stub });
+});
 
 import { DateienTabelle } from "@/components/dateien/DateienTabelle";
 import type { DateiDTO } from "@/lib/api/types.gen";

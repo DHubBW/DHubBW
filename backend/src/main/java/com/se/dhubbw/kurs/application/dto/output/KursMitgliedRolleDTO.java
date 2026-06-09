@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 /**
  * Data transfer object for a course member with role (system admin view).
- * Contains name and role of an approved course member.
+ * Contains id, name and role of an approved course member.
  *
  * <p>Used by the system-admin endpoint
- * {@code retrieveKursMembersAndTheirRoles} to expose the name
+ * {@code retrieveKursMembersAndTheirRoles} to expose the id, name
  * and role of each approved member of a given course.</p>
  *
  * @architecture.component Kursverwaltung
@@ -22,6 +24,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class KursMitgliedRolleDTO {
+
+    /**
+     * Unique identifier of the course member.
+     */
+    private UUID studentID;
 
     /**
      * Full name of the course member.

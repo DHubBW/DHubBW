@@ -1000,4 +1000,108 @@ export const handlers = [
       { status: 200 },
     ),
   ),
+  http.get("http://localhost:8080/systemadmin/kurse", () =>
+    HttpResponse.json(
+      [
+        {
+          kursID: "aaaa0001-0000-0000-0000-000000000001",
+          kursName: "TINF24B2",
+          jahrgang: "2024",
+        },
+        {
+          kursID: "aaaa0001-0000-0000-0000-000000000002",
+          kursName: "WWI24A",
+          jahrgang: "2024",
+        },
+      ],
+      { status: 200 },
+    ),
+  ),
+  http.get(
+    "http://localhost:8080/systemadmin/kurse/:kursId/mitglieder",
+    () =>
+      HttpResponse.json(
+        [
+          { studentName: "Max Müller", rolle: "KURSADMIN" },
+          { studentName: "Anna Schmidt", rolle: "STUDENT" },
+        ],
+        { status: 200 },
+      ),
+  ),
+  http.delete(
+    "http://localhost:8080/systemadmin/kurse/:kursId",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+  http.get("http://localhost:8080/systemadmin/anfragen", () =>
+    HttpResponse.json(
+      [
+        {
+          anfrageID: "bbbb0001-0000-0000-0000-000000000001",
+          studentID: "cccc0001-0000-0000-0000-000000000001",
+          studentName: "Tim Mayer",
+          kursName: "TINF25B2",
+          jahrgang: "2025",
+          anfrageDatum: "2026-04-21",
+          requestNotes: "Wir haben noch keinen Kurs für TINF25B2.",
+        },
+      ],
+      { status: 200 },
+    ),
+  ),
+  http.patch(
+    "http://localhost:8080/systemadmin/anfragen/:id/approve",
+    () =>
+      HttpResponse.json(
+        { response: "approved", persistenceOperation: "UPDATE" },
+        { status: 200 },
+      ),
+  ),
+  http.delete(
+    "http://localhost:8080/systemadmin/anfragen/:id",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+  http.get("http://localhost:8080/systemadmin/studenten", () =>
+    HttpResponse.json(
+      [
+        {
+          studentID: "dddd0001-0000-0000-0000-000000000001",
+          name: "System-Admin",
+          dhbwMail: "admin@dhbw.de",
+          studentType: "SYSTEMADMIN",
+          kursName: "TINF24B2",
+        },
+        {
+          studentID: "dddd0001-0000-0000-0000-000000000002",
+          name: "Max Müller",
+          dhbwMail: "kursadmin@dhbw.de",
+          studentType: "KURSADMIN",
+          kursName: "TINF24B2",
+        },
+        {
+          studentID: "dddd0001-0000-0000-0000-000000000003",
+          name: "Anna Schmidt",
+          dhbwMail: "student@dhbw.de",
+          studentType: "STUDENT",
+          kursName: "TINF24B2",
+        },
+      ],
+      { status: 200 },
+    ),
+  ),
+  http.patch(
+    "http://localhost:8080/systemadmin/studenten/:studentId/add-sysadmin",
+    () =>
+      HttpResponse.json(
+        { response: "added", persistenceOperation: "UPDATE" },
+        { status: 200 },
+      ),
+  ),
+  http.patch(
+    "http://localhost:8080/systemadmin/studenten/:studentId/remove-sysadmin",
+    () =>
+      HttpResponse.json(
+        { response: "removed", persistenceOperation: "UPDATE" },
+        { status: 200 },
+      ),
+  ),
 ];
