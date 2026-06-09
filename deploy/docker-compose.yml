@@ -48,7 +48,7 @@ services:
           cpus: "0.8"
           memory: 1024M
     healthcheck:
-      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080' 2>/dev/null && exit 0 || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
