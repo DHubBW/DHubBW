@@ -53,6 +53,7 @@ import { useDateiDownload } from "@/hooks/useDateiDownload";
 import { useOrdnerTree } from "@/hooks/useOrdnerTree";
 import { ApiError } from "@/lib/api/errors";
 import type { DateiDTO, OrdnerDTO } from "@/lib/api/types.gen";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { t } from "@/lib/i18n/t";
 
 const TABLE_BREAKPOINT_PX = 768;
@@ -107,6 +108,11 @@ function DateienScreenInner() {
   const { width } = useWindowDimensions();
   const isWide = width >= TABLE_BREAKPOINT_PX;
   const isWeb = Platform.OS === "web";
+  const { user } = useAuth();
+
+  const canEditOrdner =
+    user?.studentType === "KURSADMIN" ||
+    user?.studentType === "SYSTEMADMIN";
 
   const [selectedFolder, setSelectedFolder] = useState<OrdnerDTO | null>(null);
   const selectedOrdnerId = selectedFolder?.ordnerID ?? null;
@@ -264,7 +270,9 @@ function DateienScreenInner() {
                 rootFolders={rootFolders}
                 selectedOrdnerId={selectedOrdnerId}
                 onSelect={setSelectedFolder}
-                onContextRequest={handleContextRequest}
+                onContextRequest={
+                  canEditOrdner ? handleContextRequest : undefined
+                }
               />
             </View>
           </ScrollView>

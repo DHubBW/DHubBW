@@ -157,8 +157,10 @@ public class PlattformVerwaltungServiceTest {
 
         when(kursRepository.findById(kurs.getKursID()))
             .thenReturn(Optional.of(kurs));
-        when(ordnerRepository.findByKurs(kurs))
+        when(ordnerRepository.findByKursAndUeberOrdnerIsNull(kurs))
             .thenReturn(List.of(privateOrdner));
+        when(ordnerRepository.findChildrenByUeberOrdner(privateOrdner))
+            .thenReturn(Collections.emptyList());
         when(ordnerAnlegungRepository.findByOrdner(privateOrdner))
             .thenReturn(Optional.empty());
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
@@ -182,8 +184,10 @@ public class PlattformVerwaltungServiceTest {
 
         when(kursRepository.findById(kurs.getKursID()))
             .thenReturn(Optional.of(kurs));
-        when(ordnerRepository.findByKurs(kurs))
+        when(ordnerRepository.findByKursAndUeberOrdnerIsNull(kurs))
             .thenReturn(List.of(privateOrdner));
+        when(ordnerRepository.findChildrenByUeberOrdner(privateOrdner))
+            .thenReturn(Collections.emptyList());
         when(ordnerAnlegungRepository.findByOrdner(privateOrdner))
             .thenReturn(Optional.of(anlegung));
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
@@ -206,8 +210,10 @@ public class PlattformVerwaltungServiceTest {
 
         when(kursRepository.findById(kurs.getKursID()))
             .thenReturn(Optional.of(kurs));
-        when(ordnerRepository.findByKurs(kurs))
+        when(ordnerRepository.findByKursAndUeberOrdnerIsNull(kurs))
             .thenReturn(List.of(publicOrdner));
+        when(ordnerRepository.findChildrenByUeberOrdner(publicOrdner))
+            .thenReturn(Collections.emptyList());
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
             .thenReturn(Collections.emptyList());
 
@@ -234,8 +240,10 @@ public class PlattformVerwaltungServiceTest {
 
         when(kursRepository.findById(kurs.getKursID()))
             .thenReturn(Optional.of(kurs));
-        when(ordnerRepository.findByKurs(kurs))
+        when(ordnerRepository.findByKursAndUeberOrdnerIsNull(kurs))
             .thenReturn(List.of(privateOrdner));
+        when(ordnerRepository.findChildrenByUeberOrdner(privateOrdner))
+            .thenReturn(Collections.emptyList());
         when(ordnerAnlegungRepository.findByOrdner(privateOrdner))
             .thenReturn(Optional.empty());
         when(dateiAnlegungRepository.findByDatei(datei))
@@ -263,7 +271,7 @@ public class PlattformVerwaltungServiceTest {
 
         when(kursRepository.findById(kurs.getKursID()))
             .thenReturn(Optional.of(kurs));
-        when(ordnerRepository.findByKurs(kurs))
+        when(ordnerRepository.findByKursAndUeberOrdnerIsNull(kurs))
             .thenReturn(Collections.emptyList());
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
             .thenReturn(List.of(enrollment));
@@ -288,7 +296,7 @@ public class PlattformVerwaltungServiceTest {
 
         when(kursRepository.findById(kurs.getKursID()))
             .thenReturn(Optional.of(kurs));
-        when(ordnerRepository.findByKurs(kurs))
+        when(ordnerRepository.findByKursAndUeberOrdnerIsNull(kurs))
             .thenReturn(Collections.emptyList());
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
             .thenReturn(Collections.emptyList());
@@ -308,7 +316,7 @@ public class PlattformVerwaltungServiceTest {
             givenNoMatchingErstellungsAnfragen_whenDelete_thenNoDeletion() {
         when(kursRepository.findById(kurs.getKursID()))
             .thenReturn(Optional.of(kurs));
-        when(ordnerRepository.findByKurs(kurs))
+        when(ordnerRepository.findByKursAndUeberOrdnerIsNull(kurs))
             .thenReturn(Collections.emptyList());
         when(kursBeitrittsAnfrageRepository.findByKurs(kurs))
             .thenReturn(Collections.emptyList());

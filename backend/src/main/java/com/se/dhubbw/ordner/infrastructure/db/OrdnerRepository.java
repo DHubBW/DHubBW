@@ -2,6 +2,8 @@ package com.se.dhubbw.ordner.infrastructure.db;
 
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -40,10 +42,13 @@ public interface OrdnerRepository extends JpaRepository<Ordner, UUID> {
      * <p>Used to show public folders from other courses to students who are
      * enrolled in a different course.</p>
      *
-     * @param kurs the course to exclude
+     * @param kursId the ID of the course to exclude
      * @return list of root-level public folders from other courses
      */
-    List<Ordner> findByKursNotAndUeberOrdnerIsNullAndIsPublicTrue(Kurs kurs);
+    @Query("SELECT o FROM Ordner o WHERE o.kurs.kursID <> :kursId"
+        + " AND o.ueberOrdner IS NULL AND o.isPublic = TRUE")
+    List<Ordner> findPublicRootFoldersExcludingKurs(
+        @Param("kursId") UUID kursId);
 
     /**
      * Find all root-level folders across all courses.
