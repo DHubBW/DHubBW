@@ -6,8 +6,20 @@
  * expand via {@link useOrdnerChildren}. Selection is communicated to the
  * parent through `onSelect`; the active row is highlighted by a red
  * background per the demo design pattern.
+ *
+ * Per-row CRUD entry points are surfaced via {@link onContextRequest}:
+ * long-press anywhere on the row (touch) or the always-visible 3-dot
+ * icon (mouse / keyboard / touch fallback) hands the folder back to the
+ * parent screen, which owns the menu, rename and delete dialogs.
  */
-import { ChevronDown, ChevronRight, Folder, Globe2, Lock } from "lucide-react-native";
+import {
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  Globe2,
+  Lock,
+  MoreVertical,
+} from "lucide-react-native";
 import { useState } from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
 
@@ -35,6 +47,12 @@ export interface OrdnerTreeProps {
   onSelect: (folder: OrdnerDTO | null) => void;
   /** Called when an interaction should close a parent drawer (mobile only). */
   onAfterSelect?: () => void;
+  /**
+   * Called when the user requests row-level actions on a folder via
+   * long-press or the 3-dot icon. The parent screen owns the resulting
+   * menu / dialog state; the tree itself is purely presentational.
+   */
+  onContextRequest?: (folder: OrdnerDTO) => void;
 }
 
 /**
@@ -48,6 +66,7 @@ export function OrdnerTree({
   selectedOrdnerId,
   onSelect,
   onAfterSelect,
+  onContextRequest,
 }: OrdnerTreeProps) {
   return (
     <View className="flex-1">
@@ -67,6 +86,7 @@ export function OrdnerTree({
             selectedOrdnerId={selectedOrdnerId}
             onSelect={onSelect}
             onAfterSelect={onAfterSelect}
+            onContextRequest={onContextRequest}
           />
         ))}
       </View>
@@ -117,6 +137,7 @@ interface TreeNodeProps {
   selectedOrdnerId: string | null;
   onSelect: (folder: OrdnerDTO | null) => void;
   onAfterSelect?: () => void;
+  onContextRequest?: (folder: OrdnerDTO) => void;
 }
 
 /**
@@ -124,7 +145,8 @@ interface TreeNodeProps {
  *
  * The chevron and the row body are split into two press targets so users
  * can expand a folder without selecting it (same UX as VS Code's file
- * tree).
+ * tree). Long-press on the row body and the 3-dot icon both surface
+ * row-level actions through `onContextRequest`.
  *
  * @param props - {@link TreeNodeProps}
  * @returns The folder row and (when expanded) its children list.
@@ -135,6 +157,7 @@ function TreeNode({
   selectedOrdnerId,
   onSelect,
   onAfterSelect,
+  onContextRequest,
 }: TreeNodeProps) {
   const [expanded, setExpanded] = useState(false);
   const childrenQuery = useOrdnerChildren(expanded ? folder.ordnerID : null);
@@ -177,6 +200,9 @@ function TreeNode({
             setExpanded(true);
             onAfterSelect?.();
           }}
+          onLongPress={
+            onContextRequest ? () => onContextRequest(folder) : undefined
+          }
           accessibilityRole="button"
           accessibilityState={{ selected: isSelected }}
           className="flex-1 flex-row items-center gap-2"
@@ -200,6 +226,21 @@ function TreeNode({
             <PublicIcon size={12} color="hsl(var(--muted-foreground))" />
           </View>
         </Pressable>
+        {onContextRequest && (
+          <Pressable
+            onPress={() => onContextRequest(folder)}
+            hitSlop={CHEVRON_HIT}
+            accessibilityRole="button"
+            accessibilityLabel={t(
+              "dateien.tree.actions",
+              "Ordner-Aktionen öffnen",
+            )}
+            testID={`ordner-tree-actions-${folder.ordnerID}`}
+            className="rounded-md p-1 active:bg-accent"
+          >
+            <MoreVertical size={14} color="hsl(var(--muted-foreground))" />
+          </Pressable>
+        )}
       </View>
       {expanded && (
         <ChildrenList
@@ -210,6 +251,7 @@ function TreeNode({
           selectedOrdnerId={selectedOrdnerId}
           onSelect={onSelect}
           onAfterSelect={onAfterSelect}
+          onContextRequest={onContextRequest}
         />
       )}
     </View>
@@ -224,6 +266,7 @@ interface ChildrenListProps {
   selectedOrdnerId: string | null;
   onSelect: (folder: OrdnerDTO | null) => void;
   onAfterSelect?: () => void;
+  onContextRequest?: (folder: OrdnerDTO) => void;
 }
 
 /**
@@ -240,6 +283,7 @@ function ChildrenList({
   selectedOrdnerId,
   onSelect,
   onAfterSelect,
+  onContextRequest,
 }: ChildrenListProps) {
   if (isLoading) {
     return (
@@ -291,6 +335,7 @@ function ChildrenList({
           selectedOrdnerId={selectedOrdnerId}
           onSelect={onSelect}
           onAfterSelect={onAfterSelect}
+          onContextRequest={onContextRequest}
         />
       ))}
     </View>

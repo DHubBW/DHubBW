@@ -183,6 +183,37 @@ export type WeekMealsMap = Record<string, MensaDTO[]>;
 export type OrdnerFarbe = "DEFAULT" | "RED" | "BLUE" | "GREEN";
 
 /**
+ * Request body for `PUT /student/ordner`.
+ *
+ * Mirrors `CreateOrdnerRequestDTO` in the backend
+ * (`ordner/application/dto/input/CreateOrdnerRequestDTO.java`). The
+ * `isPublic` JSON property is preserved verbatim — Jackson is configured
+ * with `@JsonProperty("isPublic")` to override the default Java-Beans
+ * stripping of the `is` prefix.
+ */
+export interface CreateOrdnerRequestDTO {
+  /** Parent folder UUID, or `null` for a root-level folder. */
+  ueberOrdnerId: string | null;
+  /** Display name for the new folder. */
+  name: string;
+  /** Whether the folder is publicly visible. */
+  isPublic: boolean;
+  /** Folder colour. */
+  farbe: OrdnerFarbe;
+}
+
+/**
+ * Request body for `PATCH /student/ordner/{ordnerId}`.
+ *
+ * Mirrors `RenameOrdnerRequestDTO` in the backend
+ * (`ordner/application/dto/input/RenameOrdnerRequestDTO.java`).
+ */
+export interface RenameOrdnerRequestDTO {
+  /** New display name for the folder. */
+  newName: string;
+}
+
+/**
  * Folder metadata returned by the `/student/ordner` endpoints.
  *
  * Mirrors `OrdnerDTO` in the backend (`ordner/application/dto/output/`).

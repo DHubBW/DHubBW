@@ -15,11 +15,17 @@
  * mutation, {@link useDateiDownload} drives the browser's save dialog,
  * and the per-row icon group is rendered by {@link RowActions} via the
  * table/card-list slots.
+ *
+ * Folder CRUD lives here too: a "Ordner erstellen" button in the toolbar
+ * and per-row long-press / 3-dot context menus on the tree drive the
+ * create / rename / delete dialogs.
  */
+import { FolderPlus } from "lucide-react-native";
 import { useState } from "react";
 import {
   ActivityIndicator,
   Platform,
+  Pressable,
   ScrollView,
   useWindowDimensions,
   View,
@@ -28,13 +34,17 @@ import { toast } from "sonner-native";
 
 import { CourseRoute } from "@/components/auth/CourseRoute";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { CreateOrdnerDialog } from "@/components/dateien/CreateOrdnerDialog";
 import { DateienCardList } from "@/components/dateien/DateienCardList";
 import { DateienTabelle } from "@/components/dateien/DateienTabelle";
 import { DateienToolbar } from "@/components/dateien/DateienToolbar";
+import { DeleteOrdnerConfirm } from "@/components/dateien/DeleteOrdnerConfirm";
 import { ErrorHint, NoTopLevelHint } from "@/components/dateien/EmptyStates";
+import { OrdnerKontextMenu } from "@/components/dateien/OrdnerKontextMenu";
 import { OrdnerTree } from "@/components/dateien/OrdnerTree";
 import { OrdnerTreeDrawer } from "@/components/dateien/OrdnerTreeDrawer";
 import { RenameDialog } from "@/components/dateien/RenameDialog";
+import { RenameOrdnerDialog } from "@/components/dateien/RenameOrdnerDialog";
 import { UploadButton } from "@/components/dateien/UploadButton";
 import { Text } from "@/components/ui/text";
 import { useDateienListe } from "@/hooks/useDateienListe";
@@ -101,9 +111,16 @@ function DateienScreenInner() {
   const [selectedFolder, setSelectedFolder] = useState<OrdnerDTO | null>(null);
   const selectedOrdnerId = selectedFolder?.ordnerID ?? null;
 
-  // Dialog state — `target` holds the row currently being acted on.
+  // Datei-CRUD dialog state — `target` holds the row currently being acted on.
   const [renameTarget, setRenameTarget] = useState<DateiDTO | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DateiDTO | null>(null);
+
+  // Ordner-CRUD dialog state.
+  const [createOrdnerOpen, setCreateOrdnerOpen] = useState(false);
+  const [contextOrdner, setContextOrdner] = useState<OrdnerDTO | null>(null);
+  const [contextMenuOpen, setContextMenuOpen] = useState(false);
+  const [renameOrdnerOpen, setRenameOrdnerOpen] = useState(false);
+  const [deleteOrdnerOpen, setDeleteOrdnerOpen] = useState(false);
 
   const ordnerTree = useOrdnerTree();
   const dateienListe = useDateienListe(selectedOrdnerId);
@@ -189,6 +206,11 @@ function DateienScreenInner() {
     }
   }
 
+  function handleContextRequest(folder: OrdnerDTO) {
+    setContextOrdner(folder);
+    setContextMenuOpen(true);
+  }
+
   if (ordnerTree.isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
@@ -204,12 +226,21 @@ function DateienScreenInner() {
     );
   }
   if (rootFolders.length === 0 && selectedOrdnerId === null) {
-    // Course exists but has no top-level folders — show the hint and a
-    // disabled-looking placeholder where the table would normally live.
+    // Course exists but has no top-level folders — show the hint plus a
+    // toolbar holding the "Ordner erstellen"-button so the user can
+    // bootstrap the tree without any other entry point.
     return (
       <View className="flex-1 bg-background">
         <Header />
+        <View className="flex-row justify-end px-4 py-3">
+          <CreateOrdnerButton onPress={() => setCreateOrdnerOpen(true)} />
+        </View>
         <NoTopLevelHint />
+        <CreateOrdnerDialog
+          open={createOrdnerOpen}
+          onOpenChange={setCreateOrdnerOpen}
+          ueberOrdnerId={selectedOrdnerId}
+        />
       </View>
     );
   }
@@ -220,13 +251,20 @@ function DateienScreenInner() {
         <View className="w-72 border-r border-border">
           <ScrollView className="flex-1">
             <View className="py-3">
-              <Text className="px-4 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {t("dateien.tree.heading", "Ordner")}
-              </Text>
+              <View className="flex-row items-center justify-between gap-2 px-4 pb-2">
+                <Text className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t("dateien.tree.heading", "Ordner")}
+                </Text>
+                <CreateOrdnerButton
+                  onPress={() => setCreateOrdnerOpen(true)}
+                  compact
+                />
+              </View>
               <OrdnerTree
                 rootFolders={rootFolders}
                 selectedOrdnerId={selectedOrdnerId}
                 onSelect={setSelectedFolder}
+                onContextRequest={handleContextRequest}
               />
             </View>
           </ScrollView>
@@ -235,12 +273,13 @@ function DateienScreenInner() {
       <View className="flex-1">
         <Header />
         {!isWide && (
-          <View className="px-4 pt-3">
+          <View className="flex-row items-center justify-between gap-2 px-4 pt-3">
             <OrdnerTreeDrawer
               rootFolders={rootFolders}
               selectedOrdnerId={selectedOrdnerId}
               onSelect={setSelectedFolder}
             />
+            <CreateOrdnerButton onPress={() => setCreateOrdnerOpen(true)} />
           </View>
         )}
         <DateienToolbar
@@ -292,6 +331,42 @@ function DateienScreenInner() {
         variant="destructive"
         onConfirm={handleConfirmDelete}
       />
+
+      <CreateOrdnerDialog
+        open={createOrdnerOpen}
+        onOpenChange={setCreateOrdnerOpen}
+        ueberOrdnerId={selectedOrdnerId}
+      />
+
+      <OrdnerKontextMenu
+        open={contextMenuOpen}
+        onOpenChange={setContextMenuOpen}
+        ordner={contextOrdner}
+        onRename={() => setRenameOrdnerOpen(true)}
+        onDelete={() => setDeleteOrdnerOpen(true)}
+      />
+
+      <RenameOrdnerDialog
+        open={renameOrdnerOpen}
+        onOpenChange={(next) => {
+          setRenameOrdnerOpen(next);
+          if (!next) setContextOrdner(null);
+        }}
+        ordnerId={contextOrdner?.ordnerID ?? null}
+        currentName={contextOrdner?.name ?? ""}
+        ueberOrdnerId={contextOrdner?.ueberOrdnerID ?? null}
+      />
+
+      <DeleteOrdnerConfirm
+        open={deleteOrdnerOpen}
+        onOpenChange={(next) => {
+          setDeleteOrdnerOpen(next);
+          if (!next) setContextOrdner(null);
+        }}
+        ordnerId={contextOrdner?.ordnerID ?? null}
+        ordnerName={contextOrdner?.name ?? ""}
+        ueberOrdnerId={contextOrdner?.ueberOrdnerID ?? null}
+      />
     </View>
   );
 }
@@ -308,5 +383,42 @@ function Header() {
         {t("dateien.title", "Dateien")}
       </Text>
     </View>
+  );
+}
+
+interface CreateOrdnerButtonProps {
+  onPress: () => void;
+  /** Compact label-less variant for the tree header. */
+  compact?: boolean;
+}
+
+/**
+ * Trigger button that opens the {@link CreateOrdnerDialog}.
+ *
+ * @param props - {@link CreateOrdnerButtonProps}
+ * @returns A pressable button styled like the rest of the toolbar.
+ */
+function CreateOrdnerButton({
+  onPress,
+  compact = false,
+}: CreateOrdnerButtonProps) {
+  const label = t("ordner.create.button", "Ordner erstellen");
+  return (
+    <Pressable
+      testID="create-ordner-button"
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      className={
+        compact
+          ? "rounded-md p-1.5 active:bg-accent"
+          : "flex-row items-center gap-2 self-start rounded-md border border-border bg-card px-3 py-2 active:bg-accent"
+      }
+    >
+      <FolderPlus size={16} color="hsl(var(--foreground))" />
+      {!compact && (
+        <Text className="text-sm font-medium text-foreground">{label}</Text>
+      )}
+    </Pressable>
   );
 }
