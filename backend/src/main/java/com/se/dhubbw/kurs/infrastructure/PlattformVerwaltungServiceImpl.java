@@ -191,17 +191,13 @@ public class PlattformVerwaltungServiceImpl
     public void deleteKurs(final UUID kursId) {
         Kurs kurs = findKursOrThrow(kursId);
 
-        List<Ordner> ordnerListe = ordnerRepository.findByKurs(kurs);
-        for (Ordner ordner : ordnerListe) {
+        List<Ordner> rootOrdner =
+            ordnerRepository.findByKursAndUeberOrdnerIsNull(kurs);
+        for (Ordner ordner : rootOrdner) {
             if (ordner.isPublic()) {
-                ordner.setKurs(null);
-                ordnerRepository.save(ordner);
+                detachOrdnerRekursiv(ordner);
             } else {
-                deleteAllDateienInOrdner(ordner);
-                ordnerAnlegungRepository
-                    .findByOrdner(ordner)
-                    .ifPresent(ordnerAnlegungRepository::delete);
-                ordnerRepository.delete(ordner);
+                deleteOrdnerRekursiv(ordner);
             }
         }
 
@@ -292,6 +288,46 @@ public class PlattformVerwaltungServiceImpl
         verifyMinOneOtherSysAdmin(student);
         student.setStudentType(StudentType.STUDENT);
         studentRepository.save(student);
+    }
+
+    /**
+     * Recursively delete a private folder tree: deepest children first,
+     * then the folder itself. Bottom-up order prevents Hibernate from
+     * flushing a persistent entity whose {@code ueberOrdner} points to an
+     * already-deleted (transient) parent.
+     *
+     * @param ordner root of the subtree to delete
+     */
+    private void deleteOrdnerRekursiv(final Ordner ordner) {
+        List<Ordner> children =
+            ordnerRepository.findChildrenByUeberOrdner(ordner);
+        for (Ordner child : children) {
+            deleteOrdnerRekursiv(child);
+        }
+        deleteAllDateienInOrdner(ordner);
+        ordnerAnlegungRepository
+            .findByOrdner(ordner)
+            .ifPresent(ordnerAnlegungRepository::delete);
+        ordnerRepository.delete(ordner);
+    }
+
+    /**
+     * Recursively detach a public folder tree from its course by setting
+     * {@code kurs} to {@code null} on every node (deepest children first).
+     * This is required because child folders carry the same {@code kurs_id}
+     * FK; leaving them attached would violate the FK constraint when the
+     * course is deleted afterwards.
+     *
+     * @param ordner root of the subtree to detach
+     */
+    private void detachOrdnerRekursiv(final Ordner ordner) {
+        List<Ordner> children =
+            ordnerRepository.findChildrenByUeberOrdner(ordner);
+        for (Ordner child : children) {
+            detachOrdnerRekursiv(child);
+        }
+        ordner.setKurs(null);
+        ordnerRepository.save(ordner);
     }
 
     /**

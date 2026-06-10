@@ -117,7 +117,7 @@ public class OrdnerServiceImpl implements OrdnerService {
             .map(this::toDto)
             .collect(Collectors.toList());
         List<OrdnerDTO> publicFoldersOtherKurse = ordnerRepository
-            .findByKursNotAndUeberOrdnerIsNullAndIsPublicTrue(kurs)
+            .findPublicRootFoldersExcludingKurs(kurs.getKursID())
             .stream()
             .map(this::toDto)
             .collect(Collectors.toList());

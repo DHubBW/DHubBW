@@ -242,6 +242,7 @@ public class DateiServiceTest {
 
     @Test
     public void givenNonMember_whenUpload_thenThrows403() {
+        ordnerWithKurs.setPublic(false);
         when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
             .thenReturn(regularStudent);
         when(ordnerRepository.findById(ordnerWithKurs.getOrdnerID()))
@@ -256,6 +257,38 @@ public class DateiServiceTest {
                 "student@dhbw.de"));
 
         assertEquals(403, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenNonMemberPublicOrdner_whenUpload_thenSucceeds() {
+        Kurs otherKurs = new Kurs();
+        otherKurs.setKursID(UUID.randomUUID());
+
+        Ordner publicOrdnerOtherKurs = new Ordner();
+        publicOrdnerOtherKurs.setOrdnerID(UUID.randomUUID());
+        publicOrdnerOtherKurs.setKurs(otherKurs);
+        publicOrdnerOtherKurs.setPublic(true);
+
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
+        when(ordnerRepository.findById(
+            publicOrdnerOtherKurs.getOrdnerID()))
+            .thenReturn(Optional.of(publicOrdnerOtherKurs));
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(regularStudent))
+            .thenReturn(true);
+        when(dateiRepository.findTotalFileSizeInMb()).thenReturn(0.0);
+
+        dateiService.uploadDatei(
+            mockFile,
+            publicOrdnerOtherKurs.getOrdnerID(),
+            "test.pdf",
+            "student@dhbw.de");
+
+        verify(dateiRepository).save(any());
     }
 
     @Test

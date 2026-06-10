@@ -259,6 +259,22 @@ public class DateiServiceImpl
                 ordner.getOrdnerID(), ex.getMessage(), ex);
             throw ex;
         }
+        if (ordner.isPublic()) {
+            boolean hasCourse = kursBeitrittsAnfrageRepository
+                .existsByStudentAndIsApprovedTrue(student);
+            if (!hasCourse) {
+                ResponseStatusException ex = new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Kein Zugriff auf diesen Ordner");
+                colorLogger.colorError(
+                    "Upload rejected for {} in folder {}: {}",
+                    student.getDhbwMail(),
+                    ordner.getOrdnerID(),
+                    ex.getMessage(), ex);
+                throw ex;
+            }
+            return;
+        }
         if (!isMemberOfKurs(student, ordner.getKurs())) {
             ResponseStatusException ex = new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
