@@ -331,6 +331,55 @@ public class MensaScraperComponentTest {
     }
 
     @Test
+    public void givenRowWithDescription_whenParsed_thenZusatzExtracted() {
+        String rowWithZusatz =
+            "<tr class=\"mt-6\">"
+            + "<td class=\"mtd-icon\">"
+            + "<img src=\"/layout/icons/vegetarisches-gericht.svg\"></td>"
+            + "<td class=\"first menu-title\">"
+            + "<span class=\"bg\"><b>Portion Stangenspargel</b> "
+            + "<span>mit Pfannkuchen oder Dampfkartoffeln und "
+            + "Soße nach holländischer Art oder Butter</span>"
+            + "</span><sup>[Ei,ML,Se,Sf,We]</sup>"
+            + "</td>"
+            + "<td><span class=\"bgp price_1\">5,90 &euro;</span></td>"
+            + "</tr>";
+        String html = "<html><body>"
+            + "<ul class=\"canteen-day-nav\">"
+            + "<li><a rel=\"2026-05-06\">Mi</a></li>"
+            + "</ul>"
+            + "<div class=\"canteen-day\"><table>"
+            + mensatypeBlock("Wahlessen 1", rowWithZusatz)
+            + "</table></div>"
+            + "</body></html>";
+        List<Mensa> result =
+            scraper.parseDocument(Jsoup.parse(html));
+
+        Assertions.assertEquals(1, result.size());
+        Mensa meal = result.getFirst();
+        Assertions.assertEquals(
+            "Portion Stangenspargel", meal.getEssensbezeichnung());
+        Assertions.assertEquals(
+            "mit Pfannkuchen oder Dampfkartoffeln und "
+                + "Soße nach holländischer Art oder Butter",
+            meal.getZusatz());
+    }
+
+    @Test
+    public void givenRowWithoutDescription_whenParsed_thenZusatzIsEmpty() {
+        Document doc = Jsoup.parse(MOCK_HTML_WEEK_1);
+        List<Mensa> result = scraper.parseDocument(doc);
+
+        Assertions.assertEquals(3, result.size());
+        for (Mensa meal : result) {
+            Assertions.assertEquals(
+                "",
+                meal.getZusatz(),
+                "Meal without description span should yield empty zusatz");
+        }
+    }
+
+    @Test
     public void givenDayNavWithEmptyRelAttr_whenParsed_thenDaySkipped() {
         String mealRow =
             "<tr class=\"mt-2\">"

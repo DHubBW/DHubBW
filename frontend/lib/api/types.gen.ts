@@ -68,6 +68,8 @@ export interface StudentProfileDTO {
   name: string;
   dhbwMail: string;
   studentType: StudentType;
+  /** UUID of the enrolled course, or `null` when not enrolled. */
+  kursID: string | null;
   /**
    * Sauberes JSON-`null`, wenn der Student keinen Kurs hat.
    * **Quirk:** der `/student/dashboard/kurs`-Endpoint liefert stattdessen den
@@ -169,6 +171,12 @@ export interface MensaDTO {
   ernaehrung: Ernaehrung;
   /** Serving line label, e.g. `"Wahlessen 1"`, `"Beilagen"`, `"Suppe"`. */
   linie: string;
+  /**
+   * Additional descriptive text shown next to the title on the sw-ka.de
+   * page (e.g. side dishes / sauces). Empty string when the source page
+   * provides no description.
+   */
+  zusatz: string;
 }
 
 /**

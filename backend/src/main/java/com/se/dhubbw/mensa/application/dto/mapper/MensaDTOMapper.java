@@ -24,6 +24,7 @@ public class MensaDTOMapper {
    * @return the corresponding {@link MensaDTO}
    */
   public MensaDTO convertMensaEntityToMensaDTO(final Mensa mensa) {
+    String zusatz = mensa.getZusatz();
     return new MensaDTO(
         mensa.getGerichtID(),
         mensa.getDatum(),
@@ -31,7 +32,8 @@ public class MensaDTOMapper {
         mensa.getAllergene(),
         mensa.getPreis(),
         mensa.getErnaehrung(),
-        mensa.getLinie()
+        mensa.getLinie(),
+        zusatz != null ? zusatz : ""
     );
   }
 }

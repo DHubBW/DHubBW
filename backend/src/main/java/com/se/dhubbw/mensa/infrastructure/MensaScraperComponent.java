@@ -224,6 +224,7 @@ public class MensaScraperComponent {
 
                 String name = extractName(titleCell);
                 String allergene = extractAllergene(titleCell);
+                String zusatz = extractZusatz(titleCell);
                 double preis = extractPreis(row);
                 Ernaehrung ernaehrung = extractErnaehrung(row);
 
@@ -232,6 +233,7 @@ public class MensaScraperComponent {
                 mensa.setLinie(linie);
                 mensa.setEssensbezeichnung(name);
                 mensa.setAllergene(allergene);
+                mensa.setZusatz(zusatz);
                 mensa.setPreis(preis);
                 mensa.setErnaehrung(ernaehrung);
                 meals.add(mensa);
@@ -260,6 +262,41 @@ public class MensaScraperComponent {
     private String extractAllergene(final Element titleCell) {
         Element sup = titleCell.selectFirst("sup");
         return sup != null ? sup.text().trim() : "";
+    }
+
+    /**
+     * Extract the additional descriptive text rendered next to the meal
+     * title on the sw-ka.de page.
+     *
+     * <p>The structure inside {@code td.menu-title} is roughly a
+     * {@code span.bg} wrapper that contains a bold meal name followed
+     * by an inner span carrying the description, plus a trailing
+     * {@code sup} element for the allergen codes. The descriptive
+     * inner span sits as a sibling of the bold name element; the
+     * first such sibling span (if any) is taken as the description.
+     * Absent → empty string.
+     *
+     * @param titleCell the {@code td.menu-title} element
+     * @return additional description text, or empty string if absent
+     */
+    private String extractZusatz(final Element titleCell) {
+        Element bold = titleCell.selectFirst("b");
+        if (bold == null) {
+            return "";
+        }
+        Element parent = bold.parent();
+        if (parent == null) {
+            return "";
+        }
+        for (Element sibling : parent.children()) {
+            if (sibling == bold) {
+                continue;
+            }
+            if ("span".equalsIgnoreCase(sibling.tagName())) {
+                return sibling.text().trim();
+            }
+        }
+        return "";
     }
 
     /**

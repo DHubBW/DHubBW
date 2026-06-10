@@ -1,17 +1,26 @@
 /**
  * Card-based file list used on screens narrower than the table breakpoint.
  *
- * Action callbacks (`onDownload`, `onRename`, `onDelete`) are forwarded to
- * a {@link RowActions} group on each card. When none are provided, the
- * card renders without action icons (back-compat).
+ * Each file renders as a standalone {@link Card}-styled tile rather
+ * than a flat row separated by hairlines: rounded background, soft
+ * border, and a clear two-zone layout (top = icon + title + meta,
+ * bottom = action toolbar). This trades a few extra px of vertical
+ * space for a much cleaner mobile read-out — every entry feels like a
+ * tap-target instead of a list-row, the action icons get bigger
+ * touch zones, and size / download count sit in their own pill chips
+ * so the title line stays uncluttered.
+ *
+ * Action callbacks (`onDownload`, `onRename`, `onDelete`) are forwarded
+ * to the bottom action bar. When none are provided, the bar is omitted
+ * (back-compat).
  */
 import {
   ActivityIndicator,
+  Pressable,
   ScrollView,
   View,
 } from "react-native";
 
-import { Separator } from "@/components/ui/separator";
 import { Text } from "@/components/ui/text";
 import type { DateiDTO } from "@/lib/api/types.gen";
 import { fileIconFor } from "@/lib/files/fileIcons";
@@ -59,72 +68,104 @@ export function DateienCardList({
 
   return (
     <ScrollView className="flex-1">
-      <View className="px-4 py-2">
-        {sorted.map((datei, idx) => (
-          <View key={datei.dateiID}>
-            {idx > 0 && <Separator className="opacity-40" />}
-            <FileRow
-              datei={datei}
-              onDownload={onDownload}
-              onRename={onRename}
-              onDelete={onDelete}
-            />
-          </View>
+      <View className="gap-2 px-4 py-3">
+        {sorted.map((datei) => (
+          <FileCard
+            key={datei.dateiID}
+            datei={datei}
+            onDownload={onDownload}
+            onRename={onRename}
+            onDelete={onDelete}
+          />
         ))}
       </View>
     </ScrollView>
   );
 }
 
-interface FileRowProps {
+interface FileCardProps {
   datei: DateiDTO;
   onDownload?: (datei: DateiDTO) => void;
   onRename?: (datei: DateiDTO) => void;
   onDelete?: (datei: DateiDTO) => void;
 }
 
-function FileRow({ datei, onDownload, onRename, onDelete }: FileRowProps) {
+/**
+ * Single file tile. Tapping the card body (above the action bar)
+ * triggers a download when the callback is wired — matches what the
+ * table-row primary action does and saves a separate icon hit.
+ *
+ * @param props - {@link FileCardProps}
+ * @returns The card.
+ */
+function FileCard({ datei, onDownload, onRename, onDelete }: FileCardProps) {
   const FileIconCmp = fileIconFor(datei.name);
   const hasActions = Boolean(onDownload || onRename || onDelete);
+  const downloadsLabel = t("dateien.card.downloads", "Downloads");
 
   return (
-    <View className="flex-row items-center gap-3 py-3">
-      {/* Icon */}
-      <View className="rounded-lg bg-muted p-2.5">
-        <FileIconCmp size={18} color="hsl(var(--primary))" />
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={datei.name}
+      onPress={() => onDownload?.(datei)}
+      className="flex-row items-start gap-3 overflow-hidden rounded-xl border border-border bg-card px-4 py-3 active:bg-accent/40"
+    >
+      {/* Icon — larger than the table variant; rounded square keeps
+          the shape consistent with the upload button on the toolbar. */}
+      <View className="rounded-xl bg-muted p-3">
+        <FileIconCmp size={22} color="hsl(var(--primary))" />
       </View>
 
-      {/* Info */}
-      <View className="flex-1">
+      {/* Info column */}
+      <View className="flex-1 gap-1">
         <Text
-          className="text-sm font-semibold text-foreground"
-          numberOfLines={1}
+          className="text-base font-semibold leading-snug text-foreground"
+          numberOfLines={2}
         >
           {datei.name}
         </Text>
-        <Text className="mt-0.5 text-xs text-muted-foreground" numberOfLines={1}>
+        <Text className="text-xs text-muted-foreground" numberOfLines={1}>
           {datei.uploaderName ?? "—"}
           {"  ·  "}
           {formatIsoDate(datei.zuletztBearbeitet)}
         </Text>
-        <View className="mt-0.5 flex-row items-center gap-2">
-          <Text className="text-xs text-muted-foreground">
-            {formatFileSize(datei.fileSize)}
-          </Text>
-          <Text className="text-xs text-muted-foreground">·</Text>
-          <Text className="text-xs text-muted-foreground">
-            {datei.downloadAnzahl} {t("dateien.card.downloads", "Downloads")}
-          </Text>
+        {/* Pill chips for size + downloads — quieter than three loose
+            meta lines, easier to scan at a glance. */}
+        <View className="mt-1 flex-row flex-wrap gap-1.5">
+          <MetaChip label={formatFileSize(datei.fileSize)} />
+          <MetaChip label={`${datei.downloadAnzahl} ${downloadsLabel}`} />
         </View>
       </View>
 
+      {/* Actions live inside the card body, top-right, aligned to the
+          icon column so they sit naturally next to the title. */}
       {hasActions && (
         <RowActions
           onDownload={() => onDownload?.(datei)}
           onRename={() => onRename?.(datei)}
           onDelete={() => onDelete?.(datei)}
+          size="comfortable"
+          className="-mr-1 self-start"
         />
       )}
+    </Pressable>
+  );
+}
+
+interface MetaChipProps {
+  label: string;
+}
+
+/**
+ * Tiny rounded pill rendered inside the card meta row. Uses the
+ * `muted` token so the chip sits softly against the card background.
+ */
+function MetaChip({ label }: MetaChipProps) {
+  return (
+    <View className="rounded-full bg-muted px-2 py-0.5">
+      <Text className="text-[11px] font-medium text-muted-foreground">
+        {label}
+      </Text>
     </View>
   );
 }

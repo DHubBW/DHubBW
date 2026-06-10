@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 /**
  * Implementation of the {@link StudentDashboardService} interface.
@@ -253,9 +254,13 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
     public StudentProfileDTO retrieveProfile(final String dhbwMail) {
         Student student = studentLookupHelper
             .findStudentByEmail(dhbwMail);
-        String kursName = kursBeitrittsAnfrageRepository
-            .findByStudentAndIsApprovedTrue(student)
-            .map(enrollment -> enrollment.getKurs().getKursName())
+        var enrollment = kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(student);
+        UUID kursID = enrollment
+            .map(e -> e.getKurs().getKursID())
+            .orElse(null);
+        String kursName = enrollment
+            .map(e -> e.getKurs().getKursName())
             .orElse(null);
 
         PendingKursRequestDTO pendingKursRequest =
@@ -265,6 +270,7 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
             student.getName(),
             student.getDhbwMail(),
             student.getStudentType(),
+            kursID,
             kursName,
             pendingKursRequest
         );

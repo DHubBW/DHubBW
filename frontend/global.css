@@ -3,6 +3,26 @@
 @tailwind utilities;
 
 @layer base {
+  /* ===== Disable browser focus ring globally =====
+     The default blue outline that Chrome / Safari paint on focused
+     inputs and buttons clashes with the project's own ring tokens
+     (`--ring` driven, theme-aware). Components that want a focus
+     indicator render their own (e.g. the Dateien search pill via
+     box-shadow); for everything else we suppress the browser
+     default. We only override `outline`, never `box-shadow`, so
+     custom focus rings keep working. */
+  *:focus,
+  *:focus-visible,
+  *:focus-within {
+    outline: none !important;
+  }
+  input:focus,
+  textarea:focus,
+  select:focus,
+  button:focus {
+    outline: none !important;
+  }
+
   /* ===== Scrollbar ===== */
   ::-webkit-scrollbar {
     width: 4px;

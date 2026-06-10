@@ -29,6 +29,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "b9a1e15c-f139-496e-9798-f1af073fcb28",
@@ -38,6 +39,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "50fc3b6c-48ac-419d-9831-33c594425472",
@@ -48,6 +50,7 @@ const STUB_THIS_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "65a002d5-9031-4110-ac19-846e24ebe5b1",
@@ -57,6 +60,7 @@ const STUB_THIS_WEEK = {
       preis: 4.95,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "fc75f127-6256-48de-8dc7-9749c7f03d29",
@@ -66,6 +70,7 @@ const STUB_THIS_WEEK = {
       preis: 0.85,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "fdb6cd32-91f0-4d37-b516-705248819fa7",
@@ -75,6 +80,7 @@ const STUB_THIS_WEEK = {
       preis: 4.95,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "3e0bed66-9a74-4163-818f-051d31c56cfd",
@@ -84,6 +90,7 @@ const STUB_THIS_WEEK = {
       preis: 1.1,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "ff24643c-65a6-4e43-9c33-400a04a9387a",
@@ -93,6 +100,7 @@ const STUB_THIS_WEEK = {
       preis: 1.1,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "f6f280e7-5a58-4a6f-b9a8-0abfcc6a6c63",
@@ -102,6 +110,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "cf27f7a4-0209-4a7b-8aa4-f02f2d5f8135",
@@ -111,6 +120,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "dbe454a3-8e03-48b9-9278-05bb340e0885",
@@ -120,6 +130,7 @@ const STUB_THIS_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
   Di: [
@@ -132,6 +143,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "0e3bd3be-c188-458f-b8c1-631654a70a26",
@@ -142,6 +154,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "f59c438f-ff92-41ff-b92a-7f6f3e1671b1",
@@ -152,6 +165,7 @@ const STUB_THIS_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "b66b34a7-cd06-4428-bf2b-a34dae219caf",
@@ -161,6 +175,7 @@ const STUB_THIS_WEEK = {
       preis: 9.95,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "1789cabf-af9c-4854-b6ba-ce8936349751",
@@ -170,6 +185,7 @@ const STUB_THIS_WEEK = {
       preis: 8.95,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "e8807dff-f0b8-4c40-bde1-ccc8503e6d93",
@@ -179,6 +195,7 @@ const STUB_THIS_WEEK = {
       preis: 4.95,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "3edc6910-ded2-49d9-96a1-88d441a2af2a",
@@ -188,6 +205,7 @@ const STUB_THIS_WEEK = {
       preis: 1.1,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "29a8e977-85e1-4052-9031-39e0eed61a85",
@@ -197,6 +215,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "8d6e4cb5-352e-418f-af99-b89c314f10d3",
@@ -206,6 +225,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "00058a12-87e6-4ca1-931e-44544332dad5",
@@ -215,6 +235,7 @@ const STUB_THIS_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
   Mi: [
@@ -226,6 +247,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "724fe26a-8f70-4748-b49a-2c85077164ed",
@@ -235,6 +257,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "789315f4-0310-4ab7-906c-80aae87469dc",
@@ -245,6 +268,7 @@ const STUB_THIS_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "3715a854-b2ee-41c7-921b-e4445e3bdb69",
@@ -254,6 +278,7 @@ const STUB_THIS_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "1967aabf-3b8f-466e-8f14-71e0e4574f6e",
@@ -263,6 +288,7 @@ const STUB_THIS_WEEK = {
       preis: 9.95,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "41e0c13d-ac9b-4fae-bbf3-14bd4a9a5e1f",
@@ -272,6 +298,7 @@ const STUB_THIS_WEEK = {
       preis: 8.95,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "c041f651-0c75-4446-bf23-fca8067e9aef",
@@ -281,6 +308,7 @@ const STUB_THIS_WEEK = {
       preis: 4.95,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "7d697695-99b5-46cc-972d-05fb988e3457",
@@ -290,6 +318,7 @@ const STUB_THIS_WEEK = {
       preis: 1.1,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "e41b2c02-bd87-471f-892a-41364efe82a1",
@@ -299,6 +328,7 @@ const STUB_THIS_WEEK = {
       preis: 1.1,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "f838f2ac-d00b-49ff-95b5-bf3b87e4e437",
@@ -308,6 +338,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "3b009dc5-fefe-4d4c-8373-76b357f29822",
@@ -317,6 +348,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "ad773cdf-51ce-4a18-b51a-aae89244bfa4",
@@ -326,6 +358,7 @@ const STUB_THIS_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
   Do: [
@@ -337,6 +370,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "5a719690-a7fa-4ea8-8946-7886bef97f20",
@@ -346,6 +380,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "a95af5a5-a293-46db-a434-6d794e528942",
@@ -356,6 +391,7 @@ const STUB_THIS_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "2081aa11-4917-4359-8b9e-71bc83593955",
@@ -365,6 +401,7 @@ const STUB_THIS_WEEK = {
       preis: 9.95,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "a75fdd9b-3ad1-4b80-afe7-84b6c969c18c",
@@ -374,6 +411,7 @@ const STUB_THIS_WEEK = {
       preis: 8.95,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "96ec8748-9e19-4823-b9a4-f3f47a67816a",
@@ -383,6 +421,7 @@ const STUB_THIS_WEEK = {
       preis: 1.1,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "4f211b24-c7a3-4408-95c1-b8b35adaf4a0",
@@ -392,6 +431,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "1dab9c2b-ac8d-47d9-84bd-dbe2649028e2",
@@ -401,6 +441,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "bdc159ce-d59e-4ae0-a051-eb30d9a2ea07",
@@ -410,6 +451,7 @@ const STUB_THIS_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
   Fr: [
@@ -422,6 +464,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "8afee310-785c-43b3-80de-7ddb25473f40",
@@ -432,6 +475,7 @@ const STUB_THIS_WEEK = {
       preis: 3.6,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "e3da5560-5cb2-482c-86ab-41b530d5eb22",
@@ -442,6 +486,7 @@ const STUB_THIS_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "bb916eb6-07bb-4dde-955f-78068d9d56cc",
@@ -451,6 +496,7 @@ const STUB_THIS_WEEK = {
       preis: 4.95,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "2603462f-9542-4cf3-b30b-3e5fc3ab91c8",
@@ -460,6 +506,7 @@ const STUB_THIS_WEEK = {
       preis: 5.45,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "2f2edd32-12de-46ca-b240-1a28aaea2a35",
@@ -469,6 +516,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "31e36844-0f4c-4703-b47e-b5a4e0696757",
@@ -478,6 +526,7 @@ const STUB_THIS_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "79d1ae97-684b-4bd2-afd3-65afe79997a8",
@@ -487,6 +536,7 @@ const STUB_THIS_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "469d0bd1-e01c-4c55-9d86-ddc6e3ddc7e7",
@@ -496,6 +546,7 @@ const STUB_THIS_WEEK = {
       preis: 0.85,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
 };
@@ -511,6 +562,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "14dd14de-4503-4453-b4be-733ecdc643dc",
@@ -520,6 +572,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "00db576f-a2e7-48de-a813-8e311f3f991f",
@@ -530,6 +583,7 @@ const STUB_NEXT_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "d47af1ab-ad10-4c1c-a32d-003972039d8b",
@@ -539,6 +593,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "9653d547-f23c-471a-97c3-1bd192eec63f",
@@ -548,6 +603,7 @@ const STUB_NEXT_WEEK = {
       preis: 0.85,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "1e3f73ec-5915-4bf1-99a2-f7c675a32288",
@@ -557,6 +613,7 @@ const STUB_NEXT_WEEK = {
       preis: 5.45,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "17f08513-505b-4cf6-8d18-537e2a4e6114",
@@ -566,6 +623,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.1,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "8c7d2814-8374-4b9c-a61c-a90594b5e2e8",
@@ -575,6 +633,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "776c7316-72cb-430a-9b11-cc9f89b4ffc9",
@@ -584,6 +643,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "298b3d62-1ccf-412f-83df-e0002d97ff05",
@@ -593,6 +653,7 @@ const STUB_NEXT_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
   Di: [
@@ -605,6 +666,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "c5b625ac-7514-49d7-acce-fbaf7947fb2c",
@@ -615,6 +677,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "5c9814d6-0139-441e-b029-f88512410721",
@@ -625,6 +688,7 @@ const STUB_NEXT_WEEK = {
       preis: 0,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "f4df0624-f9aa-494c-9484-0c8bd83627fa",
@@ -634,6 +698,7 @@ const STUB_NEXT_WEEK = {
       preis: 2.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "1bc7b8b2-f486-4aca-8064-45c31472feec",
@@ -644,6 +709,7 @@ const STUB_NEXT_WEEK = {
       preis: 2.4,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "0ca35fd1-cb31-40c8-bf2b-6fa80c19ee08",
@@ -653,6 +719,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.1,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "c7a19afd-8032-4f79-987d-c0239bc03b1c",
@@ -662,6 +729,7 @@ const STUB_NEXT_WEEK = {
       preis: 0.3,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "9f478901-a5b4-4c73-b59d-cf475979a68e",
@@ -671,6 +739,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "c74a59ad-4443-46ea-aefc-0cc2dca3fa81",
@@ -680,6 +749,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "010c1681-1239-48c5-9081-e47f462d4fff",
@@ -689,6 +759,7 @@ const STUB_NEXT_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
   Mi: [
@@ -700,6 +771,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "d55f6441-13d2-48f3-96ee-b088e7646f43",
@@ -709,6 +781,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "42416eb8-12b6-4de4-b680-4095d3cf3f67",
@@ -719,6 +792,7 @@ const STUB_NEXT_WEEK = {
       preis: 0,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "eb9d5696-e19a-4f8e-bc9a-819358c7367f",
@@ -728,6 +802,7 @@ const STUB_NEXT_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "7eba4195-e1f1-49da-823c-d75d701e2bd8",
@@ -737,6 +812,7 @@ const STUB_NEXT_WEEK = {
       preis: 4.95,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "8da1d168-8054-471e-a486-55c5f4f8864a",
@@ -746,6 +822,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "58761732-f143-4203-aa03-ae3ee4ccefc9",
@@ -755,6 +832,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "b05b6948-eb35-4c5b-b71b-bdee9fe4c7c8",
@@ -764,6 +842,7 @@ const STUB_NEXT_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
   Do: [
@@ -775,6 +854,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "882b44d9-fbfd-4a13-9c0f-60c879588527",
@@ -784,6 +864,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "36ca6cec-4d48-49c1-8bcc-25d0fd1c200c",
@@ -793,6 +874,7 @@ const STUB_NEXT_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "e7484dbe-8f27-4589-b57d-6f6dfb72d86e",
@@ -802,6 +884,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "ead1ec83-a0d3-4426-9af0-545ad59d3a4a",
@@ -811,6 +894,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "f4e966c1-8860-470d-8a03-46ce088696dd",
@@ -820,6 +904,7 @@ const STUB_NEXT_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
   Fr: [
@@ -831,6 +916,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "5f540437-d724-4a95-b34c-26d6863d76cd",
@@ -840,6 +926,7 @@ const STUB_NEXT_WEEK = {
       preis: 3.6,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "79d5e3a3-3050-49b6-84a8-1559f6303091",
@@ -850,6 +937,7 @@ const STUB_NEXT_WEEK = {
       preis: 0,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 1",
+      zusatz: "",
     },
     {
       gerichtID: "b8df027a-b359-4373-b85a-6fd97fdee502",
@@ -859,6 +947,7 @@ const STUB_NEXT_WEEK = {
       preis: 4.95,
       ernaehrung: "FLEISCH",
       linie: "Wahlessen 2",
+      zusatz: "",
     },
     {
       gerichtID: "c318725c-ba73-416e-b0dd-61312026e651",
@@ -868,6 +957,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGETARISCH",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "ce4222f1-b93e-4e21-9ede-22f4fb816b71",
@@ -877,6 +967,7 @@ const STUB_NEXT_WEEK = {
       preis: 1.05,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
     {
       gerichtID: "e8026de5-fab0-4573-a4f4-8301fe28246d",
@@ -886,6 +977,7 @@ const STUB_NEXT_WEEK = {
       preis: 0.9,
       ernaehrung: "VEGAN",
       linie: "Wahlessen 3",
+      zusatz: "",
     },
   ],
 };
@@ -940,7 +1032,8 @@ export const handlers = [
           preis: 4.2,
           ernaehrung: "FLEISCH",
           linie: "Wahlessen 1",
-        },
+      zusatz: "",
+    },
         {
           gerichtID: "aaaa0001-0000-0000-0000-000000000002",
           datum: "2026-06-08",
@@ -949,7 +1042,8 @@ export const handlers = [
           preis: 3.8,
           ernaehrung: "VEGETARISCH",
           linie: "Wahlessen 2",
-        },
+      zusatz: "",
+    },
       ],
       { status: 200 },
     ),

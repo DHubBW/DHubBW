@@ -173,4 +173,21 @@ describe("UploadButton", () => {
 
     await waitFor(() => expect(mockToastError).toHaveBeenCalled());
   });
+
+  it("renders a size-aware toast when the local pre-validation rejects an oversize file", async () => {
+    process.env.EXPO_PUBLIC_MAX_UPLOAD_MB = "1";
+    renderWithClient(<UploadButton ueberordnerId={FOLDER_ID} />);
+    await act(async () => {
+      pickFile("zu-gross.bin", 2 * 1024 * 1024);
+    });
+
+    await waitFor(() => expect(mockToastError).toHaveBeenCalled());
+    const message = mockToastError.mock.calls[0][0];
+    expect(typeof message).toBe("string");
+    // The size-aware variant must include both the actual size and
+    // the configured cap so the user understands what to do next.
+    expect(message).toContain("2");
+    expect(message).toContain("1 MB");
+    process.env.EXPO_PUBLIC_MAX_UPLOAD_MB = "10";
+  });
 });

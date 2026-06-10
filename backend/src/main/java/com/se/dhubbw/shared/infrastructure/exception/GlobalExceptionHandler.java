@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -50,6 +51,13 @@ import java.util.NoSuchElementException;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * HTTP 413 Payload Too Large status value. Hard-coded as an
+     * integer because {@link HttpStatus#PAYLOAD_TOO_LARGE} is
+     * deprecated in Spring 7 and would trigger a build warning.
+     */
+    private static final int HTTP_PAYLOAD_TOO_LARGE = 413;
 
     /**
      * ColorLogger for error output.
@@ -182,6 +190,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(ex.getMessage());
+    }
+
+    /**
+     * Map Spring's multipart resolver overflow to 413 Payload Too Large.
+     *
+     * <p>Without this handler the default Spring MVC behaviour wraps
+     * the cause in a 500 response, which the frontend cannot
+     * distinguish from a real server error. The 413 status maps
+     * cleanly to the {@code 'too-large'} upload-error code in
+     * {@code useFileUpload}.</p>
+     *
+     * @param ex the exception thrown by the multipart resolver
+     * @return 413 response with a German operator hint
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<String> handleMaxUploadSizeExceeded(
+            final MaxUploadSizeExceededException ex) {
+        colorLogger.colorWarn(
+            "Upload rejected — file exceeds the configured limit: {}",
+            ex.getMessage());
+        return ResponseEntity
+            .status(HttpStatus.valueOf(HTTP_PAYLOAD_TOO_LARGE))
+            .body("Datei ist zu groß. Maximal 50 MB pro Upload.");
     }
 
     /**

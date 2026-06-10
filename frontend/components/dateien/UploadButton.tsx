@@ -27,7 +27,7 @@ import { toast } from "sonner-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import {
-  type UploadErrorCode,
+  FileUploadError,
   type UploadFileLike,
   useFileUpload,
 } from "@/hooks/useFileUpload";
@@ -42,15 +42,31 @@ export interface UploadButtonProps {
 }
 
 /**
- * Maps an {@link UploadErrorCode} to the toast message that should be
- * shown to the user.
+ * Maps a {@link FileUploadError} to the toast message that should be
+ * shown to the user. The {@code 'too-large'} branch renders a precise
+ * message including the actual file size and the configured cap when
+ * the hook supplies them.
  *
- * @param code - The error-code surfaced by `useFileUpload`.
+ * @param err - The error rejected by the upload mutation.
  * @returns The localised toast message.
  */
-function _toastForCode(code: UploadErrorCode): string {
-  switch (code) {
+function _toastForError(err: FileUploadError): string {
+  switch (err.code) {
     case "too-large":
+      if (err.actualMb !== undefined && err.limitMb !== undefined) {
+        return t(
+          "dateien.upload.error.tooLargeWithSize",
+          "Datei ist {actual} MB groß – das Limit liegt bei {limit} MB.",
+        )
+          .replace("{actual}", String(err.actualMb))
+          .replace("{limit}", String(err.limitMb));
+      }
+      if (err.limitMb !== undefined) {
+        return t(
+          "dateien.upload.error.tooLargeWithLimit",
+          "Datei ist zu groß – das Limit liegt bei {limit} MB.",
+        ).replace("{limit}", String(err.limitMb));
+      }
       return t(
         "dateien.upload.error.tooLarge",
         "Datei ist zu groß für den Server.",
@@ -122,7 +138,7 @@ export function UploadButton({ ueberordnerId }: UploadButtonProps) {
           );
         },
         onError: (err) => {
-          toast.error(_toastForCode(err.code));
+          toast.error(_toastForError(err));
         },
       },
     );

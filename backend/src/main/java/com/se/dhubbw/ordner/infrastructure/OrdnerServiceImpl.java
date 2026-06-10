@@ -187,6 +187,20 @@ public class OrdnerServiceImpl implements OrdnerService {
         if (ueberOrdnerId != null) {
             ueberOrdner = findOrdnerOrThrow(ueberOrdnerId);
             verifyCourseAccess(ueberOrdner, student);
+            if (!ueberOrdner.isPublic() && isPublic) {
+                ResponseStatusException ex =
+                    new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Oeffentlicher Unterordner in "
+                        + "privatem Ordner nicht erlaubt");
+                colorLogger.colorError(
+                    "Create rejected for {} in private "
+                    + "folder {}: {}",
+                    student.getDhbwMail(),
+                    ueberOrdnerId,
+                    ex.getMessage(), ex);
+                throw ex;
+            }
             kurs = ueberOrdner.getKurs();
             level = ueberOrdner.getLevel() + 1;
         } else if (student.getStudentType()
@@ -335,13 +349,15 @@ public class OrdnerServiceImpl implements OrdnerService {
                 return;
             }
         }
-        boolean isCreator = ordnerAnlegungRepository
-            .findByOrdner(ordner)
-            .map(a -> a.getStudent().getStudentID()
-                .equals(student.getStudentID()))
-            .orElse(false);
-        if (isCreator) {
-            return;
+        if (!ordner.isPublic()) {
+            boolean isCreator = ordnerAnlegungRepository
+                .findByOrdner(ordner)
+                .map(a -> a.getStudent().getStudentID()
+                    .equals(student.getStudentID()))
+                .orElse(false);
+            if (isCreator) {
+                return;
+            }
         }
         ResponseStatusException ex = new ResponseStatusException(
             HttpStatus.FORBIDDEN,

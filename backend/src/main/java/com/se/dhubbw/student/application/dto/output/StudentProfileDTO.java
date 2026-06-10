@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 /**
  * Data transfer object for the student profile.
  * Contains name, email, role, course name, and pending course request.
@@ -37,6 +39,12 @@ public class StudentProfileDTO {
      * Current role of the student.
      */
     private StudentType studentType;
+
+    /**
+     * ID of the course the student is enrolled in.
+     * Null if the student has no course enrollment.
+     */
+    private UUID kursID;
 
     /**
      * Name of the course the student is enrolled in.

@@ -20,6 +20,12 @@ export interface RowActionsProps {
   disabled?: boolean;
   /** Extra className for the container — used to align inside columns. */
   className?: string;
+  /**
+   * `compact` keeps the original 15 px icons + tight padding for the
+   * desktop table; `comfortable` gives bigger touch targets for the
+   * mobile card layout. Defaults to `compact`.
+   */
+  size?: "compact" | "comfortable";
 }
 
 /**
@@ -34,7 +40,13 @@ export function RowActions({
   onDelete,
   disabled = false,
   className,
+  size = "compact",
 }: RowActionsProps) {
+  const iconSize = size === "comfortable" ? 18 : 15;
+  const buttonClass =
+    size === "comfortable"
+      ? "rounded-lg p-2 active:bg-accent"
+      : "rounded-md p-1.5 active:bg-accent";
   return (
     <View className={cn("flex-row items-center justify-end gap-1", className)}>
       <TouchableOpacity
@@ -43,9 +55,9 @@ export function RowActions({
         accessibilityRole="button"
         accessibilityLabel={t("dateien.download", "Herunterladen")}
         testID="row-action-download"
-        className="rounded-md p-1.5 active:bg-accent"
+        className={buttonClass}
       >
-        <Download size={15} color="hsl(var(--primary))" />
+        <Download size={iconSize} color="hsl(var(--primary))" />
       </TouchableOpacity>
       <TouchableOpacity
         onPress={onRename}
@@ -53,9 +65,9 @@ export function RowActions({
         accessibilityRole="button"
         accessibilityLabel={t("dateien.rename.button", "Umbenennen")}
         testID="row-action-rename"
-        className="rounded-md p-1.5 active:bg-accent"
+        className={buttonClass}
       >
-        <Pencil size={15} color="hsl(var(--primary))" />
+        <Pencil size={iconSize} color="hsl(var(--primary))" />
       </TouchableOpacity>
       <TouchableOpacity
         onPress={onDelete}
@@ -63,9 +75,9 @@ export function RowActions({
         accessibilityRole="button"
         accessibilityLabel={t("dateien.delete.button", "Löschen")}
         testID="row-action-delete"
-        className="rounded-md p-1.5 active:bg-accent"
+        className={buttonClass}
       >
-        <Trash2 size={15} color="hsl(var(--destructive))" />
+        <Trash2 size={iconSize} color="hsl(var(--destructive))" />
       </TouchableOpacity>
     </View>
   );

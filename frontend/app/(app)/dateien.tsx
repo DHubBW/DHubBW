@@ -21,7 +21,7 @@
  * create / rename / delete dialogs.
  */
 import { FolderPlus } from "lucide-react-native";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -42,7 +42,7 @@ import { DeleteOrdnerConfirm } from "@/components/dateien/DeleteOrdnerConfirm";
 import { ErrorHint, NoTopLevelHint } from "@/components/dateien/EmptyStates";
 import { OrdnerKontextMenu } from "@/components/dateien/OrdnerKontextMenu";
 import { OrdnerTree } from "@/components/dateien/OrdnerTree";
-import { OrdnerTreeDrawer } from "@/components/dateien/OrdnerTreeDrawer";
+import { OrdnerTreeInline } from "@/components/dateien/OrdnerTreeInline";
 import { RenameDialog } from "@/components/dateien/RenameDialog";
 import { RenameOrdnerDialog } from "@/components/dateien/RenameOrdnerDialog";
 import { UploadButton } from "@/components/dateien/UploadButton";
@@ -110,9 +110,19 @@ function DateienScreenInner() {
   const isWeb = Platform.OS === "web";
   const { user } = useAuth();
 
-  const canEditOrdner =
-    user?.studentType === "KURSADMIN" ||
-    user?.studentType === "SYSTEMADMIN";
+  function canEditOrdner(folder: OrdnerDTO): boolean {
+    if (user?.studentType === "SYSTEMADMIN") return true;
+    if (user?.studentType === "KURSADMIN") {
+      // Public folders: only the KURSADMIN of the folder's own course.
+      if (folder.public) return folder.kursID === user.kursID;
+      // Private folders: KURSADMIN of same course.
+      return folder.kursID === user.kursID;
+    }
+    // STUDENT: only private folders they created — backend enforces this,
+    // so show the menu only for private folders in their own course.
+    if (!folder.public && folder.kursID === user?.kursID) return true;
+    return false;
+  }
 
   const [selectedFolder, setSelectedFolder] = useState<OrdnerDTO | null>(null);
   const selectedOrdnerId = selectedFolder?.ordnerID ?? null;
@@ -128,12 +138,25 @@ function DateienScreenInner() {
   const [renameOrdnerOpen, setRenameOrdnerOpen] = useState(false);
   const [deleteOrdnerOpen, setDeleteOrdnerOpen] = useState(false);
 
+  // Search term — filters the in-memory list of files the user is
+  // already authorised to see (the listing endpoint enforces access).
+  const [searchTerm, setSearchTerm] = useState("");
+
   const ordnerTree = useOrdnerTree();
   const dateienListe = useDateienListe(selectedOrdnerId);
   const download = useDateiDownload();
   const deleteMutation = useDateiDelete();
 
   const rootFolders = ordnerTree.data ?? [];
+
+  const filteredDateien = useMemo(() => {
+    const all = dateienListe.data ?? [];
+    const needle = searchTerm.trim().toLocaleLowerCase("de-DE");
+    if (needle.length === 0) return all;
+    return all.filter((d) =>
+      d.name.toLocaleLowerCase("de-DE").includes(needle),
+    );
+  }, [dateienListe.data, searchTerm]);
 
   function handleDownload(datei: DateiDTO) {
     if (!isWeb) {
@@ -213,6 +236,7 @@ function DateienScreenInner() {
   }
 
   function handleContextRequest(folder: OrdnerDTO) {
+    if (!canEditOrdner(folder)) return;
     setContextOrdner(folder);
     setContextMenuOpen(true);
   }
@@ -246,6 +270,7 @@ function DateienScreenInner() {
           open={createOrdnerOpen}
           onOpenChange={setCreateOrdnerOpen}
           ueberOrdnerId={selectedOrdnerId}
+          parentIsPublic={selectedFolder?.public}
         />
       </View>
     );
@@ -270,9 +295,7 @@ function DateienScreenInner() {
                 rootFolders={rootFolders}
                 selectedOrdnerId={selectedOrdnerId}
                 onSelect={setSelectedFolder}
-                onContextRequest={
-                  canEditOrdner ? handleContextRequest : undefined
-                }
+                onContextRequest={handleContextRequest}
               />
             </View>
           </ScrollView>
@@ -281,22 +304,31 @@ function DateienScreenInner() {
       <View className="flex-1">
         <Header />
         {!isWide && (
-          <View className="flex-row items-center justify-between gap-2 px-4 pt-3">
-            <OrdnerTreeDrawer
+          <View className="px-4 pt-3">
+            <OrdnerTreeInline
               rootFolders={rootFolders}
               selectedOrdnerId={selectedOrdnerId}
+              selectedFolderName={selectedFolder?.name ?? null}
               onSelect={setSelectedFolder}
+              onContextRequest={handleContextRequest}
+              actions={
+                <CreateOrdnerButton
+                  onPress={() => setCreateOrdnerOpen(true)}
+                  compact
+                />
+              }
             />
-            <CreateOrdnerButton onPress={() => setCreateOrdnerOpen(true)} />
           </View>
         )}
         <DateienToolbar
           selected={selectedFolder}
           actions={<UploadButton ueberordnerId={selectedOrdnerId} />}
+          searchTerm={searchTerm}
+          onSearchTermChange={setSearchTerm}
         />
         {isWide ? (
           <DateienTabelle
-            dateien={dateienListe.data ?? []}
+            dateien={filteredDateien}
             isLoading={dateienListe.isLoading}
             isError={dateienListe.isError}
             onDownload={handleDownload}
@@ -305,7 +337,7 @@ function DateienScreenInner() {
           />
         ) : (
           <DateienCardList
-            dateien={dateienListe.data ?? []}
+            dateien={filteredDateien}
             isLoading={dateienListe.isLoading}
             isError={dateienListe.isError}
             onDownload={handleDownload}
@@ -344,6 +376,7 @@ function DateienScreenInner() {
         open={createOrdnerOpen}
         onOpenChange={setCreateOrdnerOpen}
         ueberOrdnerId={selectedOrdnerId}
+        parentIsPublic={selectedFolder?.public}
       />
 
       <OrdnerKontextMenu

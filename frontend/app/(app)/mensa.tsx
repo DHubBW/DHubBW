@@ -249,6 +249,7 @@ function MealCard({ meal }: MealCardProps) {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+  const hasAllergens = allergenItems.length > 0;
 
   return (
     <Card
@@ -275,22 +276,49 @@ function MealCard({ meal }: MealCardProps) {
             <Text className="text-primary-foreground">{dietLabel}</Text>
           </TooltipContent>
         </Tooltip>
-        {/* Right column: name, then allergens + price */}
-        <View className="flex-1">
-          <Text className="text-lg font-bold leading-snug text-foreground">
-            {meal.essensbezeichnung}
-          </Text>
-          <View className="mt-2.5 flex-row items-end justify-between gap-2">
-            <View className="flex-1 flex-row flex-wrap gap-1.5">
-              {allergenItems.map((code) => (
-                <AllergenChip key={code} code={code} />
-              ))}
+        {/* Right column: name (and optional zusatz) on top, price + the
+            allergen row below. When the dish has no allergen chips at
+            all, the bottom row collapses to just the price — vertically
+            centered next to the title block so the card doesn't look
+            top-heavy. */}
+        {hasAllergens ? (
+          <View className="flex-1">
+            <Text className="text-lg font-bold leading-snug text-foreground">
+              {meal.essensbezeichnung}
+            </Text>
+            {meal.zusatz && meal.zusatz.length > 0 && (
+              <Text className="mt-1 text-sm leading-snug text-muted-foreground">
+                {meal.zusatz}
+              </Text>
+            )}
+            <View className="mt-2.5 flex-row items-end justify-between gap-2">
+              <View className="flex-1 flex-row flex-wrap gap-1.5">
+                {allergenItems.map((code) => (
+                  <AllergenChip key={code} code={code} />
+                ))}
+              </View>
+              <Text className="shrink-0 text-base font-semibold tabular-nums text-muted-foreground">
+                {priceStr} €
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View className="flex-1 flex-row items-center justify-between gap-3">
+            <View className="flex-1">
+              <Text className="text-lg font-bold leading-snug text-foreground">
+                {meal.essensbezeichnung}
+              </Text>
+              {meal.zusatz && meal.zusatz.length > 0 && (
+                <Text className="mt-1 text-sm leading-snug text-muted-foreground">
+                  {meal.zusatz}
+                </Text>
+              )}
             </View>
             <Text className="shrink-0 text-base font-semibold tabular-nums text-muted-foreground">
               {priceStr} €
             </Text>
           </View>
-        </View>
+        )}
       </View>
     </Card>
   );
