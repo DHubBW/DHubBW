@@ -126,6 +126,10 @@ describe('useFileUpload', () => {
     ).rejects.toMatchObject({
       name: 'FileUploadError',
       code: 'too-large',
+      // The size-aware error carries the actual / cap MB so consumers
+      // can render a precise "X MB > Y MB" toast.
+      actualMb: 11,
+      limitMb: 10,
     });
 
     expect(mockFetchClient).not.toHaveBeenCalled();
@@ -170,6 +174,9 @@ describe('useFileUpload', () => {
     ).rejects.toMatchObject({
       name: 'FileUploadError',
       code: 'too-large',
+      // Backend-driven 413 still carries the configured cap so the
+      // toast can show "max X MB" even when the server shipped no body.
+      limitMb: 10,
     });
     expect(invalidateSpy).not.toHaveBeenCalled();
   });
@@ -296,5 +303,34 @@ describe('useFileUpload', () => {
     });
     expect(result.current.error).toBeInstanceOf(FileUploadError);
     expect(result.current.error?.code).toBe('forbidden');
+  });
+
+  // ----- Global-toast opt-out --------------------------------------------
+
+  it('marks the mutation with meta.suppressGlobalErrorToast so the global handler skips it', async () => {
+    // The flag prevents the global mutationCache subscriber from
+    // surfacing a second generic toast on top of the size-aware one
+    // rendered by UploadButton.onError. Without it the user saw a
+    // doubled toast on "too-large" rejections. We assert by triggering
+    // a failing upload and reading meta off the recorded mutation in
+    // the shared MutationCache.
+    mockFetchClient.mockRejectedValueOnce(new ApiError(403, 'Forbidden'));
+
+    const { result, queryClient } = renderUploadHook();
+    await act(async () => {
+      result.current.mutate({
+        file: makeFile(1024),
+        ueberordnerId: FOLDER_ID,
+        name: 'a.pdf',
+      });
+    });
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    const recorded = queryClient.getMutationCache().getAll();
+    expect(recorded).toHaveLength(1);
+    const meta = recorded[0].options.meta as
+      | { suppressGlobalErrorToast?: boolean }
+      | undefined;
+    expect(meta?.suppressGlobalErrorToast).toBe(true);
   });
 });

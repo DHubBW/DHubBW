@@ -48,12 +48,6 @@ public class OrdnerControllerIT {
         "kronenberger.linus.a24@student.dhbw-karlsruhe.de";
 
     /**
-     * DHBW mail of Nico (KURSADMIN, enrolled in TINF24B2).
-     */
-    private static final String NICO_MAIL =
-        "anonym.nico.a24@student.dhbw-karlsruhe.de";
-
-    /**
      * DHBW mail of Tom (SYSTEMADMIN).
      */
     private static final String TOM_MAIL =
@@ -356,14 +350,13 @@ public class OrdnerControllerIT {
     // --- PATCH /ordner/{id} (renameFolder) ---
 
     /**
-     * Nico (KURSADMIN of TINF24B2) can rename a folder in his
-     * course.
+     * Tom (SYSTEMADMIN) can rename any folder.
      */
     @Test
     @Order(40)
     @WithMockUser(
-        username = NICO_MAIL,
-        roles = {"KURSADMIN", "STUDENT"})
+        username = TOM_MAIL,
+        roles = {"SYSTEMADMIN", "KURSADMIN", "STUDENT"})
     public void givenKursAdmin_whenRename_thenReturns200()
             throws Exception {
         mockMvc.perform(

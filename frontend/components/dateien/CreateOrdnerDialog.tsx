@@ -65,6 +65,12 @@ export interface CreateOrdnerDialogProps {
    * folder. Forwarded verbatim to the create mutation.
    */
   ueberOrdnerId: string | null;
+  /**
+   * Whether the parent folder is public. When `false`, the visibility
+   * toggle is locked to "Privat" (backend rejects public sub-folders
+   * inside private folders with 409).
+   */
+  parentIsPublic?: boolean;
 }
 
 /**
@@ -111,10 +117,14 @@ export function CreateOrdnerDialog({
   open,
   onOpenChange,
   ueberOrdnerId,
+  parentIsPublic,
 }: CreateOrdnerDialogProps) {
   const create = useOrdnerCreate();
   const [name, setName] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
+  // Lock to private when parent is private — public sub-folders are rejected
+  // by the backend (409) and don't make semantic sense inside a private tree.
+  const visibilityLocked = parentIsPublic === false;
+  const [isPublic, setIsPublic] = useState(!visibilityLocked);
   const [farbe, setFarbe] = useState<OrdnerFarbe>("DEFAULT");
   // Re-entry lock against rapid double-taps — see NewKursDialog.
   const submittingRef = useRef(false);
@@ -133,11 +143,11 @@ export function CreateOrdnerDialog({
   useEffect(() => {
     if (!open) {
       setName("");
-      setIsPublic(true);
+      setIsPublic(!visibilityLocked);
       setFarbe("DEFAULT");
       submittingRef.current = false;
     }
-  }, [open]);
+  }, [open, visibilityLocked]);
 
   const trimmed = name.trim();
   const canSubmit = !create.isPending && trimmed.length > 0;
@@ -215,15 +225,15 @@ export function CreateOrdnerDialog({
                 testID="create-ordner-public-toggle"
                 label={t("ordner.create.visibility.public", "Öffentlich")}
                 selected={isPublic}
-                disabled={create.isPending}
-                onPress={() => setIsPublic(true)}
+                disabled={create.isPending || visibilityLocked}
+                onPress={() => !visibilityLocked && setIsPublic(true)}
               />
               <VisibilityChoice
                 testID="create-ordner-private-toggle"
                 label={t("ordner.create.visibility.private", "Privat")}
                 selected={!isPublic}
-                disabled={create.isPending}
-                onPress={() => setIsPublic(false)}
+                disabled={create.isPending || visibilityLocked}
+                onPress={() => !visibilityLocked && setIsPublic(false)}
               />
             </View>
           </View>

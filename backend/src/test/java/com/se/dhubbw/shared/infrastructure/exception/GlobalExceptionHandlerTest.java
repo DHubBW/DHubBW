@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.NoSuchElementException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -118,6 +120,22 @@ public class GlobalExceptionHandlerTest {
     }
 
     /**
+     * A {@link MaxUploadSizeExceededException} must be mapped to 413
+     * Payload Too Large with a German operator hint in the body so
+     * the frontend can render a meaningful toast instead of a generic
+     * 500.
+     */
+    @Test
+    public void givenMaxUploadSizeExceeded_whenHandled_thenReturns413()
+            throws Exception {
+        mockMvc.perform(get("/stub/too-large"))
+            .andExpect(status().isPayloadTooLarge())
+            .andExpect(
+                content().string(
+                    "Datei ist zu groß. Maximal 50 MB pro Upload."));
+    }
+
+    /**
      * Stub controller that deliberately throws various exception types
      * to exercise the {@link GlobalExceptionHandler}.
      */
@@ -184,6 +202,19 @@ public class GlobalExceptionHandlerTest {
         @GetMapping("/forbidden")
         public ResponseEntity<Void> throwForbidden() {
             throw new AccessDeniedException("access denied");
+        }
+
+        /**
+         * Throws a {@link MaxUploadSizeExceededException} with the
+         * configured 50 MB cap, mirroring what Spring's multipart
+         * resolver raises in production when an upload exceeds
+         * {@code spring.servlet.multipart.max-file-size}.
+         *
+         * @return never returns
+         */
+        @GetMapping("/too-large")
+        public ResponseEntity<Void> throwTooLarge() {
+            throw new MaxUploadSizeExceededException(50L * 1024 * 1024);
         }
 
         /**

@@ -89,4 +89,21 @@ public class Mensa {
     @Setter
     @Column(name = "linie")
     private String linie;
+
+    /**
+     * Maximum length (in chars) of the persisted {@code zusatz} field.
+     * Picked to comfortably hold the longest descriptive text observed
+     * on sw-ka.de meal cards, with headroom for future variations.
+     */
+    private static final int ZUSATZ_MAX_LENGTH = 1000;
+
+    /**
+     * Additional descriptive text shown next to the meal title.
+     * Empty string if the source page has no additional description
+     * for this dish.
+     */
+    @Getter
+    @Setter
+    @Column(name = "zusatz", length = ZUSATZ_MAX_LENGTH)
+    private String zusatz;
 }

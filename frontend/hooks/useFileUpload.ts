@@ -61,7 +61,7 @@ import type { DateiUploadDTO } from '@/lib/api/types.gen';
 const UPLOAD_PATH = '/student/dateien/upload';
 
 /** Default cap when `EXPO_PUBLIC_MAX_UPLOAD_MB` is unset / unparseable. */
-const DEFAULT_MAX_UPLOAD_MB = 10;
+const DEFAULT_MAX_UPLOAD_MB = 50;
 
 /** Bytes per MiB. */
 const MIB = 1024 * 1024;
@@ -81,15 +81,31 @@ export type UploadErrorCode =
 /**
  * Error type rejected by the mutation. The `code` is what callers should
  * branch on; the `message` is a short human-readable hint that may end up
- * in a toast or accessibility announcement.
+ * in a toast or accessibility announcement. For the {@code 'too-large'}
+ * code, {@link FileUploadError.actualMb} and {@link FileUploadError.limitMb}
+ * carry the size details so callers can render a precise toast without
+ * having to re-derive the cap.
  */
 export class FileUploadError extends Error {
   readonly code: UploadErrorCode;
 
-  constructor(code: UploadErrorCode, message: string) {
+  /** Actual file size in MB (rounded to one decimal). Optional. */
+  readonly actualMb?: number;
+
+  /** Configured upload cap in MB. Optional — only set on `'too-large'`. */
+  readonly limitMb?: number;
+
+  constructor(
+    code: UploadErrorCode,
+    message: string,
+    actualMb?: number,
+    limitMb?: number,
+  ) {
     super(message);
     this.name = 'FileUploadError';
     this.code = code;
+    this.actualMb = actualMb;
+    this.limitMb = limitMb;
     Object.setPrototypeOf(this, FileUploadError.prototype);
   }
 }
@@ -227,14 +243,24 @@ export function useFileUpload() {
   const queryClient = useQueryClient();
 
   return useMutation<DateiUploadDTO, FileUploadError, UploadInput>({
+    // Opt out of the global error toast — the caller renders a
+    // size-aware toast in its own onError (see UploadButton.tsx).
+    // Without this opt-out the user sees two toasts for the same
+    // error: one from the local handler, one from the global
+    // mutationCache subscriber.
+    meta: { suppressGlobalErrorToast: true },
     mutationFn: async (input) => {
       // ----- Pre-validation: size ----------------------------------
       const size = _readSize(input.file);
       const limit = _maxUploadBytes();
+      const limitMb = Math.round(limit / MIB);
       if (size !== undefined && size > limit) {
+        const actualMb = Math.round((size / MIB) * 10) / 10;
         throw new FileUploadError(
           'too-large',
-          `Datei überschreitet das Limit von ${Math.round(limit / MIB)} MB.`,
+          `Datei ist ${actualMb} MB groß – das Limit liegt bei ${limitMb} MB.`,
+          actualMb,
+          limitMb,
         );
       }
 
@@ -249,6 +275,18 @@ export function useFileUpload() {
         const code = _classify(err);
         const message =
           err instanceof Error && err.message ? err.message : 'Upload fehlgeschlagen.';
+        if (code === 'too-large') {
+          const actualMb =
+            size !== undefined
+              ? Math.round((size / MIB) * 10) / 10
+              : undefined;
+          throw new FileUploadError(
+            'too-large',
+            `Datei ist zu groß – das Limit liegt bei ${limitMb} MB.`,
+            actualMb,
+            limitMb,
+          );
+        }
         throw new FileUploadError(code, message);
       }
 

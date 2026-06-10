@@ -317,6 +317,7 @@ public class OrdnerServiceTest {
      */
     @Test
     public void givenParent_whenCreateChildFolder_thenLevelIncremented() {
+        rootOrdner.setPublic(true);
         when(ordnerRepository.findById(rootOrdner.getOrdnerID()))
             .thenReturn(Optional.of(rootOrdner));
         when(ordnerRepository.save(any(Ordner.class)))
@@ -333,6 +334,48 @@ public class OrdnerServiceTest {
             OrdnerFarbe.GREEN, "student@dhbw.de");
 
         verify(ordnerRepository).save(any(Ordner.class));
+    }
+
+    /**
+     * Public sub-folder inside a private parent is rejected with 409.
+     */
+    @Test
+    public void givenPrivateParent_whenCreatePublicChild_thenThrows409() {
+        rootOrdner.setPublic(false);
+        when(ordnerRepository.findById(rootOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(rootOrdner));
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> ordnerService.createFolder(
+                rootOrdner.getOrdnerID(), "Sub", true,
+                OrdnerFarbe.GREEN, "student@dhbw.de"));
+
+        assertEquals(409, ex.getStatusCode().value());
+    }
+
+    /**
+     * Private sub-folder inside a private parent is allowed.
+     */
+    @Test
+    public void givenPrivateParent_whenCreatePrivateChild_thenSucceeds() {
+        rootOrdner.setPublic(false);
+        when(ordnerRepository.findById(rootOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(rootOrdner));
+        when(ordnerRepository.save(any(Ordner.class)))
+            .thenAnswer(inv -> {
+                Ordner saved = inv.getArgument(0);
+                saved.setOrdnerID(UUID.randomUUID());
+                return saved;
+            });
+        when(ordnerAnlegungRepository.save(any(OrdnerAnlegung.class)))
+            .thenAnswer(inv -> inv.getArgument(0));
+
+        UUID id = ordnerService.createFolder(
+            rootOrdner.getOrdnerID(), "Sub", false,
+            OrdnerFarbe.GREEN, "student@dhbw.de");
+
+        assertNotNull(id);
     }
 
     // --- SYSTEMADMIN without course ---
@@ -447,6 +490,27 @@ public class OrdnerServiceTest {
             ResponseStatusException.class,
             () -> ordnerService.renameFolder(
                 rootOrdner.getOrdnerID(), "X", "other@dhbw.de"));
+    }
+
+    /**
+     * Creator of a public folder may NOT rename it — only
+     * KURSADMIN of its course or SYSTEMADMIN may.
+     */
+    @Test
+    public void givenCreatorOfPublicFolder_whenRename_thenThrows403() {
+        rootOrdner.setPublic(true);
+        when(ordnerRepository.findById(rootOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(rootOrdner));
+        OrdnerAnlegung anlegung = new OrdnerAnlegung();
+        anlegung.setStudent(student);
+        anlegung.setOrdner(rootOrdner);
+        when(ordnerAnlegungRepository.findByOrdner(rootOrdner))
+            .thenReturn(Optional.of(anlegung));
+
+        assertThrows(
+            ResponseStatusException.class,
+            () -> ordnerService.renameFolder(
+                rootOrdner.getOrdnerID(), "X", "student@dhbw.de"));
     }
 
     // --- deleteOrdner ---

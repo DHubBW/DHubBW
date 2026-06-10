@@ -12,6 +12,11 @@
  * - All other `ApiError` → shown with status code
  * - Unknown errors  → generic fallback message
  *
+ * Mutations that opt out via `meta.suppressGlobalErrorToast === true`
+ * are skipped, so callers that already render a tailored toast in
+ * their own `onError` (e.g. file upload with size-aware messages)
+ * don't get a second generic toast on top.
+ *
  * The hook installs `MutationCache` and `QueryCache` handlers on the
  * project-wide queryClient **once** on mount via useEffect. It is
  * intended to run exactly once inside `RootLayout`.
@@ -60,10 +65,14 @@ function toastForError(err: unknown): void {
 export function useGlobalQueryErrorToast(): void {
   useEffect(() => {
     // Patch mutationCache — fires for every failed mutation that
-    // didn't provide its own onError handler.
+    // didn't opt out via meta.suppressGlobalErrorToast.
     const mutationCache = queryClient.getMutationCache();
     const unsubMutation = mutationCache.subscribe((event) => {
       if (event.type === "updated" && event.mutation.state.status === "error") {
+        const meta = event.mutation.options.meta as
+          | { suppressGlobalErrorToast?: boolean }
+          | undefined;
+        if (meta?.suppressGlobalErrorToast) return;
         toastForError(event.mutation.state.error);
       }
     });
