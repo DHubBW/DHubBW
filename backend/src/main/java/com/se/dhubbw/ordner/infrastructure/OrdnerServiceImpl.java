@@ -201,11 +201,38 @@ public class OrdnerServiceImpl implements OrdnerService {
                     ex.getMessage(), ex);
                 throw ex;
             }
+            // Children inherit the parent's course; for NULL-kurs
+            // platform-wide shares the children remain in the
+            // platform-wide sphere.
             kurs = ueberOrdner.getKurs();
             level = ueberOrdner.getLevel() + 1;
         } else if (student.getStudentType()
                 == StudentType.SYSTEMADMIN) {
-            kurs = null;
+            // A SYSTEMADMIN that is also enrolled in a course creates
+            // root folders within that course like any KURSADMIN; only
+            // when the SYSTEMADMIN is unenrolled does the root folder
+            // land in the platform-wide (NULL-kurs) sphere — and those
+            // platform-wide roots must be public, since a private
+            // NULL-kurs folder would only be visible to other
+            // SYSTEMADMINs without a product use case.
+            Kurs adminKurs =
+                kursBeitrittsAnfrageRepository
+                    .findByStudentAndIsApprovedTrue(student)
+                    .map(KursBeitrittsAnfrage::getKurs)
+                    .orElse(null);
+            if (adminKurs == null && !isPublic) {
+                ResponseStatusException ex =
+                    new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Privater Root-Ordner ohne Kurs nicht erlaubt");
+                colorLogger.colorError(
+                    "Create rejected for SYSTEMADMIN {}: private root "
+                    + "folder without course is not allowed: {}",
+                    student.getDhbwMail(),
+                    ex.getMessage(), ex);
+                throw ex;
+            }
+            kurs = adminKurs;
         } else {
             kurs = findKursOrThrow(student);
         }
@@ -291,8 +318,17 @@ public class OrdnerServiceImpl implements OrdnerService {
     /**
      * Assert that the student may access the given folder.
      *
-     * <p>SYSTEMADMIN may access any folder. All other users
-     * must be a member of the folder's course.</p>
+     * <p>Permission rules:</p>
+     * <ul>
+     *   <li>SYSTEMADMIN may access any folder.</li>
+     *   <li>Public folders (including SYSTEMADMIN-created NULL-kurs
+     *       platform shares) are readable by every student that is
+     *       enrolled in some course; students without an approved
+     *       enrollment are rejected.</li>
+     *   <li>Private folders require the caller to be a member of the
+     *       folder's course; private folders without a course are
+     *       SYSTEMADMIN-only and rejected here for everyone else.</li>
+     * </ul>
      *
      * @param ordner  the folder to check
      * @param student the authenticated student
@@ -304,14 +340,39 @@ public class OrdnerServiceImpl implements OrdnerService {
         if (student.getStudentType() == StudentType.SYSTEMADMIN) {
             return;
         }
-        Kurs kurs = findKursOrThrow(student);
-        // Public folders are readable by any student who is in a course.
         if (ordner.isPublic()) {
+            // Public folders are course-bound: only students with an
+            // approved course enrollment may read them.
+            boolean hasCourse = kursBeitrittsAnfrageRepository
+                .existsByStudentAndIsApprovedTrue(student);
+            if (!hasCourse) {
+                ResponseStatusException ex = new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Kein Zugriff auf diesen Ordner");
+                colorLogger.colorError(
+                    "Access denied for unenrolled {} to folder {}: {}",
+                    student.getDhbwMail(),
+                    ordner.getOrdnerID(),
+                    ex.getMessage(), ex);
+                throw ex;
+            }
             return;
         }
-        if (ordner.getKurs() == null
-                || !ordner.getKurs().getKursID()
-                    .equals(kurs.getKursID())) {
+        // Private NULL-kurs folder: SYSTEMADMIN-only, already handled above.
+        if (ordner.getKurs() == null) {
+            ResponseStatusException ex = new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "Kein Zugriff auf diesen Ordner");
+            colorLogger.colorError(
+                "Access denied for {} to admin-only folder {}: {}",
+                student.getDhbwMail(),
+                ordner.getOrdnerID(),
+                ex.getMessage(), ex);
+            throw ex;
+        }
+        Kurs kurs = findKursOrThrow(student);
+        if (!ordner.getKurs().getKursID()
+                .equals(kurs.getKursID())) {
             ResponseStatusException ex = new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
                 "Kein Zugriff auf diesen Ordner");

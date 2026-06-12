@@ -267,6 +267,22 @@ export function SettingsModal({
 
           <Separator />
 
+          {/* Passwort ändern */}
+          <View className="px-2 py-2">
+            <Pressable
+              testID="settings-change-password-button"
+              onPress={() => setChangePasswordDialogOpen(true)}
+              className="flex-row items-center gap-3 rounded-lg px-3 py-3 active:bg-accent disabled:opacity-50"
+            >
+              <Icon as={Lock} size={17} className="text-foreground" />
+              <Text className="text-sm font-medium text-foreground">
+                {t("settings.password.button", "Passwort ändern")}
+              </Text>
+            </Pressable>
+          </View>
+
+          <Separator />
+
           {/* Logout row */}
           <View className="px-2 py-2">
             <Pressable
@@ -309,22 +325,6 @@ export function SettingsModal({
               </View>
             </>
           )}
-
-          <Separator />
-
-          {/* Passwort ändern */}
-          <View className="px-2 py-2">
-            <Pressable
-              testID="settings-change-password-button"
-              onPress={() => setChangePasswordDialogOpen(true)}
-              className="flex-row items-center gap-3 rounded-lg px-3 py-3 active:bg-accent disabled:opacity-50"
-            >
-              <Icon as={Lock} size={17} className="text-foreground" />
-              <Text className="text-sm font-medium text-foreground">
-                {t("settings.password.button", "Passwort ändern")}
-              </Text>
-            </Pressable>
-          </View>
 
           <Separator />
 

@@ -109,15 +109,23 @@ function DateienScreenInner() {
 
   function canEditOrdner(folder: OrdnerDTO): boolean {
     if (user?.studentType === "SYSTEMADMIN") return true;
+    // Platform-wide admin folders (kursID === null) — only SYSTEMADMIN
+    // may rename/delete; the backend enforces this with 403 otherwise.
+    if (folder.kursID == null) return false;
     if (user?.studentType === "KURSADMIN") {
-      // Public folders: only the KURSADMIN of the folder's own course.
-      if (folder.public) return folder.kursID === user.kursID;
-      // Private folders: KURSADMIN of same course.
-      return folder.kursID === user.kursID;
+      // KURSADMIN may edit folders of their own course (public or
+      // private); the backend rejects cross-course edits with 403.
+      return user.kursID != null && folder.kursID === user.kursID;
     }
     // STUDENT: only private folders they created — backend enforces this,
     // so show the menu only for private folders in their own course.
-    if (!folder.public && folder.kursID === user?.kursID) return true;
+    if (
+      !folder.public
+      && user?.kursID != null
+      && folder.kursID === user.kursID
+    ) {
+      return true;
+    }
     return false;
   }
 
