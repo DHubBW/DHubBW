@@ -127,6 +127,11 @@ export type MensaPreviewCardProps = {
 function MealRow({ meal }: { meal: MensaDTO }) {
   const dotColor = ernaehrungColor(meal.ernaehrung as Ernaehrung);
   const label = ernaehrungLabel(meal.ernaehrung as Ernaehrung);
+  // Prefer the dish-level "zusatz" detail (e.g. side dish, dessert
+  // selection) when present; fall back to the raw line label so a
+  // dish that was scraped without a zusatz still has a sub-line.
+  const detail =
+    meal.zusatz && meal.zusatz.length > 0 ? meal.zusatz : meal.linie;
   return (
     <View className="flex-row items-center justify-between py-2.5">
       <View className="flex-1 flex-row items-start gap-2.5 pr-3">
@@ -140,7 +145,7 @@ function MealRow({ meal }: { meal: MensaDTO }) {
             {meal.essensbezeichnung}
           </Text>
           <Text className="mt-0.5 text-xs text-muted-foreground">
-            {meal.linie}
+            {detail}
           </Text>
         </View>
       </View>

@@ -32,7 +32,10 @@ INSERT INTO kurs (kurs_id, kurs_name, jahrgang) VALUES
 INSERT INTO ordner (ordner_id, ueber_ordner_id, kurs_id, name, level, farbe, is_public) VALUES
     ('44444444-4444-4444-4444-444444444441', NULL, '22222222-2222-2222-2222-222222222221', 'Vorlesungen', 0, 0, TRUE),
     ('44444444-4444-4444-4444-444444444442', '44444444-4444-4444-4444-444444444441', '22222222-2222-2222-2222-222222222221', 'Mathematik', 1, 1, TRUE),
-    ('44444444-4444-4444-4444-444444444443', NULL, '22222222-2222-2222-2222-222222222222', 'Privater Ordner', 0, 2, FALSE);
+    ('44444444-4444-4444-4444-444444444443', NULL, '22222222-2222-2222-2222-222222222222', 'Privater Ordner', 0, 2, FALSE),
+    -- SYSTEMADMIN-created platform-wide share (kurs_id = NULL).
+    -- Visible to every enrolled student; rename/delete restricted to SYSTEMADMIN.
+    ('44444444-4444-4444-4444-444444444444', NULL, NULL, 'Platform Info', 0, 0, TRUE);
 
 -- Dateien
 -- data column is loaded from src/main/resources/test-images/sample.png via H2's FILE_READ

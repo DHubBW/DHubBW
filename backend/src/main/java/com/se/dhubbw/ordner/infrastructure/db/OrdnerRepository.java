@@ -40,12 +40,23 @@ public interface OrdnerRepository extends JpaRepository<Ordner, UUID> {
      * Find all root-level public folders not belonging to the given course.
      *
      * <p>Used to show public folders from other courses to students who are
-     * enrolled in a different course.</p>
+     * enrolled in a different course. Folders without an assigned course
+     * (created by SYSTEMADMIN as platform-wide shares) are included as
+     * well, since they are by definition not the caller's own course.</p>
+     *
+     * <p>The explicit {@code o.kurs IS NULL} disjunction is required: a
+     * naked {@code o.kurs.kursID <> :kursId} predicate would (a) trigger
+     * an implicit inner join on {@code Kurs} that already drops NULL-kurs
+     * rows, and (b) evaluate to UNKNOWN — and therefore filter the row
+     * out — when the underlying value is NULL (SQL three-valued logic).
+     * </p>
      *
      * @param kursId the ID of the course to exclude
-     * @return list of root-level public folders from other courses
+     * @return list of root-level public folders from other courses,
+     *     including platform-wide (NULL-kurs) public root folders
      */
-    @Query("SELECT o FROM Ordner o WHERE o.kurs.kursID <> :kursId"
+    @Query("SELECT o FROM Ordner o LEFT JOIN o.kurs k"
+        + " WHERE (k IS NULL OR k.kursID <> :kursId)"
         + " AND o.ueberOrdner IS NULL AND o.isPublic = TRUE")
     List<Ordner> findPublicRootFoldersExcludingKurs(
         @Param("kursId") UUID kursId);

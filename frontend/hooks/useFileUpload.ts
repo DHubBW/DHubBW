@@ -372,8 +372,17 @@ export function useFileUpload() {
       }
     },
     onSuccess: (_data, input) => {
+      // Invalidate the target folder's list AND the synthetic
+      // "Alle Dateien" list (key `['dateien', 'list', 'all']`). A
+      // prefix-match on `['dateien', 'list']` catches both — without
+      // it, an upload made while the user is on the all-files view
+      // does not auto-refresh and the new row only appears after a
+      // manual reload.
       void queryClient.invalidateQueries({
         queryKey: DATEIEN_LIST_QUERY_KEY(input.ueberordnerId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['dateien', 'list'],
       });
     },
   });

@@ -314,6 +314,31 @@ public class DateiServiceTest {
         assertEquals(403, ex.getStatusCode().value());
     }
 
+    /**
+     * NULL-kurs public folder: any enrolled student may upload
+     * (mirrors the rule for cross-course public folders).
+     */
+    @Test
+    public void givenOrdnerNoKursPublic_whenUpload_thenAllowed() {
+        ordnerWithoutKurs.setPublic(true);
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(ordnerRepository.findById(
+            ordnerWithoutKurs.getOrdnerID()))
+            .thenReturn(Optional.of(ordnerWithoutKurs));
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(true);
+
+        dateiService.uploadDatei(
+            mockFile,
+            ordnerWithoutKurs.getOrdnerID(),
+            "test.pdf",
+            "admin@dhbw.de");
+
+        verify(dateiRepository).save(any());
+    }
+
     @Test
     public void givenStorageFull_whenUpload_thenThrows507() {
         KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
@@ -410,8 +435,37 @@ public class DateiServiceTest {
         verify(dateiRepository, never()).save(any());
     }
 
+    /**
+     * NULL-kurs public folder (a SYSTEMADMIN-created platform share):
+     * any enrolled student may rename files within it because the
+     * upload/modify rules treat the folder as platform-wide.
+     */
     @Test
-    public void givenNoKurs_whenRename_thenAllowed() {
+    public void givenNoKursPublicFolder_whenRename_thenAllowed() {
+        ordnerWithoutKurs.setPublic(true);
+        datei.setOrdner(ordnerWithoutKurs);
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(regularStudent))
+            .thenReturn(true);
+
+        dateiService.renameDatei(
+            datei.getDateiID(), "new.pdf", "student@dhbw.de");
+
+        verify(dateiRepository).save(datei);
+    }
+
+    /**
+     * NULL-kurs private folder is SYSTEMADMIN-only: a regular
+     * student gets 403 when renaming files inside it.
+     */
+    @Test
+    public void givenNoKursPrivateFolder_whenRename_thenThrows403() {
+        ordnerWithoutKurs.setPublic(false);
         datei.setOrdner(ordnerWithoutKurs);
 
         when(dateiRepository.findById(datei.getDateiID()))
@@ -419,10 +473,12 @@ public class DateiServiceTest {
         when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
             .thenReturn(regularStudent);
 
-        dateiService.renameDatei(
-            datei.getDateiID(), "new.pdf", "student@dhbw.de");
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.renameDatei(
+                datei.getDateiID(), "new.pdf", "student@dhbw.de"));
 
-        verify(dateiRepository).save(datei);
+        assertEquals(403, ex.getStatusCode().value());
     }
 
     @Test
@@ -637,13 +693,22 @@ public class DateiServiceTest {
                 ordnerId, "unknown@dhbw.de"));
     }
 
+    /**
+     * NULL-kurs public folder: any enrolled student may list its
+     * files (read access mirrors the upload rule).
+     */
     @Test
-    public void givenOrdnerNoKurs_whenRetrieveDateienForOrdner_thenAllowed() {
+    public void
+        givenOrdnerNoKursPublic_whenRetrieveDateienForOrdner_thenAllowed() {
+        ordnerWithoutKurs.setPublic(true);
         UUID ordnerId = ordnerWithoutKurs.getOrdnerID();
         when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
             .thenReturn(regularStudent);
         when(ordnerRepository.findById(ordnerId))
             .thenReturn(Optional.of(ordnerWithoutKurs));
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(regularStudent))
+            .thenReturn(true);
         when(dateiRepository
             .findByOrdnerIdOrderByNameAsc(ordnerId))
             .thenReturn(List.of());
@@ -653,6 +718,53 @@ public class DateiServiceTest {
                 ordnerId, "student@dhbw.de");
 
         assertTrue(result.isEmpty());
+    }
+
+    /**
+     * Unenrolled student gets 403 when listing files of a public
+     * folder — reading public content is course-bound.
+     */
+    @Test
+    public void
+        givenUnenrolledStudent_whenRetrieveDateienForPublic_thenThrows403() {
+        ordnerWithoutKurs.setPublic(true);
+        UUID ordnerId = ordnerWithoutKurs.getOrdnerID();
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
+        when(ordnerRepository.findById(ordnerId))
+            .thenReturn(Optional.of(ordnerWithoutKurs));
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(regularStudent))
+            .thenReturn(false);
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.retrieveDateienForOrdner(
+                ordnerId, "student@dhbw.de"));
+
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+    /**
+     * NULL-kurs private folder: SYSTEMADMIN-only — listing returns
+     * 403 for regular students.
+     */
+    @Test
+    public void
+        givenOrdnerNoKursPrivate_whenRetrieveDateienForOrdner_thenThrows403() {
+        ordnerWithoutKurs.setPublic(false);
+        UUID ordnerId = ordnerWithoutKurs.getOrdnerID();
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
+        when(ordnerRepository.findById(ordnerId))
+            .thenReturn(Optional.of(ordnerWithoutKurs));
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.retrieveDateienForOrdner(
+                ordnerId, "student@dhbw.de"));
+
+        assertEquals(403, ex.getStatusCode().value());
     }
 
     // --- retrieveAllFiles tests ---
@@ -806,8 +918,39 @@ public class DateiServiceTest {
                 datei.getDateiID(), "unknown@dhbw.de"));
     }
 
+    /**
+     * NULL-kurs public folder: any enrolled student may download
+     * files within it.
+     */
     @Test
-    public void givenOrdnerNoKurs_whenDownloadDatei_thenAllowed() {
+    public void
+        givenOrdnerNoKursPublic_whenDownloadDatei_thenAllowed() {
+        ordnerWithoutKurs.setPublic(true);
+        datei.setOrdner(ordnerWithoutKurs);
+        datei.setData(new byte[]{1, 2, 3});
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(regularStudent))
+            .thenReturn(true);
+
+        DateiDownloadDTO result = dateiService.downloadDatei(
+            datei.getDateiID(), "student@dhbw.de");
+
+        assertNotNull(result);
+    }
+
+    /**
+     * NULL-kurs private folder: download by a regular student
+     * returns 403 (SYSTEMADMIN-only).
+     */
+    @Test
+    public void
+        givenOrdnerNoKursPrivate_whenDownloadDatei_thenThrows403() {
+        ordnerWithoutKurs.setPublic(false);
         datei.setOrdner(ordnerWithoutKurs);
         datei.setData(new byte[]{1, 2, 3});
 
@@ -816,10 +959,39 @@ public class DateiServiceTest {
         when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
             .thenReturn(regularStudent);
 
-        DateiDownloadDTO result = dateiService.downloadDatei(
-            datei.getDateiID(), "student@dhbw.de");
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.downloadDatei(
+                datei.getDateiID(), "student@dhbw.de"));
 
-        assertNotNull(result);
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+    /**
+     * Unenrolled student: download from a public NULL-kurs folder
+     * is also rejected with 403.
+     */
+    @Test
+    public void
+        givenUnenrolledStudent_whenDownloadFromPublic_thenThrows403() {
+        ordnerWithoutKurs.setPublic(true);
+        datei.setOrdner(ordnerWithoutKurs);
+        datei.setData(new byte[]{1, 2, 3});
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(regularStudent))
+            .thenReturn(false);
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.downloadDatei(
+                datei.getDateiID(), "student@dhbw.de"));
+
+        assertEquals(403, ex.getStatusCode().value());
     }
 
     // --- previewDatei tests ---

@@ -396,6 +396,16 @@ public class DateiServiceImpl
     /**
      * Assert that the student is allowed to upload to the folder.
      *
+     * <p>Upload rules:</p>
+     * <ul>
+     *   <li>SYSTEMADMIN may upload to any folder.</li>
+     *   <li>Public folders (including SYSTEMADMIN-created NULL-kurs
+     *       platform shares) accept uploads from any student that is
+     *       enrolled in some course.</li>
+     *   <li>Private folders require the caller to be a member of the
+     *       folder's course.</li>
+     * </ul>
+     *
      * @param ordner  the target folder
      * @param student the authenticated student
      * @throws ResponseStatusException 403 if not authorised
@@ -405,15 +415,6 @@ public class DateiServiceImpl
             final Student student) {
         if (student.getStudentType() == StudentType.SYSTEMADMIN) {
             return;
-        }
-        if (ordner.getKurs() == null) {
-            ResponseStatusException ex = new ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "Ordner ist keinem Kurs zugeordnet");
-            colorLogger.colorError(
-                "Upload rejected – folder {} has no course: {}",
-                ordner.getOrdnerID(), ex.getMessage(), ex);
-            throw ex;
         }
         if (ordner.isPublic()) {
             boolean hasCourse = kursBeitrittsAnfrageRepository
@@ -431,7 +432,11 @@ public class DateiServiceImpl
             }
             return;
         }
-        if (!isMemberOfKurs(student, ordner.getKurs())) {
+        // Private folder: must be a member of the folder's course.
+        // A private folder without a course (legacy data only — the
+        // service no longer creates such rows) is SYSTEMADMIN-only.
+        if (ordner.getKurs() == null
+                || !isMemberOfKurs(student, ordner.getKurs())) {
             ResponseStatusException ex = new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
                 "Kein Zugriff auf diesen Ordner");
@@ -448,6 +453,12 @@ public class DateiServiceImpl
      * Assert that the student is allowed to rename or delete
      * the given file.
      *
+     * <p>SYSTEMADMIN may modify any file. For files in a public folder
+     * with no assigned course (a SYSTEMADMIN-created platform share)
+     * any enrolled student may modify the file, mirroring the
+     * upload rule. For files in a folder with an assigned course the
+     * caller must be a member of that course.</p>
+     *
      * @param datei   the file to modify
      * @param student the authenticated student
      * @throws ResponseStatusException 403 if not authorised
@@ -458,10 +469,39 @@ public class DateiServiceImpl
         if (student.getStudentType() == StudentType.SYSTEMADMIN) {
             return;
         }
-        if (datei.getOrdner().getKurs() == null) {
+        Ordner ordner = datei.getOrdner();
+        if (ordner.getKurs() == null) {
+            // Private NULL-kurs folders are not produced by the service
+            // (SYSTEMADMINs may only create public platform shares); only
+            // the SYSTEMADMIN branch above is allowed to modify their
+            // contents — guard defensively against any legacy row.
+            if (!ordner.isPublic()) {
+                ResponseStatusException ex = new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Kein Zugriff auf diese Datei");
+                colorLogger.colorError(
+                    "Modify rejected for {} on admin-only file {}: {}",
+                    student.getDhbwMail(),
+                    datei.getDateiID(),
+                    ex.getMessage(), ex);
+                throw ex;
+            }
+            boolean hasCourse = kursBeitrittsAnfrageRepository
+                .existsByStudentAndIsApprovedTrue(student);
+            if (!hasCourse) {
+                ResponseStatusException ex = new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Kein Zugriff auf diese Datei");
+                colorLogger.colorError(
+                    "Modify rejected for {} on file {}: {}",
+                    student.getDhbwMail(),
+                    datei.getDateiID(),
+                    ex.getMessage(), ex);
+                throw ex;
+            }
             return;
         }
-        if (isMemberOfKurs(student, datei.getOrdner().getKurs())) {
+        if (isMemberOfKurs(student, ordner.getKurs())) {
             return;
         }
         ResponseStatusException ex = new ResponseStatusException(
@@ -710,6 +750,18 @@ public class DateiServiceImpl
      * Assert that the student is allowed to read files in the
      * given folder.
      *
+     * <p>Permission rules mirror
+     * {@link com.se.dhubbw.ordner.domain.OrdnerService}:</p>
+     * <ul>
+     *   <li>SYSTEMADMIN may read any folder.</li>
+     *   <li>Public folders (including SYSTEMADMIN-created NULL-kurs
+     *       platform shares) are readable by every student that is
+     *       enrolled in some course; unenrolled students are rejected.
+     *       </li>
+     *   <li>Private folders require course membership; private folders
+     *       without an assigned course are SYSTEMADMIN-only.</li>
+     * </ul>
+     *
      * @param ordner  the folder whose files are being accessed
      * @param student the authenticated student
      * @throws ResponseStatusException 403 if not authorised
@@ -721,19 +773,32 @@ public class DateiServiceImpl
                 == StudentType.SYSTEMADMIN) {
             return;
         }
-        if (ordner.getKurs() == null) {
-            return;
-        }
-        // Public folders: only students who belong to any course can read.
         if (ordner.isPublic()) {
             boolean hasCourse = kursBeitrittsAnfrageRepository
                 .existsByStudentAndIsApprovedTrue(student);
             if (!hasCourse) {
-                throw new ResponseStatusException(
+                ResponseStatusException ex = new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Kein Zugriff auf diesen Ordner");
+                colorLogger.colorError(
+                    "Read rejected for unenrolled {} in folder {}: {}",
+                    student.getDhbwMail(),
+                    ordner.getOrdnerID(),
+                    ex.getMessage(), ex);
+                throw ex;
             }
             return;
+        }
+        if (ordner.getKurs() == null) {
+            ResponseStatusException ex = new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "Kein Zugriff auf diesen Ordner");
+            colorLogger.colorError(
+                "Read rejected for {} in admin-only folder {}: {}",
+                student.getDhbwMail(),
+                ordner.getOrdnerID(),
+                ex.getMessage(), ex);
+            throw ex;
         }
         if (isMemberOfKurs(student, ordner.getKurs())) {
             return;

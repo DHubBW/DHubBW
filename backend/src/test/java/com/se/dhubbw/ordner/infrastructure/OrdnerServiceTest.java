@@ -320,6 +320,9 @@ public class OrdnerServiceTest {
         rootOrdner.setPublic(true);
         when(ordnerRepository.findById(rootOrdner.getOrdnerID()))
             .thenReturn(Optional.of(rootOrdner));
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(student))
+            .thenReturn(true);
         when(ordnerRepository.save(any(Ordner.class)))
             .thenAnswer(inv -> {
                 Ordner saved = inv.getArgument(0);
@@ -416,6 +419,176 @@ public class OrdnerServiceTest {
         assertNotNull(id);
         verify(ordnerRepository).save(
             argThat(o -> o.getKurs() == null));
+    }
+
+    /**
+     * A SYSTEMADMIN without a course enrollment cannot create a
+     * private root-level folder — that would be SYSTEMADMIN-only
+     * dark storage with no product use case.
+     */
+    @Test
+    public void
+        givenSysAdminWithoutCourse_whenCreatePrivateRoot_thenThrows409() {
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> ordnerService.createFolder(
+                null, "Admin Privat", false, OrdnerFarbe.DEFAULT,
+                "system.administrator.a24@student.dhbw-karlsruhe.de"));
+
+        assertEquals(409, ex.getStatusCode().value());
+    }
+
+    /**
+     * A SYSTEMADMIN that is also enrolled in a course may create a
+     * private root folder; that folder belongs to the admin's
+     * course like any KURSADMIN-created folder.
+     */
+    @Test
+    public void
+        givenSysAdminWithCourse_whenCreatePrivateRoot_thenSavesWithKurs() {
+        KursBeitrittsAnfrage adminEnrollment = new KursBeitrittsAnfrage();
+        adminEnrollment.setKurs(kurs);
+        adminEnrollment.setStudent(sysAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(sysAdmin))
+            .thenReturn(Optional.of(adminEnrollment));
+        when(ordnerRepository.save(any(Ordner.class)))
+            .thenAnswer(inv -> {
+                Ordner saved = inv.getArgument(0);
+                saved.setOrdnerID(UUID.randomUUID());
+                return saved;
+            });
+        when(ordnerAnlegungRepository.save(any(OrdnerAnlegung.class)))
+            .thenAnswer(inv -> inv.getArgument(0));
+
+        UUID id = ordnerService.createFolder(
+            null, "Admin Privat", false, OrdnerFarbe.DEFAULT,
+            "system.administrator.a24@student.dhbw-karlsruhe.de");
+
+        assertNotNull(id);
+        verify(ordnerRepository).save(
+            argThat(o -> o.getKurs() != null
+                && o.getKurs().getKursID().equals(kurs.getKursID())));
+    }
+
+    /**
+     * NULL-kurs public root folders are visible to every regular
+     * student that is enrolled in some course.
+     */
+    @Test
+    public void
+        givenNullKursPublicFolder_whenChildren_thenAllowedForStudent() {
+        Ordner adminOrdner = new Ordner();
+        adminOrdner.setOrdnerID(UUID.randomUUID());
+        adminOrdner.setKurs(null);
+        adminOrdner.setPublic(true);
+        when(ordnerRepository.findById(adminOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(adminOrdner));
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(student))
+            .thenReturn(true);
+        when(ordnerRepository.findChildrenByUeberOrdner(adminOrdner))
+            .thenReturn(List.of());
+
+        List<OrdnerDTO> children =
+            ordnerService.retrieveAllDirectFolderChildren(
+                adminOrdner.getOrdnerID(), "student@dhbw.de");
+
+        assertNotNull(children);
+    }
+
+    /**
+     * Unenrolled student (no approved KursBeitrittsAnfrage) gets 403
+     * when reading even a NULL-kurs public folder.
+     */
+    @Test
+    public void
+        givenUnenrolledStudent_whenReadPublicFolder_thenThrows403() {
+        Ordner adminOrdner = new Ordner();
+        adminOrdner.setOrdnerID(UUID.randomUUID());
+        adminOrdner.setKurs(null);
+        adminOrdner.setPublic(true);
+        when(ordnerRepository.findById(adminOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(adminOrdner));
+        when(kursBeitrittsAnfrageRepository
+            .existsByStudentAndIsApprovedTrue(student))
+            .thenReturn(false);
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> ordnerService.retrieveAllDirectFolderChildren(
+                adminOrdner.getOrdnerID(), "student@dhbw.de"));
+
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+    /**
+     * NULL-kurs private folders are SYSTEMADMIN-only — a regular
+     * student requesting children gets 403.
+     */
+    @Test
+    public void
+        givenNullKursPrivateFolder_whenChildren_thenThrows403() {
+        Ordner adminOrdner = new Ordner();
+        adminOrdner.setOrdnerID(UUID.randomUUID());
+        adminOrdner.setKurs(null);
+        adminOrdner.setPublic(false);
+        when(ordnerRepository.findById(adminOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(adminOrdner));
+
+        assertThrows(
+            ResponseStatusException.class,
+            () -> ordnerService.retrieveAllDirectFolderChildren(
+                adminOrdner.getOrdnerID(), "student@dhbw.de"));
+    }
+
+    /**
+     * SYSTEMADMIN may rename/delete a NULL-kurs platform-wide
+     * folder; verifyModifyAuthorized's SYSTEMADMIN bypass covers
+     * this path.
+     */
+    @Test
+    public void
+        givenSysAdmin_whenDeleteNullKursPublicFolder_thenAllowed() {
+        Ordner adminOrdner = new Ordner();
+        adminOrdner.setOrdnerID(UUID.randomUUID());
+        adminOrdner.setKurs(null);
+        adminOrdner.setPublic(true);
+        adminOrdner.setDateien(List.of());
+        when(ordnerRepository.findById(adminOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(adminOrdner));
+        when(ordnerRepository.findChildrenByUeberOrdner(adminOrdner))
+            .thenReturn(List.of());
+        when(ordnerAnlegungRepository.findByOrdner(adminOrdner))
+            .thenReturn(Optional.empty());
+
+        ordnerService.deleteOrdner(
+            adminOrdner.getOrdnerID(),
+            "system.administrator.a24@student.dhbw-karlsruhe.de");
+
+        verify(ordnerRepository).delete(adminOrdner);
+    }
+
+    /**
+     * A regular student cannot delete a NULL-kurs public folder —
+     * verifyModifyAuthorized neither matches KURSADMIN-of-same-kurs
+     * (no kurs to compare) nor enters the creator-bypass branch
+     * (folder is public).
+     */
+    @Test
+    public void
+        givenStudent_whenDeleteNullKursPublicFolder_thenThrows403() {
+        Ordner adminOrdner = new Ordner();
+        adminOrdner.setOrdnerID(UUID.randomUUID());
+        adminOrdner.setKurs(null);
+        adminOrdner.setPublic(true);
+        when(ordnerRepository.findById(adminOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(adminOrdner));
+
+        assertThrows(
+            ResponseStatusException.class,
+            () -> ordnerService.deleteOrdner(
+                adminOrdner.getOrdnerID(), "student@dhbw.de"));
     }
 
     // --- renameFolder ---
