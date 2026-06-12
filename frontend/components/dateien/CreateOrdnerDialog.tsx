@@ -33,7 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 import { useOrdnerCreate } from "@/hooks/useOrdnerCreate";
-import { ApiError } from "@/lib/api/errors";
+import { toastForApiError } from "@/lib/api/toastForApiError";
 import type { OrdnerFarbe } from "@/lib/api/types.gen";
 import { t } from "@/lib/i18n/t";
 import { folderColorClasses } from "@/lib/theme/folderColors";
@@ -74,37 +74,35 @@ export interface CreateOrdnerDialogProps {
 }
 
 /**
- * Maps an {@link ApiError} from the create endpoint to the toast text
- * shown to the user.
+ * Maps an error from the create endpoint to the toast text shown to
+ * the user. Always prefers the backend's own German message text so
+ * users see the precise reason (e.g. "Ein Ordner mit diesem Namen
+ * existiert bereits an gleicher Stelle", "Oeffentlicher Unterordner
+ * in privatem Ordner nicht erlaubt") and only falls back to the
+ * localised hint when no body is available.
  *
  * @param err - The thrown error from the mutation's onError callback.
  * @returns The localised toast message.
  */
 function _createErrorMessage(err: unknown): string {
-  if (err instanceof ApiError) {
-    if (err.status === 403) {
-      return t(
-        "ordner.create.error.forbidden",
-        "Keine Berechtigung zum Anlegen eines Ordners.",
-      );
-    }
-    if (err.status === 507) {
-      return t(
-        "ordner.create.error.storageFull",
-        "Speicherkontingent voll – Ordner-Anlage abgelehnt.",
-      );
-    }
-    if (err.status === 0 && err.message.includes("404")) {
-      return t(
-        "ordner.create.error.notFound",
-        "Übergeordneter Ordner nicht gefunden.",
-      );
-    }
-    if (err.status === 0) {
-      return t("error.network", "Netzwerkfehler – Server nicht erreichbar");
-    }
-  }
-  return t("ordner.create.error.unknown", "Ordner-Anlage fehlgeschlagen.");
+  return toastForApiError(err, {
+    403: t(
+      "ordner.create.error.forbidden",
+      "Keine Berechtigung zum Anlegen eines Ordners.",
+    ),
+    404: t(
+      "ordner.create.error.notFound",
+      "Übergeordneter Ordner nicht gefunden.",
+    ),
+    409: t(
+      "ordner.create.error.duplicateName",
+      "Ein Ordner mit diesem Namen existiert bereits an gleicher Stelle.",
+    ),
+    507: t(
+      "ordner.create.error.storageFull",
+      "Speicherkontingent voll – Ordner-Anlage abgelehnt.",
+    ),
+  });
 }
 
 /**

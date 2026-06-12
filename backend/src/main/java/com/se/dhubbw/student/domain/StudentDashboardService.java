@@ -67,4 +67,25 @@ public interface StudentDashboardService {
      * @throws java.util.NoSuchElementException if the student is not found
      */
     String retrieveKursForUser(String dhbwMail);
+
+    /**
+     * Change the password of the given student.
+     *
+     * <p>Verifies the current password before applying the new one.
+     * The new password is hashed with the configured
+     * {@code PasswordEncoder} before being persisted.</p>
+     *
+     * @param dhbwMail the DHBW mail address of the student
+     * @param currentPassword the student's current plaintext password
+     * @param newPassword the new plaintext password to set
+     * @throws java.util.NoSuchElementException if the student is not
+     *     found
+     * @throws org.springframework.web.server.ResponseStatusException
+     *     401 (UNAUTHORIZED) if {@code currentPassword} does not
+     *     match; 400 (BAD_REQUEST) if {@code newPassword} is empty,
+     *     shorter than 8 characters, or equal to
+     *     {@code currentPassword}
+     */
+    void changePassword(
+        String dhbwMail, String currentPassword, String newPassword);
 }

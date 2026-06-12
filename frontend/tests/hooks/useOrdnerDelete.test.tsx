@@ -16,8 +16,6 @@ jest.mock("@/lib/api/fetchClient", () => ({
 }));
 
 import { useOrdnerDelete } from "@/hooks/useOrdnerDelete";
-import { ORDNER_CHILDREN_QUERY_KEY } from "@/hooks/useOrdnerChildren";
-import { ORDNER_TREE_QUERY_KEY } from "@/hooks/useOrdnerTree";
 
 const ORDNER_ID = "11111111-1111-1111-1111-111111111111";
 const PARENT_ID = "22222222-2222-2222-2222-222222222222";
@@ -66,8 +64,11 @@ describe("useOrdnerDelete", () => {
     expect(path).toBe(`/student/ordner/${ORDNER_ID}`);
     expect(init?.method).toBe("DELETE");
 
+    // Coarse prefix-invalidation: ['ordner'] covers tree + children +
+    // every other folder query in the cache. Cheaper than threading
+    // the parent id through and just as correct under cascade-delete.
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ORDNER_TREE_QUERY_KEY,
+      queryKey: ["ordner"],
     });
     // Cascade: every file-list cache slice that may have referenced
     // the deleted subtree must refetch.
@@ -76,7 +77,7 @@ describe("useOrdnerDelete", () => {
     });
   });
 
-  it("invalidates the parent's children query when ueberOrdnerId is set", async () => {
+  it("uses the same coarse ['ordner'] prefix regardless of ueberOrdnerId", async () => {
     mockFetchClient.mockResolvedValueOnce(buildOkResponse());
 
     const { result, invalidateSpy } = renderDeleteHook();
@@ -88,8 +89,11 @@ describe("useOrdnerDelete", () => {
       });
     });
 
+    // The hook deliberately invalidates ['ordner'] only — TanStack
+    // matches every query whose key starts with that prefix, which
+    // includes ORDNER_CHILDREN_QUERY_KEY(PARENT_ID).
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ORDNER_CHILDREN_QUERY_KEY(PARENT_ID),
+      queryKey: ["ordner"],
     });
   });
 

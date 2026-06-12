@@ -28,6 +28,7 @@ describe("DateienToolbar – search pill", () => {
           public: false,
           ueberOrdnerID: null,
           kursID: "kkkkkkkk-kkkk-kkkk-kkkk-kkkkkkkkkkkk",
+          hasChildren: false,
         }}
       />,
     );

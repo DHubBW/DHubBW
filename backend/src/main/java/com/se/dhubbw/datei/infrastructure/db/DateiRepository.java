@@ -114,4 +114,22 @@ public interface DateiRepository extends JpaRepository<Datei, UUID> {
         + "WHERE d.uploader = :uploader")
     void setUploaderToNullByUploader(
         @Param("uploader") Student uploader);
+
+    /**
+     * Look up a file in the given folder by name.
+     *
+     * <p>Used by the upload / rename flows to enforce per-folder
+     * file-name uniqueness — a folder must not contain two files
+     * sharing the same display name.</p>
+     *
+     * @param ordnerId the folder to search in
+     * @param name     the exact display name to match
+     * @return the matching file, if any
+     */
+    @Query("SELECT d FROM Datei d "
+        + "WHERE d.ordner.ordnerID = :ordnerId "
+        + "AND d.name = :name")
+    java.util.Optional<Datei> findByOrdnerIdAndName(
+        @Param("ordnerId") UUID ordnerId,
+        @Param("name") String name);
 }

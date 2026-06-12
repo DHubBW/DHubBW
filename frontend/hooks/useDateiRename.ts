@@ -41,6 +41,9 @@ export function useDateiRename() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, RenameDateiInput>({
+    // The RenameDialog renders its own status-aware toast on error;
+    // suppress the generic global one to avoid stacking two.
+    meta: { suppressGlobalErrorToast: true },
     mutationFn: async ({ dateiId, newName }) => {
       const body: RenameDateiRequestDTO = { newName: newName.trim() };
       await fetchClient(`/student/dateien/${dateiId}`, {

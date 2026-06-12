@@ -18,6 +18,7 @@ import com.se.dhubbw.ordner.infrastructure.db.Ordner;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerRepository;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
+import com.se.dhubbw.student.domain.StudentDashboardService;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
@@ -115,6 +116,15 @@ public class PlattformVerwaltungServiceImpl
      * Shared helper for student lookups.
      */
     private final KursStudentHelper kursStudentHelper;
+
+    /**
+     * Reused for the cleanup sequence on sysadmin-initiated account
+     * deletion. The same service performs self-service deletions, so
+     * delegating preserves last-SYSTEMADMIN and last-KURSADMIN guards
+     * along with the full cascade (enrollments, tracking records,
+     * file uploader references) without duplicating logic here.
+     */
+    private final StudentDashboardService studentDashboardService;
 
     /**
      * Color-coded logger for error reporting.
@@ -436,6 +446,62 @@ public class PlattformVerwaltungServiceImpl
         }
         target.setStudentType(StudentType.STUDENT);
         studentRepository.save(target);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Looks up both the target student (404 if missing) and the
+     * caller via {@code callerMail} (404 if missing). Refuses
+     * self-deletion so SYSTEMADMINs can't bypass the self-service
+     * confirmation flow. Compares {@code confirmedMail} to the
+     * target's {@code dhbwMail} after trimming and lower-casing
+     * both sides; mismatch yields 400. The actual cleanup is
+     * delegated to {@link StudentDashboardService#deleteAccount}
+     * which already enforces the last-SYSTEMADMIN and
+     * last-KURSADMIN guards (both surface as 409) and performs the
+     * full cascade (enrollments, tracking records, file uploader
+     * references nullified, student record removed).</p>
+     */
+    @Override
+    @RetryableTransactional
+    public void deleteStudent(final UUID studentId,
+            final String confirmedMail, final String callerMail) {
+        Student target = studentRepository.findById(studentId)
+            .orElseThrow(() -> new NoSuchElementException(
+                "Student not found: " + studentId));
+        Student caller = studentRepository.findByDhbwMail(callerMail)
+            .orElseThrow(() -> new NoSuchElementException(
+                "Caller not found: " + callerMail));
+
+        if (target.getStudentID().equals(caller.getStudentID())) {
+            IllegalArgumentException ex = new IllegalArgumentException(
+                "Eigenen Account bitte über die Einstellungen löschen");
+            colorLogger.colorWarn(
+                "Sysadmin {} attempted to delete own account via "
+                    + "platform endpoint: {}",
+                callerMail, ex.getMessage());
+            throw ex;
+        }
+
+        String typed = confirmedMail == null
+            ? "" : confirmedMail.trim().toLowerCase();
+        String actual = target.getDhbwMail() == null
+            ? "" : target.getDhbwMail().trim().toLowerCase();
+        if (!typed.equals(actual)) {
+            IllegalArgumentException ex = new IllegalArgumentException(
+                "Bestätigungs-E-Mail stimmt nicht überein");
+            colorLogger.colorWarn(
+                "Sysadmin {} provided mismatched confirmation mail "
+                    + "for {}: {}",
+                callerMail, target.getDhbwMail(), ex.getMessage());
+            throw ex;
+        }
+
+        studentDashboardService.deleteAccount(target.getDhbwMail());
+        colorLogger.colorInfo(
+            "Sysadmin {} deleted account {}",
+            callerMail, target.getDhbwMail());
     }
 }
 

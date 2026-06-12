@@ -67,6 +67,18 @@ const DEFAULT_MAX_UPLOAD_MB = 50;
 const MIB = 1024 * 1024;
 
 /**
+ * Upload-specific request timeout in ms. The shared `fetchClient`
+ * default of 15 s is calibrated for JSON round-trips and is far too
+ * short for a multipart upload of a 50 MB PDF over a slow upstream
+ * (50 MB / 5 Mbit/s ≈ 80 s). Without this override the AbortController
+ * tears the request down mid-upload and the user sees a misleading
+ * "Netzwerkfehler"-Toast even though the server was happily receiving
+ * bytes. Five minutes is the same upper bound the platform's nginx
+ * reverse proxy tolerates per request.
+ */
+const UPLOAD_TIMEOUT_MS = 5 * 60 * 1000;
+
+/**
  * Standardised error-code union returned in the mutation's `error.code`
  * surface. See the file-level docstring for the trigger of each value.
  */
@@ -75,6 +87,10 @@ export type UploadErrorCode =
   | 'forbidden'
   | 'not-found'
   | 'storage-full'
+  | 'duplicate-name'
+  | 'invalid-type'
+  | 'empty-file'
+  | 'invalid-name'
   | 'network'
   | 'unknown';
 
@@ -84,7 +100,10 @@ export type UploadErrorCode =
  * in a toast or accessibility announcement. For the {@code 'too-large'}
  * code, {@link FileUploadError.actualMb} and {@link FileUploadError.limitMb}
  * carry the size details so callers can render a precise toast without
- * having to re-derive the cap.
+ * having to re-derive the cap. {@link FileUploadError.serverMessage} carries
+ * the raw message text the backend returned in the 4xx body, so callers can
+ * surface the specific reason (e.g. which extension was blocked, which
+ * duplicate file already exists) instead of a generic fallback.
  */
 export class FileUploadError extends Error {
   readonly code: UploadErrorCode;
@@ -95,17 +114,28 @@ export class FileUploadError extends Error {
   /** Configured upload cap in MB. Optional — only set on `'too-large'`. */
   readonly limitMb?: number;
 
+  /**
+   * Raw error text from the backend body. Stripped of HTML / JSON envelope;
+   * always a plain string when present so the caller can drop it straight
+   * into a toast.
+   */
+  readonly serverMessage?: string;
+
   constructor(
     code: UploadErrorCode,
     message: string,
-    actualMb?: number,
-    limitMb?: number,
+    options?: {
+      actualMb?: number;
+      limitMb?: number;
+      serverMessage?: string;
+    },
   ) {
     super(message);
     this.name = 'FileUploadError';
     this.code = code;
-    this.actualMb = actualMb;
-    this.limitMb = limitMb;
+    this.actualMb = options?.actualMb;
+    this.limitMb = options?.limitMb;
+    this.serverMessage = options?.serverMessage;
     Object.setPrototypeOf(this, FileUploadError.prototype);
   }
 }
@@ -186,8 +216,8 @@ function _readSize(file: UploadFileLike): number | undefined {
 
 /**
  * Translates a thrown error into an {@link UploadErrorCode}. See the
- * file-level docstring's table for the mapping; 413 / 404 ride the
- * `ApiError(0, 'HTTP <code>')` path because the frozen
+ * file-level docstring's table for the mapping; 413 / 404 / 415 ride
+ * the `ApiError(0, 'HTTP <code>')` path because the frozen
  * {@link ApiErrorStatus} union does not list them.
  *
  * @param err - the error that escaped the upload `fetchClient` call.
@@ -197,18 +227,52 @@ function _classify(err: unknown): UploadErrorCode {
   if (err instanceof ApiError) {
     if (err.status === 403) return 'forbidden';
     if (err.status === 507) return 'storage-full';
+    if (err.status === 409) return 'duplicate-name';
     if (err.status === 0) {
-      // 413 / 404 reach us here because they are not in the frozen
-      // ApiErrorStatus union — fetchClient throws ApiError(0, 'HTTP …')
-      // for them. Network errors keep their message ('Network error').
+      // 413 / 404 / 415 / 400 reach us here because they are not in
+      // the frozen ApiErrorStatus union — fetchClient throws
+      // `ApiError(0, 'HTTP …')` for them. Network errors keep their
+      // message (`Network error`).
       if (err.message.includes('413')) return 'too-large';
+      if (err.message.includes('415')) return 'invalid-type';
       if (err.message.includes('404')) return 'not-found';
+      if (err.message.includes('400')) {
+        // The validator surfaces "Datei ist leer" and "Ungültiger
+        // Dateiname" both as 400. Disambiguate via the German body
+        // text so callers can render the precise reason.
+        const body = _serverMessageOf(err);
+        if (body && /leer/i.test(body)) return 'empty-file';
+        if (body && /ungültig|ungueltig/i.test(body)) return 'invalid-name';
+        return 'unknown';
+      }
       if (err.message.toLowerCase().includes('network')) return 'network';
       return 'unknown';
     }
     return 'unknown';
   }
   return 'unknown';
+}
+
+/**
+ * Pulls the human-readable server message off an {@link ApiError}.
+ * The backend's {@code GlobalExceptionHandler} writes the rejection
+ * reason as a plain {@code text/plain} body, which fetchClient surfaces
+ * as `err.body` (string) and as the `err.message` (when status is in
+ * the mapped set). For status-0 throws the reason text lives in the
+ * `body`, which is what we want to expose verbatim.
+ */
+function _serverMessageOf(err: ApiError): string | undefined {
+  if (typeof err.body === 'string' && err.body.trim().length > 0) {
+    return err.body.trim();
+  }
+  if (
+    err.message &&
+    !err.message.startsWith('HTTP ') &&
+    err.message !== 'Network error'
+  ) {
+    return err.message;
+  }
+  return undefined;
 }
 
 /**
@@ -259,8 +323,7 @@ export function useFileUpload() {
         throw new FileUploadError(
           'too-large',
           `Datei ist ${actualMb} MB groß – das Limit liegt bei ${limitMb} MB.`,
-          actualMb,
-          limitMb,
+          { actualMb, limitMb },
         );
       }
 
@@ -270,11 +333,14 @@ export function useFileUpload() {
         res = await fetchClient(UPLOAD_PATH, {
           method: 'PUT',
           body: _buildBody(input),
+          timeoutMs: UPLOAD_TIMEOUT_MS,
         });
       } catch (err) {
         const code = _classify(err);
         const message =
           err instanceof Error && err.message ? err.message : 'Upload fehlgeschlagen.';
+        const serverMessage =
+          err instanceof ApiError ? _serverMessageOf(err) : undefined;
         if (code === 'too-large') {
           const actualMb =
             size !== undefined
@@ -283,11 +349,10 @@ export function useFileUpload() {
           throw new FileUploadError(
             'too-large',
             `Datei ist zu groß – das Limit liegt bei ${limitMb} MB.`,
-            actualMb,
-            limitMb,
+            { actualMb, limitMb, serverMessage },
           );
         }
-        throw new FileUploadError(code, message);
+        throw new FileUploadError(code, message, { serverMessage });
       }
 
       // ----- Decode 201 body ---------------------------------------

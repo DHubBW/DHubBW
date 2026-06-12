@@ -184,11 +184,12 @@ public class KursServiceImpl implements KursService {
                     + " bereits");
         }
 
-        if (!kursName.matches("[A-Z]{2,4}[0-9]{2}[A-Z][0-9]")) {
+        if (!kursName.matches("^[A-Za-zÄÖÜäöüß0-9 _-]{2,40}$")) {
             throw new ResponseStatusException(
                 HttpStatus.UNPROCESSABLE_CONTENT,
-                "Der gewählte Name folgt nicht dem erforderlichen"
-                    + " Format (z.B. 'TINF24B2')"
+                "Der Name muss 2-40 Zeichen lang sein und darf nur"
+                    + " Buchstaben, Zahlen, Leerzeichen, Bindestrich"
+                    + " oder Unterstrich enthalten."
             );
         }
 

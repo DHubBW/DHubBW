@@ -11,6 +11,14 @@
  * long-press anywhere on the row (touch) or the always-visible 3-dot
  * icon (mouse / keyboard / touch fallback) hands the folder back to the
  * parent screen, which owns the menu, rename and delete dialogs.
+ *
+ * <strong>Expansion model:</strong> the set of currently-expanded folder
+ * IDs is owned at the {@link OrdnerTree} level so that picking a new
+ * folder can automatically collapse every branch that is no longer on
+ * the path from the root to the new selection. The path is reconstructed
+ * by walking each open node's `ueberOrdnerID`. The synthetic "Alle
+ * Dateien" root and any leaf folder (`hasChildren === false`) collapse
+ * everything else.
  */
 import {
   ChevronDown,
@@ -20,7 +28,7 @@ import {
   Lock,
   MoreVertical,
 } from "lucide-react-native";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
 
 import { Text } from "@/components/ui/text";
@@ -29,6 +37,7 @@ import type { OrdnerDTO } from "@/lib/api/types.gen";
 import { folderIconColor } from "@/lib/theme/folderColors";
 import { t } from "@/lib/i18n/t";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ROW_HEIGHT_CLASS = "py-2";
 const INDENT_PX_PER_LEVEL = 16;
@@ -68,14 +77,76 @@ export function OrdnerTree({
   onAfterSelect,
   onContextRequest,
 }: OrdnerTreeProps) {
+  // Set of expanded folder IDs — owned here so a new selection can
+  // collapse every branch that is no longer on the ancestor path.
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const queryClient = useQueryClient();
+
+  /**
+   * Walk a folder upward via its `ueberOrdnerID`, hopping through the
+   * already-cached children query results to find each parent. Returns
+   * the set of ancestor IDs (excluding the folder itself).
+   */
+  const ancestorsOf = useCallback(
+    (folder: OrdnerDTO): Set<string> => {
+      const ancestors = new Set<string>();
+      let parentId = folder.ueberOrdnerID;
+      // Walk via cached children-query results — every parent we ever
+      // expanded has its children list cached, and every child we render
+      // came from that list. Limit the loop so we never spin on a
+      // pathological cycle (defensive — the backend enforces a tree).
+      const guard = 64;
+      let hops = 0;
+      while (parentId && hops < guard) {
+        ancestors.add(parentId);
+        const parent = findCachedFolder(
+          parentId, rootFolders, queryClient,
+        );
+        if (!parent) break;
+        parentId = parent.ueberOrdnerID;
+        hops += 1;
+      }
+      return ancestors;
+    },
+    [rootFolders, queryClient],
+  );
+
+  const handleSelect = useCallback(
+    (folder: OrdnerDTO | null) => {
+      onSelect(folder);
+      if (folder === null) {
+        // "Alle Dateien" root: collapse everything.
+        setExpanded(new Set());
+        onAfterSelect?.();
+        return;
+      }
+      // Keep only the selected folder + its ancestors expanded. Auto-
+      // expand the selected folder itself when it has children so the
+      // user immediately sees the next level after navigating in.
+      const next = ancestorsOf(folder);
+      if (folder.hasChildren) next.add(folder.ordnerID);
+      setExpanded(next);
+      onAfterSelect?.();
+    },
+    [ancestorsOf, onAfterSelect, onSelect],
+  );
+
+  const toggle = useCallback((folderId: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(folderId)) next.delete(folderId);
+      else next.add(folderId);
+      return next;
+    });
+  }, []);
+
+  const expandedRef = useMemo(() => expanded, [expanded]);
+
   return (
     <View className="flex-1">
       <RootRow
         selected={selectedOrdnerId === null}
-        onPress={() => {
-          onSelect(null);
-          onAfterSelect?.();
-        }}
+        onPress={() => handleSelect(null)}
       />
       <View>
         {rootFolders.map((folder) => (
@@ -84,14 +155,43 @@ export function OrdnerTree({
             folder={folder}
             depth={0}
             selectedOrdnerId={selectedOrdnerId}
-            onSelect={onSelect}
-            onAfterSelect={onAfterSelect}
+            onSelect={handleSelect}
             onContextRequest={onContextRequest}
+            expandedSet={expandedRef}
+            onToggle={toggle}
           />
         ))}
       </View>
     </View>
   );
+}
+
+/**
+ * Look up a folder DTO by ID across the root list and every cached
+ * children-query result. Returns {@code undefined} when the ID is not
+ * present in any cached slice yet.
+ */
+function findCachedFolder(
+  id: string,
+  rootFolders: OrdnerDTO[],
+  queryClient: ReturnType<typeof useQueryClient>,
+): OrdnerDTO | undefined {
+  const inRoot = rootFolders.find((f) => f.ordnerID === id);
+  if (inRoot) return inRoot;
+  // Scan every cached children-query: each one's data array might hold
+  // the folder. The lookup is O(n) per cache miss but the cache size
+  // is bounded by the depth/breadth of the user's open path, so this
+  // stays cheap in practice.
+  const queries = queryClient
+    .getQueryCache()
+    .findAll({ queryKey: ["ordner", "children"] });
+  for (const q of queries) {
+    const data = q.state.data as OrdnerDTO[] | undefined;
+    if (!data) continue;
+    const hit = data.find((f) => f.ordnerID === id);
+    if (hit) return hit;
+  }
+  return undefined;
 }
 
 interface RootRowProps {
@@ -136,8 +236,9 @@ interface TreeNodeProps {
   depth: number;
   selectedOrdnerId: string | null;
   onSelect: (folder: OrdnerDTO | null) => void;
-  onAfterSelect?: () => void;
   onContextRequest?: (folder: OrdnerDTO) => void;
+  expandedSet: Set<string>;
+  onToggle: (folderId: string) => void;
 }
 
 /**
@@ -156,11 +257,17 @@ function TreeNode({
   depth,
   selectedOrdnerId,
   onSelect,
-  onAfterSelect,
   onContextRequest,
+  expandedSet,
+  onToggle,
 }: TreeNodeProps) {
-  const [expanded, setExpanded] = useState(false);
-  const childrenQuery = useOrdnerChildren(expanded ? folder.ordnerID : null);
+  // Leaf folders (no children) get neither a chevron nor any expanded
+  // children area — there is nothing to load and nothing to show.
+  const canExpand = folder.hasChildren;
+  const expanded = canExpand && expandedSet.has(folder.ordnerID);
+  const childrenQuery = useOrdnerChildren(
+    expanded ? folder.ordnerID : null,
+  );
   const isSelected = selectedOrdnerId === folder.ordnerID;
 
   const PublicIcon = folder.public ? Globe2 : Lock;
@@ -178,28 +285,31 @@ function TreeNode({
         )}
         style={{ paddingLeft: 12 + depth * INDENT_PX_PER_LEVEL }}
       >
+        {canExpand ? (
+          <Pressable
+            onPress={() => onToggle(folder.ordnerID)}
+            hitSlop={CHEVRON_HIT}
+            accessibilityRole="button"
+            accessibilityLabel={
+              expanded
+                ? t("dateien.tree.collapse", "Ordner einklappen")
+                : t("dateien.tree.expand", "Ordner aufklappen")
+            }
+          >
+            {expanded ? (
+              <ChevronDown size={14} color="hsl(var(--muted-foreground))" />
+            ) : (
+              <ChevronRight size={14} color="hsl(var(--muted-foreground))" />
+            )}
+          </Pressable>
+        ) : (
+          // Empty placeholder of the same width keeps the folder names
+          // aligned with their expandable siblings — the indent column
+          // is reserved for the chevron at this depth either way.
+          <View style={{ width: 14 }} />
+        )}
         <Pressable
-          onPress={() => setExpanded((v) => !v)}
-          hitSlop={CHEVRON_HIT}
-          accessibilityRole="button"
-          accessibilityLabel={
-            expanded
-              ? t("dateien.tree.collapse", "Ordner einklappen")
-              : t("dateien.tree.expand", "Ordner aufklappen")
-          }
-        >
-          {expanded ? (
-            <ChevronDown size={14} color="hsl(var(--muted-foreground))" />
-          ) : (
-            <ChevronRight size={14} color="hsl(var(--muted-foreground))" />
-          )}
-        </Pressable>
-        <Pressable
-          onPress={() => {
-            onSelect(folder);
-            setExpanded(true);
-            onAfterSelect?.();
-          }}
+          onPress={() => onSelect(folder)}
           onLongPress={
             onContextRequest ? () => onContextRequest(folder) : undefined
           }
@@ -250,8 +360,9 @@ function TreeNode({
           depth={depth + 1}
           selectedOrdnerId={selectedOrdnerId}
           onSelect={onSelect}
-          onAfterSelect={onAfterSelect}
           onContextRequest={onContextRequest}
+          expandedSet={expandedSet}
+          onToggle={onToggle}
         />
       )}
     </View>
@@ -265,8 +376,9 @@ interface ChildrenListProps {
   depth: number;
   selectedOrdnerId: string | null;
   onSelect: (folder: OrdnerDTO | null) => void;
-  onAfterSelect?: () => void;
   onContextRequest?: (folder: OrdnerDTO) => void;
+  expandedSet: Set<string>;
+  onToggle: (folderId: string) => void;
 }
 
 /**
@@ -282,8 +394,9 @@ function ChildrenList({
   depth,
   selectedOrdnerId,
   onSelect,
-  onAfterSelect,
   onContextRequest,
+  expandedSet,
+  onToggle,
 }: ChildrenListProps) {
   if (isLoading) {
     return (
@@ -334,8 +447,9 @@ function ChildrenList({
           depth={depth}
           selectedOrdnerId={selectedOrdnerId}
           onSelect={onSelect}
-          onAfterSelect={onAfterSelect}
           onContextRequest={onContextRequest}
+          expandedSet={expandedSet}
+          onToggle={onToggle}
         />
       ))}
     </View>

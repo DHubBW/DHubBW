@@ -1,5 +1,6 @@
 package com.se.dhubbw.datei.application;
 
+import com.se.dhubbw.datei.application.dto.input.MoveDateiRequestDTO;
 import com.se.dhubbw.datei.application.dto.input.RenameDateiRequestDTO;
 import com.se.dhubbw.datei.application.dto.output.DateiDTO;
 import com.se.dhubbw.datei.application.dto.output.DateiDownloadDTO;
@@ -270,6 +271,67 @@ public class DateiController {
     }
 
     /**
+     * Preview a file inline in the browser.
+     *
+     * <p>Same authorisation rules as download, but the response
+     * carries {@code Content-Disposition: inline} so browsers
+     * render the file in the current tab (PDF, image, video,
+     * audio, plain text) instead of opening a save dialog.
+     * Unlike {@link #downloadDatei}, this endpoint does
+     * <strong>not</strong> increment the file's download
+     * counter — preview is a read-only inspection.</p>
+     *
+     * @param dateiId        the UUID of the file to preview
+     * @param authentication the current user's security context
+     * @return 200 with the file bytes, correct Content-Type and
+     *     {@code inline} Content-Disposition header
+     */
+    @Operation(
+            summary = "Preview a file inline",
+            description = "Streams the file's raw bytes with an "
+                + "'inline' Content-Disposition so the browser "
+                + "renders it directly. Does not increment the "
+                + "download counter. Caller must be a member of "
+                + "the file's course or SYSTEMADMIN."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "File content for inline display"
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Not authorised to view this file",
+            content = @Content(mediaType = "application/json")
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "File or student not found",
+            content = @Content(mediaType = "application/json")
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/{dateiId}/preview")
+    public ResponseEntity<Resource> previewDatei(
+            @Parameter(
+                    description = "UUID of the file to preview",
+                    required = true)
+            @PathVariable final UUID dateiId,
+            final Authentication authentication) {
+        DateiDownloadDTO dto = dateiService.previewDatei(
+            dateiId, authentication.getName());
+        MediaType contentType = MediaTypeFactory
+            .getMediaType(dto.getName())
+            .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        return ResponseEntity.ok()
+            .contentType(contentType)
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "inline; filename=\""
+                    + dto.getName() + "\"")
+            .body(new InputStreamResource(
+                new ByteArrayInputStream(dto.getData())));
+    }
+
+    /**
      * Rename a file.
      *
      * <p>Requires at least the {@code STUDENT} role. The caller
@@ -362,5 +424,73 @@ public class DateiController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
             new RequestStatusResponseDTO("Datei deleted succesfully.",
                 PersistenceOperation.DELETE));
+    }
+
+    /**
+     * Move a file into another folder.
+     *
+     * <p>Requires at least the {@code STUDENT} role. The caller
+     * must be modify-authorised on the file's source folder and
+     * upload-authorised on the target folder. The target folder
+     * must not already contain a file with the same name.</p>
+     *
+     * @param dateiId        the UUID of the file to move
+     * @param request        the move request body containing the
+     *     UUID of the target folder
+     * @param authentication the current user's security context
+     * @return 200 if moved successfully
+     */
+    @Operation(
+            summary = "Move a file",
+            description = "Re-parents a file to a different folder. "
+                + "Caller must be modify-authorised on the source "
+                + "folder and upload-authorised on the target. "
+                + "Target must not contain another file with the "
+                + "same name."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "File moved successfully"
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Target folder is identical to the "
+                + "file's current folder",
+            content = @Content(mediaType = "application/json")
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Not authorised to move this file or "
+                + "to upload to the target folder",
+            content = @Content(mediaType = "application/json")
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "File, target folder or student not found",
+            content = @Content(mediaType = "application/json")
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "A file with the same name already exists "
+                + "in the target folder",
+            content = @Content(mediaType = "application/json")
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @PatchMapping("/{dateiId}/move")
+    public ResponseEntity<RequestStatusResponseDTO> moveDatei(
+            @Parameter(
+                    description = "UUID of the file to move",
+                    required = true)
+            @PathVariable final UUID dateiId,
+            @RequestBody
+            final MoveDateiRequestDTO request,
+            final Authentication authentication) {
+        dateiService.moveDatei(
+            dateiId, request.getTargetOrdnerId(),
+            authentication.getName());
+        return ResponseEntity.status(HttpStatus.OK).body(
+            new RequestStatusResponseDTO(
+                "Datei moved successfully.",
+                PersistenceOperation.UPDATE));
     }
 }

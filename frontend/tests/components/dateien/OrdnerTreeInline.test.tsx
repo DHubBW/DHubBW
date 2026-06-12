@@ -3,9 +3,13 @@
  * folder section used on the mobile Dateien screen.
  *
  * `useOrdnerChildren` is mocked so the test runs without a real
- * QueryClient or network layer.
+ * network layer. The OrdnerTree itself uses {@code useQueryClient}
+ * for its ancestor lookup, so each render is wrapped in a
+ * {@link QueryClientProvider}.
  */
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import * as React from "react";
 
 import type { OrdnerDTO } from "@/lib/api/types.gen";
 
@@ -19,6 +23,15 @@ jest.mock("@/hooks/useOrdnerChildren", () => ({
 
 import { OrdnerTreeInline } from "@/components/dateien/OrdnerTreeInline";
 
+function renderWithClient(ui: React.ReactElement) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
+  );
+}
+
 const ROOT_FOLDER: OrdnerDTO = {
   ordnerID: "11111111-1111-1111-1111-111111111111",
   name: "Vorlesungen",
@@ -27,11 +40,12 @@ const ROOT_FOLDER: OrdnerDTO = {
   public: true,
   ueberOrdnerID: null,
   kursID: "kkkkkkkk-kkkk-kkkk-kkkk-kkkkkkkkkkkk",
+  hasChildren: false,
 };
 
 describe("OrdnerTreeInline", () => {
   it("renders the tree expanded by default with the synthetic root row visible", () => {
-    render(
+    renderWithClient(
       <OrdnerTreeInline
         rootFolders={[ROOT_FOLDER]}
         selectedOrdnerId={null}
@@ -45,7 +59,7 @@ describe("OrdnerTreeInline", () => {
   });
 
   it("collapses the tree when the header is tapped and shows the active folder name", () => {
-    render(
+    renderWithClient(
       <OrdnerTreeInline
         rootFolders={[ROOT_FOLDER]}
         selectedOrdnerId={ROOT_FOLDER.ordnerID}
@@ -71,7 +85,7 @@ describe("OrdnerTreeInline", () => {
   });
 
   it("renders the action slot inside the header (e.g. Ordner-erstellen button)", () => {
-    render(
+    renderWithClient(
       <OrdnerTreeInline
         rootFolders={[ROOT_FOLDER]}
         selectedOrdnerId={null}

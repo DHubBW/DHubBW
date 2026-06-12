@@ -9,6 +9,7 @@ import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.regex.Pattern;
 
 /**
  * Implementation of the {@link AuthenticationService} interface.
@@ -64,6 +68,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Regex describing the project's password policy. Mirrors the
+     * frontend's {@code PASSWORD_REGEX} so client-side and server-side
+     * checks stay aligned.
+     *
+     * <p>Requirements: at least one lowercase letter, one uppercase
+     * letter, one digit, one special character (non-letter, non-digit,
+     * non-whitespace), 10..128 non-whitespace characters total.</p>
+     */
+    private static final String PASSWORD_REGEX_STR =
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])"
+            + "(?=.*[^A-Za-z0-9\\s])\\S{10,128}$";
+
+    /**
+     * Compiled form of {@link #PASSWORD_REGEX_STR}.
+     */
+    private static final Pattern PASSWORD_PATTERN =
+        Pattern.compile(PASSWORD_REGEX_STR);
+
     /** {@inheritDoc} */
     @Override
     @Transactional
@@ -75,6 +98,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 request.dhbwMail());
             throw new IllegalArgumentException(
                 "Email already registered");
+        }
+
+        if (request.password() == null
+                || !PASSWORD_PATTERN.matcher(request.password()).matches()) {
+            colorLogger.colorError(
+                "Registration failed: password for '{}' "
+                    + "does not satisfy policy",
+                request.dhbwMail());
+            throw new ResponseStatusException(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                "Passwort erfüllt die Sicherheitsanforderungen nicht");
         }
 
         // generate the new registered student

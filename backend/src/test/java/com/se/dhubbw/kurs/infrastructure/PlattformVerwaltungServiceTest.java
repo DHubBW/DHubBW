@@ -19,6 +19,7 @@ import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegung;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerRepository;
 import com.se.dhubbw.shared.testing.UnitTest;
+import com.se.dhubbw.student.domain.StudentDashboardService;
 import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
@@ -39,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,6 +77,9 @@ public class PlattformVerwaltungServiceTest {
 
     @Mock
     private KursStudentHelper kursStudentHelper;
+
+    @Mock
+    private StudentDashboardService studentDashboardService;
 
     @InjectMocks
     private PlattformVerwaltungServiceImpl plattformVerwaltungService;
@@ -495,5 +500,91 @@ public class PlattformVerwaltungServiceTest {
         assertThrows(NoSuchElementException.class,
             () -> plattformVerwaltungService
                 .removeSysAdmin(unknownId));
+    }
+
+    // ─── deleteStudent (sysadmin-initiated) ─────────────────────────
+
+    @Test
+    public void
+            givenMatchingMail_whenDeleteStudent_thenDelegates() {
+        when(studentRepository.findById(student.getStudentID()))
+            .thenReturn(Optional.of(student));
+        when(studentRepository.findByDhbwMail(sysAdmin.getDhbwMail()))
+            .thenReturn(Optional.of(sysAdmin));
+
+        plattformVerwaltungService.deleteStudent(
+            student.getStudentID(),
+            student.getDhbwMail(),
+            sysAdmin.getDhbwMail());
+
+        verify(studentDashboardService)
+            .deleteAccount(eq(student.getDhbwMail()));
+    }
+
+    @Test
+    public void
+            givenMixedCaseMail_whenDeleteStudent_thenDelegates() {
+        when(studentRepository.findById(student.getStudentID()))
+            .thenReturn(Optional.of(student));
+        when(studentRepository.findByDhbwMail(sysAdmin.getDhbwMail()))
+            .thenReturn(Optional.of(sysAdmin));
+
+        plattformVerwaltungService.deleteStudent(
+            student.getStudentID(),
+            "  " + student.getDhbwMail().toUpperCase() + "  ",
+            sysAdmin.getDhbwMail());
+
+        verify(studentDashboardService)
+            .deleteAccount(student.getDhbwMail());
+    }
+
+    @Test
+    public void
+            givenMismatchedMail_whenDeleteStudent_thenBadRequest() {
+        when(studentRepository.findById(student.getStudentID()))
+            .thenReturn(Optional.of(student));
+        when(studentRepository.findByDhbwMail(sysAdmin.getDhbwMail()))
+            .thenReturn(Optional.of(sysAdmin));
+
+        assertThrows(IllegalArgumentException.class,
+            () -> plattformVerwaltungService.deleteStudent(
+                student.getStudentID(),
+                "wrong@dhbw.de",
+                sysAdmin.getDhbwMail()));
+        verify(studentDashboardService, never())
+            .deleteAccount(any());
+    }
+
+    @Test
+    public void
+            givenSelfDelete_whenDeleteStudent_thenBadRequest() {
+        when(studentRepository.findById(sysAdmin.getStudentID()))
+            .thenReturn(Optional.of(sysAdmin));
+        when(studentRepository.findByDhbwMail(sysAdmin.getDhbwMail()))
+            .thenReturn(Optional.of(sysAdmin));
+
+        assertThrows(IllegalArgumentException.class,
+            () -> plattformVerwaltungService.deleteStudent(
+                sysAdmin.getStudentID(),
+                sysAdmin.getDhbwMail(),
+                sysAdmin.getDhbwMail()));
+        verify(studentDashboardService, never())
+            .deleteAccount(any());
+    }
+
+    @Test
+    public void
+            givenUnknownStudentId_whenDeleteStudent_thenThrows() {
+        UUID unknownId = UUID.randomUUID();
+        when(studentRepository.findById(unknownId))
+            .thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> plattformVerwaltungService.deleteStudent(
+                unknownId,
+                "irrelevant@dhbw.de",
+                sysAdmin.getDhbwMail()));
+        verify(studentDashboardService, never())
+            .deleteAccount(any());
     }
 }

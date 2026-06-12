@@ -11,7 +11,7 @@ import { toast } from "sonner-native";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useOrdnerDelete } from "@/hooks/useOrdnerDelete";
-import { ApiError } from "@/lib/api/errors";
+import { toastForApiError } from "@/lib/api/toastForApiError";
 import { t } from "@/lib/i18n/t";
 
 export interface DeleteOrdnerConfirmProps {
@@ -31,28 +31,21 @@ export interface DeleteOrdnerConfirmProps {
 }
 
 /**
- * Maps an {@link ApiError} from the delete endpoint to the toast text
- * shown to the user.
+ * Maps an error from the delete endpoint to the toast text shown to
+ * the user. Always prefers the backend's own German message text and
+ * only falls back to the localised hint when no body is available.
  *
  * @param err - The thrown error from the mutation's onError callback.
  * @returns The localised toast message.
  */
 function _deleteErrorMessage(err: unknown): string {
-  if (err instanceof ApiError) {
-    if (err.status === 403) {
-      return t(
-        "ordner.delete.error.forbidden",
-        "Keine Berechtigung zum Löschen.",
-      );
-    }
-    if (err.status === 0 && err.message.includes("404")) {
-      return t("ordner.delete.error.notFound", "Ordner nicht gefunden.");
-    }
-    if (err.status === 0) {
-      return t("error.network", "Netzwerkfehler – Server nicht erreichbar");
-    }
-  }
-  return t("ordner.delete.error.unknown", "Löschen fehlgeschlagen.");
+  return toastForApiError(err, {
+    403: t(
+      "ordner.delete.error.forbidden",
+      "Keine Berechtigung zum Löschen.",
+    ),
+    404: t("ordner.delete.error.notFound", "Ordner nicht gefunden."),
+  });
 }
 
 /**

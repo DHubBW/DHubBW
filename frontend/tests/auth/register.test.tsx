@@ -71,6 +71,11 @@ import { ApiError } from '@/lib/api/errors';
 
 const VALID_NAME = 'Max Mustermann';
 const VALID_MAIL = 'max.muster.tinf24b2@student.dhbw-karlsruhe.de';
+/**
+ * Strong password satisfying the new policy (10..128 chars, all classes,
+ * no whitespace). Used everywhere the form must accept and submit.
+ */
+const VALID_PASSWORD = 'Abcdefghij1!';
 
 describe('RegisterScreen', () => {
   beforeEach(() => {
@@ -100,7 +105,7 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(screen.getByLabelText('DHBW-Mail'), VALID_MAIL);
     expect(submit.props.accessibilityState?.disabled).toBe(true);
 
-    fireEvent.changeText(screen.getByLabelText('Passwort'), 'pw1');
+    fireEvent.changeText(screen.getByLabelText('Passwort'), VALID_PASSWORD);
     expect(submit.props.accessibilityState?.disabled).toBe(false);
   });
 
@@ -110,11 +115,11 @@ describe('RegisterScreen', () => {
 
     fireEvent.changeText(screen.getByLabelText('Vollständiger Name'), `  ${VALID_NAME}  `);
     fireEvent.changeText(screen.getByLabelText('DHBW-Mail'), `  ${VALID_MAIL}  `);
-    fireEvent.changeText(screen.getByLabelText('Passwort'), 'pw1');
+    fireEvent.changeText(screen.getByLabelText('Passwort'), VALID_PASSWORD);
     fireEvent.press(screen.getByLabelText('Weiter'));
 
     await waitFor(() => expect(mockRegister).toHaveBeenCalledTimes(1));
-    expect(mockRegister).toHaveBeenCalledWith(VALID_MAIL, VALID_NAME, 'pw1');
+    expect(mockRegister).toHaveBeenCalledWith(VALID_MAIL, VALID_NAME, VALID_PASSWORD);
 
     // After resolution we are on Step 2 — Skip + Zurück appear, Step 1 inputs gone.
     await waitFor(() => expect(screen.getByLabelText('Überspringen')).toBeTruthy());
@@ -132,7 +137,7 @@ describe('RegisterScreen', () => {
 
     fireEvent.changeText(screen.getByLabelText('Vollständiger Name'), VALID_NAME);
     fireEvent.changeText(screen.getByLabelText('DHBW-Mail'), VALID_MAIL);
-    fireEvent.changeText(screen.getByLabelText('Passwort'), 'pw1');
+    fireEvent.changeText(screen.getByLabelText('Passwort'), VALID_PASSWORD);
     fireEvent.press(screen.getByLabelText('Weiter'));
     await waitFor(() => screen.getByLabelText('Zurück'));
 
@@ -147,7 +152,7 @@ describe('RegisterScreen', () => {
 
     fireEvent.changeText(screen.getByLabelText('Vollständiger Name'), VALID_NAME);
     fireEvent.changeText(screen.getByLabelText('DHBW-Mail'), VALID_MAIL);
-    fireEvent.changeText(screen.getByLabelText('Passwort'), 'pw1');
+    fireEvent.changeText(screen.getByLabelText('Passwort'), VALID_PASSWORD);
     fireEvent.press(screen.getByLabelText('Weiter'));
 
     await waitFor(() =>
@@ -163,7 +168,7 @@ describe('RegisterScreen', () => {
 
     fireEvent.changeText(screen.getByLabelText('Vollständiger Name'), VALID_NAME);
     fireEvent.changeText(screen.getByLabelText('DHBW-Mail'), VALID_MAIL);
-    fireEvent.changeText(screen.getByLabelText('Passwort'), 'pw1');
+    fireEvent.changeText(screen.getByLabelText('Passwort'), VALID_PASSWORD);
     fireEvent.press(screen.getByLabelText('Weiter'));
 
     await waitFor(() => expect(mockToastError).toHaveBeenCalledWith('Invalid name'));
@@ -175,7 +180,7 @@ describe('RegisterScreen', () => {
 
     fireEvent.changeText(screen.getByLabelText('Vollständiger Name'), VALID_NAME);
     fireEvent.changeText(screen.getByLabelText('DHBW-Mail'), VALID_MAIL);
-    fireEvent.changeText(screen.getByLabelText('Passwort'), 'pw1');
+    fireEvent.changeText(screen.getByLabelText('Passwort'), VALID_PASSWORD);
     fireEvent.press(screen.getByLabelText('Weiter'));
 
     await waitFor(() =>
@@ -200,16 +205,16 @@ describe('RegisterScreen', () => {
 
     fireEvent.changeText(screen.getByLabelText('Vollständiger Name'), VALID_NAME);
     fireEvent.changeText(screen.getByLabelText('DHBW-Mail'), VALID_MAIL);
-    fireEvent.changeText(screen.getByLabelText('Passwort'), 'pw1');
+    fireEvent.changeText(screen.getByLabelText('Passwort'), VALID_PASSWORD);
 
     expect(
       screen.getByLabelText('Weiter').props.accessibilityState?.disabled,
     ).toBe(true);
   });
 
-  it('caps the password input at 256 characters', () => {
+  it('caps the password input at 128 characters', () => {
     render(<RegisterScreen />);
-    expect(screen.getByLabelText('Passwort').props.maxLength).toBe(256);
+    expect(screen.getByLabelText('Passwort').props.maxLength).toBe(128);
   });
 
   it('fires only one register call on rapid double-submit', async () => {
@@ -224,7 +229,7 @@ describe('RegisterScreen', () => {
 
     fireEvent.changeText(screen.getByLabelText('Vollständiger Name'), VALID_NAME);
     fireEvent.changeText(screen.getByLabelText('DHBW-Mail'), VALID_MAIL);
-    fireEvent.changeText(screen.getByLabelText('Passwort'), 'pw1');
+    fireEvent.changeText(screen.getByLabelText('Passwort'), VALID_PASSWORD);
 
     const submit = screen.getByLabelText('Weiter');
     fireEvent.press(submit);

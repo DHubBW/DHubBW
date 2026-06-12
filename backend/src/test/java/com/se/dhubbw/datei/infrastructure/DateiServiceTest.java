@@ -67,6 +67,10 @@ public class DateiServiceTest {
     private com.se.dhubbw.datei.domain.FileStorageStrategy
         fileStorageStrategy;
 
+    @Mock
+    private com.se.dhubbw.datei.domain.UploadSecurityValidator
+        uploadSecurityValidator;
+
     @InjectMocks
     private DateiServiceImpl dateiService;
 
@@ -816,5 +820,360 @@ public class DateiServiceTest {
             datei.getDateiID(), "student@dhbw.de");
 
         assertNotNull(result);
+    }
+
+    // --- previewDatei tests ---
+
+    @Test
+    public void givenMember_whenPreviewDatei_thenReturnsDtoAndCounterUntouched() {
+        KursBeitrittsAnfrage enrollment =
+            new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+        datei.setData(new byte[]{1, 2, 3});
+        datei.setDownloadAnzahl(4);
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+
+        DateiDownloadDTO result = dateiService.previewDatei(
+            datei.getDateiID(), "admin@dhbw.de");
+
+        assertNotNull(result);
+        assertEquals("test.pdf", result.getName());
+        // Preview must NOT increment the download counter.
+        assertEquals(4, datei.getDownloadAnzahl());
+        verify(dateiRepository, never()).save(datei);
+    }
+
+    @Test
+    public void givenSysAdmin_whenPreviewDatei_thenSucceeds() {
+        datei.setData(new byte[]{1, 2, 3});
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("sys@dhbw.de"))
+            .thenReturn(sysAdmin);
+
+        DateiDownloadDTO result = dateiService.previewDatei(
+            datei.getDateiID(), "sys@dhbw.de");
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void givenNonMember_whenPreviewDatei_thenThrows403() {
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("student@dhbw.de"))
+            .thenReturn(regularStudent);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(regularStudent))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.previewDatei(
+                datei.getDateiID(), "student@dhbw.de"));
+
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenDateiNotFound_whenPreviewDatei_thenThrows404() {
+        UUID unknownId = UUID.randomUUID();
+        when(dateiRepository.findById(unknownId))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.previewDatei(
+                unknownId, "admin@dhbw.de"));
+
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
+    // --- name-uniqueness tests ---
+
+    @Test
+    public void givenDuplicateName_whenUpload_thenThrows409() {
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(ordnerRepository.findById(ordnerWithKurs.getOrdnerID()))
+            .thenReturn(Optional.of(ordnerWithKurs));
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(dateiRepository.findTotalFileSizeInMb())
+            .thenReturn(0.0);
+        when(mockFile.getSize()).thenReturn(1024L);
+        when(dateiRepository.findByOrdnerIdAndName(
+            ordnerWithKurs.getOrdnerID(), "duplikat.pdf"))
+            .thenReturn(Optional.of(new Datei()));
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.uploadDatei(
+                mockFile,
+                ordnerWithKurs.getOrdnerID(),
+                "duplikat.pdf",
+                "admin@dhbw.de"));
+
+        assertEquals(409, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenDuplicateName_whenRename_thenThrows409() {
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+        Datei sibling = new Datei();
+        sibling.setDateiID(UUID.randomUUID());
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(dateiRepository.findByOrdnerIdAndName(
+            datei.getOrdner().getOrdnerID(), "duplikat.pdf"))
+            .thenReturn(Optional.of(sibling));
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.renameDatei(
+                datei.getDateiID(),
+                "duplikat.pdf",
+                "admin@dhbw.de"));
+
+        assertEquals(409, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenSelfMatch_whenRename_thenAllowsNoOp() {
+        // When the rename target's existing name is the same as
+        // newName, the lookup returns the row itself — must NOT
+        // throw.
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(dateiRepository.findByOrdnerIdAndName(
+            datei.getOrdner().getOrdnerID(), "test.pdf"))
+            .thenReturn(Optional.of(datei));
+
+        dateiService.renameDatei(
+            datei.getDateiID(), "test.pdf", "admin@dhbw.de");
+
+        verify(dateiRepository).save(datei);
+    }
+
+    @Test
+    public void givenNewExtension_whenRename_thenKeepsOriginal() {
+        // The user must not be able to flip the extension via rename.
+        // Original is "test.pdf"; even if the user types "Skript.exe"
+        // the persisted name keeps the .pdf suffix.
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(dateiRepository.findByOrdnerIdAndName(
+            datei.getOrdner().getOrdnerID(), "Skript.pdf"))
+            .thenReturn(Optional.empty());
+
+        dateiService.renameDatei(
+            datei.getDateiID(), "Skript.exe", "admin@dhbw.de");
+
+        assertEquals("Skript.pdf", datei.getName());
+        verify(dateiRepository).save(datei);
+    }
+
+    @Test
+    public void givenBlankBaseName_whenRename_thenThrows400() {
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.renameDatei(
+                datei.getDateiID(), ".pdf", "admin@dhbw.de"));
+
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    // --- moveDatei tests ---
+
+    @Test
+    public void givenMember_whenMoveDatei_thenSavesWithNewOrdner() {
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+        Ordner targetOrdner = new Ordner();
+        targetOrdner.setOrdnerID(UUID.randomUUID());
+        targetOrdner.setKurs(kurs);
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(ordnerRepository.findById(targetOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(targetOrdner));
+        when(dateiRepository.findByOrdnerIdAndName(
+            targetOrdner.getOrdnerID(), "test.pdf"))
+            .thenReturn(Optional.empty());
+
+        dateiService.moveDatei(
+            datei.getDateiID(),
+            targetOrdner.getOrdnerID(),
+            "admin@dhbw.de");
+
+        assertEquals(targetOrdner, datei.getOrdner());
+        verify(dateiRepository).save(datei);
+    }
+
+    @Test
+    public void givenSameFolder_whenMoveDatei_thenThrows400() {
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(ordnerRepository.findById(ordnerWithKurs.getOrdnerID()))
+            .thenReturn(Optional.of(ordnerWithKurs));
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.moveDatei(
+                datei.getDateiID(),
+                ordnerWithKurs.getOrdnerID(),
+                "admin@dhbw.de"));
+
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenNameConflict_whenMoveDatei_thenThrows409() {
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+        Ordner targetOrdner = new Ordner();
+        targetOrdner.setOrdnerID(UUID.randomUUID());
+        targetOrdner.setKurs(kurs);
+        Datei sibling = new Datei();
+        sibling.setDateiID(UUID.randomUUID());
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(ordnerRepository.findById(targetOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(targetOrdner));
+        when(dateiRepository.findByOrdnerIdAndName(
+            targetOrdner.getOrdnerID(), "test.pdf"))
+            .thenReturn(Optional.of(sibling));
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.moveDatei(
+                datei.getDateiID(),
+                targetOrdner.getOrdnerID(),
+                "admin@dhbw.de"));
+
+        assertEquals(409, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenNonMemberOnTarget_whenMoveDatei_thenThrows403() {
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+        // Build a target folder that belongs to a different course.
+        com.se.dhubbw.kurs.infrastructure.db.Kurs otherKurs =
+            new com.se.dhubbw.kurs.infrastructure.db.Kurs();
+        otherKurs.setKursID(UUID.randomUUID());
+        Ordner targetOrdner = new Ordner();
+        targetOrdner.setOrdnerID(UUID.randomUUID());
+        targetOrdner.setKurs(otherKurs);
+        targetOrdner.setPublic(false);
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(ordnerRepository.findById(targetOrdner.getOrdnerID()))
+            .thenReturn(Optional.of(targetOrdner));
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.moveDatei(
+                datei.getDateiID(),
+                targetOrdner.getOrdnerID(),
+                "admin@dhbw.de"));
+
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+    @Test
+    public void givenUnknownTarget_whenMoveDatei_thenThrows404() {
+        UUID unknownTarget = UUID.randomUUID();
+        KursBeitrittsAnfrage enrollment = new KursBeitrittsAnfrage();
+        enrollment.setKurs(kurs);
+
+        when(dateiRepository.findById(datei.getDateiID()))
+            .thenReturn(Optional.of(datei));
+        when(studentLookupHelper.findStudentByEmail("admin@dhbw.de"))
+            .thenReturn(kursAdmin);
+        when(kursBeitrittsAnfrageRepository
+            .findByStudentAndIsApprovedTrue(kursAdmin))
+            .thenReturn(Optional.of(enrollment));
+        when(ordnerRepository.findById(unknownTarget))
+            .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+            ResponseStatusException.class,
+            () -> dateiService.moveDatei(
+                datei.getDateiID(),
+                unknownTarget,
+                "admin@dhbw.de"));
+
+        assertEquals(404, ex.getStatusCode().value());
     }
 }

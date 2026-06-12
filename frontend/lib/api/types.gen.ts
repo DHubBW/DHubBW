@@ -249,6 +249,11 @@ export interface OrdnerDTO {
   ueberOrdnerID: string | null;
   /** UUID of the course this folder belongs to. */
   kursID: string;
+  /**
+   * Whether the folder has at least one direct child folder. Used by
+   * the tree to suppress the expand-affordance on leaf folders.
+   */
+  hasChildren: boolean;
 }
 
 /**

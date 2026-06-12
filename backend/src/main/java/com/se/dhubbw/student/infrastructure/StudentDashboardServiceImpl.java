@@ -17,12 +17,16 @@ import com.se.dhubbw.student.infrastructure.db.Student;
 import com.se.dhubbw.student.infrastructure.db.StudentRepository;
 import com.se.dhubbw.student.infrastructure.util.StudentType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Implementation of the {@link StudentDashboardService} interface.
@@ -88,10 +92,46 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
     private final DateiRepository dateiRepository;
 
     /**
+     * Password encoder used to verify the current password and to
+     * hash the new password on change.
+     */
+    private final PasswordEncoder passwordEncoder;
+
+    /**
      * Color-coded logger for error reporting.
      */
     private final ColorLogger colorLogger =
         new ColorLogger(StudentDashboardServiceImpl.class);
+
+    /**
+     * Minimum length required for a new password.
+     */
+    private static final int MIN_PASSWORD_LENGTH = 10;
+
+    /**
+     * Maximum length allowed for a new password.
+     */
+    private static final int MAX_PASSWORD_LENGTH = 128;
+
+    /**
+     * Regex describing the project's password policy. Mirrors the
+     * frontend's {@code PASSWORD_REGEX} so client-side and server-side
+     * checks stay aligned.
+     *
+     * <p>Requirements: at least one lowercase letter, one uppercase
+     * letter, one digit, one special character (non-letter, non-digit,
+     * non-whitespace), 10..128 non-whitespace characters total.</p>
+     */
+    private static final String PASSWORD_REGEX_STR =
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])"
+            + "(?=.*[^A-Za-z0-9\\s])\\S{"
+            + MIN_PASSWORD_LENGTH + "," + MAX_PASSWORD_LENGTH + "}$";
+
+    /**
+     * Compiled form of {@link #PASSWORD_REGEX_STR}.
+     */
+    private static final Pattern PASSWORD_PATTERN =
+        Pattern.compile(PASSWORD_REGEX_STR);
 
     /**
      * Remove the student from their current course.
@@ -318,5 +358,59 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
     @Transactional(readOnly = true)
     public String retrieveKursForUser(final String dhbwMail) {
         return retrieveProfile(dhbwMail).getKursName();
+    }
+
+    /**
+     * Change the password of the given student.
+     *
+     * <p>Verifies that {@code currentPassword} matches the stored
+     * hash before applying the new value. The new password is
+     * validated against the project-wide policy expressed by
+     * {@link #PASSWORD_PATTERN} and must differ from the current
+     * one.</p>
+     *
+     * @param dhbwMail the DHBW mail address of the student
+     * @param currentPassword the student's current plaintext password
+     * @param newPassword the new plaintext password to set
+     * @throws NoSuchElementException if the student is not found
+     * @throws ResponseStatusException 401 if {@code currentPassword}
+     *     is wrong; 400 if {@code newPassword} fails the policy
+     *     described by {@link #PASSWORD_PATTERN} or equals
+     *     {@code currentPassword}
+     */
+    @Override
+    @RetryableTransactional
+    public void changePassword(
+            final String dhbwMail,
+            final String currentPassword,
+            final String newPassword) {
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
+
+        if (!passwordEncoder.matches(
+                currentPassword, student.getPasswordHash())) {
+            throw new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "Aktuelles Passwort ist falsch");
+        }
+
+        if (newPassword == null
+                || !PASSWORD_PATTERN.matcher(newPassword).matches()) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Neues Passwort erfüllt die "
+                    + "Sicherheitsanforderungen nicht");
+        }
+
+        if (newPassword.equals(currentPassword)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Neues Passwort muss sich vom aktuellen "
+                    + "unterscheiden");
+        }
+
+        student.setPasswordHash(passwordEncoder.encode(newPassword));
+        studentRepository.save(student);
+        colorLogger.colorInfo("Password changed for {}", dhbwMail);
     }
 }

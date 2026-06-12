@@ -36,8 +36,18 @@ export interface DateienCardListProps {
   isLoading: boolean;
   isError: boolean;
   onDownload?: (datei: DateiDTO) => void;
-  onRename?: (datei: DateiDTO) => void;
-  onDelete?: (datei: DateiDTO) => void;
+  /**
+   * Called when the user taps a card body. Wired to the inline preview
+   * dialog. When omitted, tapping the card falls back to the download
+   * action so older callers keep the previous behaviour.
+   */
+  onPreview?: (datei: DateiDTO) => void;
+  /**
+   * Called when the user taps the card's 3-dot icon. The parent
+   * screen owns the resulting menu (Verschieben / Umbenennen /
+   * Löschen).
+   */
+  onMore?: (datei: DateiDTO) => void;
 }
 
 /**
@@ -51,8 +61,8 @@ export function DateienCardList({
   isLoading,
   isError,
   onDownload,
-  onRename,
-  onDelete,
+  onPreview,
+  onMore,
 }: DateienCardListProps) {
   if (isLoading) {
     return (
@@ -74,8 +84,8 @@ export function DateienCardList({
             key={datei.dateiID}
             datei={datei}
             onDownload={onDownload}
-            onRename={onRename}
-            onDelete={onDelete}
+            onPreview={onPreview}
+            onMore={onMore}
           />
         ))}
       </View>
@@ -86,8 +96,8 @@ export function DateienCardList({
 interface FileCardProps {
   datei: DateiDTO;
   onDownload?: (datei: DateiDTO) => void;
-  onRename?: (datei: DateiDTO) => void;
-  onDelete?: (datei: DateiDTO) => void;
+  onPreview?: (datei: DateiDTO) => void;
+  onMore?: (datei: DateiDTO) => void;
 }
 
 /**
@@ -95,60 +105,81 @@ interface FileCardProps {
  * triggers a download when the callback is wired — matches what the
  * table-row primary action does and saves a separate icon hit.
  *
+ * <p>The card body and the action icons are rendered as siblings of
+ * an outer {@code View} (not nested inside the body's Pressable):
+ * RN-Web translates Pressable to {@code <button>} and TouchableOpacity
+ * inside RowActions to nested {@code <button>}, which is invalid
+ * HTML and triggers a hydration warning.</p>
+ *
  * @param props - {@link FileCardProps}
  * @returns The card.
  */
-function FileCard({ datei, onDownload, onRename, onDelete }: FileCardProps) {
+function FileCard({
+  datei,
+  onDownload,
+  onPreview,
+  onMore,
+}: FileCardProps) {
   const FileIconCmp = fileIconFor(datei.name);
-  const hasActions = Boolean(onDownload || onRename || onDelete);
   const downloadsLabel = t("dateien.card.downloads", "Downloads");
 
+  // Tapping the card body opens the preview when wired; falls back to
+  // download for older callers that haven't wired preview yet.
+  const handleCardPress = onPreview
+    ? () => onPreview(datei)
+    : () => onDownload?.(datei);
+
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={datei.name}
-      onPress={() => onDownload?.(datei)}
-      className="flex-row items-start gap-3 overflow-hidden rounded-xl border border-border bg-card px-4 py-3 active:bg-accent/40"
-    >
-      {/* Icon — larger than the table variant; rounded square keeps
-          the shape consistent with the upload button on the toolbar. */}
-      <View className="rounded-xl bg-muted p-3">
-        <FileIconCmp size={22} color="hsl(var(--primary))" />
-      </View>
-
-      {/* Info column */}
-      <View className="flex-1 gap-1">
-        <Text
-          className="text-base font-semibold leading-snug text-foreground"
-          numberOfLines={2}
-        >
-          {datei.name}
-        </Text>
-        <Text className="text-xs text-muted-foreground" numberOfLines={1}>
-          {datei.uploaderName ?? "—"}
-          {"  ·  "}
-          {formatIsoDate(datei.zuletztBearbeitet)}
-        </Text>
-        {/* Pill chips for size + downloads — quieter than three loose
-            meta lines, easier to scan at a glance. */}
-        <View className="mt-1 flex-row flex-wrap gap-1.5">
-          <MetaChip label={formatFileSize(datei.fileSize)} />
-          <MetaChip label={`${datei.downloadAnzahl} ${downloadsLabel}`} />
+    <View className="flex-row items-center gap-3 overflow-hidden rounded-xl border border-border bg-card px-4 py-3 web:cursor-pointer web:hover:bg-accent/20">
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={datei.name}
+        onPress={handleCardPress}
+        className="flex-1 flex-row items-center gap-3 active:bg-accent/40"
+      >
+        {/* Icon — larger than the table variant; rounded square keeps
+            the shape consistent with the upload button on the toolbar. */}
+        <View className="rounded-xl bg-muted p-3">
+          <FileIconCmp size={22} color="hsl(var(--primary))" />
         </View>
-      </View>
 
-      {/* Actions live inside the card body, top-right, aligned to the
-          icon column so they sit naturally next to the title. */}
-      {hasActions && (
-        <RowActions
-          onDownload={() => onDownload?.(datei)}
-          onRename={() => onRename?.(datei)}
-          onDelete={() => onDelete?.(datei)}
-          size="comfortable"
-          className="-mr-1 self-start"
-        />
-      )}
-    </Pressable>
+        {/* Info column */}
+        <View className="flex-1 gap-1">
+          <Text
+            className="text-base font-semibold leading-snug text-foreground"
+            numberOfLines={2}
+          >
+            {datei.name}
+          </Text>
+          <Text className="text-xs text-muted-foreground" numberOfLines={1}>
+            {datei.uploaderName ?? "—"}
+            {"  ·  "}
+            {formatIsoDate(datei.zuletztBearbeitet)}
+          </Text>
+          {/* Pill chips for size + downloads — quieter than three loose
+              meta lines, easier to scan at a glance. */}
+          <View className="mt-1 flex-row flex-wrap gap-1.5">
+            <MetaChip label={formatFileSize(datei.fileSize)} />
+            <MetaChip label={`${datei.downloadAnzahl} ${downloadsLabel}`} />
+          </View>
+        </View>
+      </Pressable>
+
+      {/* Actions — Vorschau + Download (always visible) plus the
+          3-dot menu hosting Verschieben / Umbenennen / Löschen.
+          Lives alongside the Pressable (not nested inside it) so
+          the rendered DOM stays free of nested <button> elements.
+          `self-center` zentriert die Icons vertikal mittig zur
+          Kartenhöhe — bei zwei- bis drei-zeiligen Karten sieht das
+          ruhiger aus als ein top-aligned Cluster. */}
+      <RowActions
+        onPreview={onPreview ? () => onPreview(datei) : undefined}
+        onDownload={onDownload ? () => onDownload(datei) : undefined}
+        onMore={onMore ? () => onMore(datei) : undefined}
+        size="comfortable"
+        className="-mr-1 self-center"
+      />
+    </View>
   );
 }
 

@@ -15,11 +15,13 @@ import {
   File,
   BookOpen,
   HardDrive,
+  RefreshCw,
   Search,
   Trash2,
   UserCheck,
   UserMinus,
   Users,
+  UtensilsCrossed,
   X,
 } from "lucide-react-native";
 import { useState } from "react";
@@ -69,11 +71,14 @@ import {
   useRemoveSysAdmin,
 } from "@/hooks/useSysAdminActions";
 import { useSysAdminAnfragen } from "@/hooks/useSysAdminAnfragen";
+import { useMensaSync } from "@/hooks/useMensaSync";
 import { useSysAdminKurse } from "@/hooks/useSysAdminKurse";
 import { useSysAdminKursMitglieder } from "@/hooks/useSysAdminKursMitglieder";
 import { useSysAdminStats } from "@/hooks/useSysAdminStats";
 import { useSysAdminStudenten } from "@/hooks/useSysAdminStudenten";
+import { useDeleteStudentBySysAdmin } from "@/hooks/useDeleteStudentBySysAdmin";
 import { ApiError } from "@/lib/api/errors";
+import { toastForApiError } from "@/lib/api/toastForApiError";
 import type {
   KursDTO,
   KursErstellungsAnfrageDTO,
@@ -718,11 +723,21 @@ function StudentRow({
 }) {
   const [addOpen, setAddOpen] = useState(false);
   const [removeOpen, setRemoveOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const { addSysAdmin } = useAddSysAdmin();
   const { removeSysAdmin } = useRemoveSysAdmin();
+  const { mutateAsync: deleteStudent } = useDeleteStudentBySysAdmin();
+  const { user } = useAuth();
 
   const isSa = student.studentType === "SYSTEMADMIN";
   const isLastSa = isSa && saCount <= 1;
+  // Self-deletion is rejected by the backend (sysadmins must use the
+  // self-service in settings); also disable the button when removing
+  // this student would otherwise leave zero SYSTEMADMINs — the
+  // delete cleanup reuses the same last-sysadmin guard as
+  // `SA entziehen` and would 409 in that case.
+  const isSelf = user?.dhbwMail === student.dhbwMail;
+  const deleteDisabled = isSelf || isLastSa;
 
   return (
     <View className="flex-row items-center gap-3 py-3">
@@ -866,6 +881,145 @@ function StudentRow({
           />
         </>
       )}
+
+      <TouchableOpacity
+        onPress={() => !deleteDisabled && setDeleteOpen(true)}
+        accessibilityRole="button"
+        disabled={deleteDisabled}
+        className={cn(
+          "rounded border px-2 py-1",
+          deleteDisabled
+            ? "border-muted opacity-40"
+            : "border-destructive/50",
+        )}
+      >
+        <Trash2
+          size={13}
+          color={
+            deleteDisabled
+              ? "hsl(var(--muted-foreground))"
+              : "hsl(var(--destructive))"
+          }
+        />
+      </TouchableOpacity>
+      <ConfirmDialogStrict
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={t(
+          "verwaltung.studenten.deleteTitle",
+          "Account löschen",
+        )}
+        message={t(
+          "verwaltung.studenten.deleteMsg",
+          `Account von ${student.name} (${student.dhbwMail}) wird unwiderruflich gelöscht.`,
+        )}
+        confirmLabel={t(
+          "verwaltung.studenten.deleteConfirm",
+          "Account löschen",
+        )}
+        verificationText={student.dhbwMail}
+        variant="destructive"
+        onConfirm={async () => {
+          try {
+            await deleteStudent({
+              studentId: student.studentID,
+              confirmedMail: student.dhbwMail,
+            });
+            toast.success(
+              t(
+                "verwaltung.studenten.deleteSuccess",
+                `Account von ${student.name} gelöscht`,
+              ),
+            );
+          } catch (err) {
+            toast.error(
+              toastForApiError(err, {
+                400: t(
+                  "verwaltung.studenten.deleteBadRequest",
+                  "Bestätigung ungültig oder eigener Account",
+                ),
+                404: t(
+                  "verwaltung.studenten.deleteNotFound",
+                  "Student nicht gefunden",
+                ),
+                409: t(
+                  "verwaltung.studenten.deleteConflict",
+                  "Letzter Admin – Aktion abgelehnt",
+                ),
+              }),
+            );
+            throw err;
+          }
+        }}
+      />
+    </View>
+  );
+}
+
+/**
+ * Section card content for the manual mensa-sync trigger. Renders a
+ * single button that fires {@link useMensaSync}; surfaces the
+ * server's status-aware error message via {@code toast.error} and a
+ * green "Mensa-Sync abgeschlossen" toast on success.
+ */
+function MensaSyncSection() {
+  const sync = useMensaSync();
+
+  function handleSync() {
+    sync.mutate(undefined, {
+      onSuccess: () => {
+        toast.success(
+          t("verwaltung.mensa.syncSuccess", "Mensa-Sync abgeschlossen"),
+        );
+      },
+      onError: (err) => {
+        toast.error(
+          toastForApiError(err, {
+            403: t(
+              "verwaltung.mensa.syncForbidden",
+              "Keine Berechtigung für den Mensa-Sync.",
+            ),
+            500: t(
+              "verwaltung.mensa.syncFailed",
+              "Mensa-Sync ist fehlgeschlagen — bitte erneut versuchen.",
+            ),
+          }),
+        );
+      },
+    });
+  }
+
+  return (
+    <View className="gap-3 pt-2">
+      <Text className="text-sm text-muted-foreground">
+        {t(
+          "verwaltung.mensa.syncDescription",
+          "Stößt einen sofortigen Re-Scrape des Mensaplans an. Der Sync läuft "
+            + "automatisch im Hintergrund. Nutze diesen Button, wenn "
+            + "ein neu eingestellter Speiseplan früher sichtbar werden soll.",
+        )}
+      </Text>
+      <Button
+        onPress={handleSync}
+        disabled={sync.isPending}
+        className="self-start"
+        accessibilityLabel={t(
+          "verwaltung.mensa.syncButton",
+          "Mensa-Sync starten",
+        )}
+        testID="mensa-sync-button"
+      >
+        {sync.isPending ? (
+          <ActivityIndicator size="small" color="white" />
+        ) : (
+          <View className="flex-row items-center gap-2">
+            <RefreshCw size={14} color="hsl(var(--primary-foreground))" />
+            <Text className="text-sm font-medium text-primary-foreground">
+              {t("verwaltung.mensa.syncButton", "Mensa-Sync starten")}
+            </Text>
+          </View>
+        )}
+      </Button>
     </View>
   );
 }
@@ -994,6 +1148,14 @@ function SystemverwaltungContent() {
             label={t("verwaltung.kurse.title", "Kurse")}
           />
           <KurseSection kurse={kurse.data ?? []} isLoading={kurse.isLoading} />
+        </Card>
+
+        <Card className="gap-0 px-5 py-5">
+          <SectionHeader
+            icon={UtensilsCrossed}
+            label={t("verwaltung.mensa.title", "Mensaplan")}
+          />
+          <MensaSyncSection />
         </Card>
 
         <Card className="gap-0 px-5 py-5">

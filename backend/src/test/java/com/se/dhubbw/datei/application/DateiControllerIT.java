@@ -27,6 +27,8 @@ import static org.springframework.test.web.servlet.request
 import static org.springframework.test.web.servlet.request
     .MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result
+    .MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result
     .MockMvcResultMatchers.status;
 
 @IntegrationTest
@@ -429,5 +431,100 @@ public class DateiControllerIT {
         }
         throw new IllegalStateException(
             "DATEI_1_ID not found in folder listing");
+    }
+
+    // --- PreviewDatei tests ---
+
+    @Test
+    @Order(60)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenMember_whenPreviewDatei_thenReturns200WithInline()
+            throws Exception {
+        mockMvc.perform(
+            get("/student/dateien/" + DATEI_1_ID + "/preview"))
+            .andExpect(status().isOk())
+            .andExpect(header().string(
+                "Content-Disposition",
+                org.hamcrest.Matchers.startsWith("inline")));
+    }
+
+    @Test
+    @Order(61)
+    public void givenNoAuth_whenPreviewDatei_thenReturns401()
+            throws Exception {
+        mockMvc.perform(
+            get("/student/dateien/" + DATEI_1_ID + "/preview"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Order(62)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenUnknownId_whenPreviewDatei_thenReturns404()
+            throws Exception {
+        mockMvc.perform(
+            get("/student/dateien/" + UNKNOWN_ID + "/preview"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Order(63)
+    @WithMockUser(username = LINUS_MAIL, roles = {"STUDENT"})
+    public void givenPreview_whenList_thenCounterUntouched()
+            throws Exception {
+        int before = readDownloadAnzahl();
+
+        mockMvc.perform(
+            get("/student/dateien/" + DATEI_1_ID + "/preview"))
+            .andExpect(status().isOk());
+
+        int after = readDownloadAnzahl();
+        org.junit.jupiter.api.Assertions.assertEquals(before, after);
+    }
+
+    // --- Move tests ---
+
+    @Test
+    @Order(70)
+    @WithMockUser(
+            username = TOM_MAIL,
+            roles = {"SYSTEMADMIN", "KURSADMIN", "STUDENT"})
+    public void givenSysAdmin_whenMoveDatei_thenReturns200()
+            throws Exception {
+        // SysAdmin always has both modify and upload rights, so this
+        // exercises the happy path end-to-end.
+        mockMvc.perform(
+            patch("/student/dateien/" + DATEI_1_ID + "/move")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"targetOrdnerId\": \""
+                    + TINF24B1_ORDNER_ID + "\"}"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(71)
+    public void givenUnauthenticated_whenMoveDatei_thenReturns401()
+            throws Exception {
+        mockMvc.perform(
+            patch("/student/dateien/" + DATEI_1_ID + "/move")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"targetOrdnerId\": \""
+                    + TINF24B1_ORDNER_ID + "\"}"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Order(72)
+    @WithMockUser(
+            username = TOM_MAIL,
+            roles = {"SYSTEMADMIN", "KURSADMIN", "STUDENT"})
+    public void givenUnknownTarget_whenMoveDatei_thenReturns404()
+            throws Exception {
+        mockMvc.perform(
+            patch("/student/dateien/" + DATEI_1_ID + "/move")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"targetOrdnerId\": \""
+                    + UNKNOWN_ID + "\"}"))
+            .andExpect(status().isNotFound());
     }
 }
