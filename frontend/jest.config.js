@@ -40,6 +40,7 @@ const config = {
         "<rootDir>/tests/components/**/*.test.{ts,tsx}",
         "<rootDir>/tests/auth/**/*.test.{ts,tsx}",
         "<rootDir>/tests/hooks/**/*.test.{ts,tsx}",
+        "<rootDir>/tests/lib/**/*.test.{ts,tsx}",
       ],
       setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
       transformIgnorePatterns: [

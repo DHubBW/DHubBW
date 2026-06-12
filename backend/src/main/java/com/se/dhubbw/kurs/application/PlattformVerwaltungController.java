@@ -1,5 +1,6 @@
 package com.se.dhubbw.kurs.application;
 
+import com.se.dhubbw.kurs.application.dto.input.DeleteStudentRequestDTO;
 import com.se.dhubbw.kurs.application.dto.output.KursDTO;
 import com.se.dhubbw.kurs.application.dto.output.KursMitgliedRolleDTO;
 import com.se.dhubbw.kurs.application.dto.output.StudentDTO;
@@ -16,10 +17,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -383,5 +386,86 @@ public class PlattformVerwaltungController {
             new RequestStatusResponseDTO(
                 "Kursadmin removed successfully.",
                 PersistenceOperation.UPDATE));
+    }
+
+    /**
+     * Delete a student account on behalf of a SYSTEMADMIN, with
+     * email confirmation.
+     *
+     * <p>Performs the same cleanup as the self-service deletion
+     * exposed by the student dashboard: enrollment requests,
+     * file/folder creation tracking records and the student
+     * record itself are removed; file uploader references are
+     * nullified while files and folders are preserved. The
+     * caller is identified by
+     * {@link Authentication#getName()}.</p>
+     *
+     * <p>Validation order:</p>
+     * <ol>
+     *   <li>Target and caller must exist (404 otherwise).</li>
+     *   <li>Caller cannot delete their own account through this
+     *       endpoint — sysadmins must use self-service
+     *       (400 otherwise).</li>
+     *   <li>{@code confirmedMail} must equal the target's
+     *       {@code dhbwMail} after trimming and lower-casing
+     *       (400 otherwise).</li>
+     *   <li>Last-SYSTEMADMIN and last-KURSADMIN guards apply
+     *       (409 otherwise).</li>
+     * </ol>
+     *
+     * @param studentId      the ID of the student to delete
+     * @param request        the body with the confirmation email
+     * @param authentication the Spring Security authentication
+     *     of the calling SYSTEMADMIN
+     * @return 204 on success, 400 on mismatch / self-delete,
+     *     404 if not found, 409 on last-admin guard
+     */
+    @Operation(
+            summary = "Delete a student account (sysadmin)",
+            description = "Deletes a student account with email "
+                + "confirmation. The caller must type the target's "
+                + "DHBW mail; on mismatch the request is rejected "
+                + "with 400. SYSTEMADMINs cannot delete their own "
+                + "account through this endpoint and must use the "
+                + "self-service in the settings instead. The "
+                + "cleanup is identical to the self-service "
+                + "deletion: enrollment requests, creation "
+                + "tracking records, file uploader references and "
+                + "the student record itself are removed. Files "
+                + "and folders are preserved. The last-SYSTEMADMIN "
+                + "and last-KURSADMIN guards apply."
+    )
+    @ApiResponse(
+            responseCode = "204",
+            description = "Account deleted successfully"
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Confirmation mail mismatch or "
+                + "self-deletion attempt"
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Student or caller not found"
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "Would leave zero SYSTEMADMINs or "
+                + "strand a course with zero KURSADMINs"
+    )
+    @PreAuthorize("hasRole('SYSTEMADMIN')")
+    @DeleteMapping("/studenten/{studentId}")
+    public ResponseEntity<RequestStatusResponseDTO> deleteStudent(
+            @PathVariable final UUID studentId,
+            @RequestBody final DeleteStudentRequestDTO request,
+            final Authentication authentication) {
+        plattformVerwaltungService.deleteStudent(
+            studentId,
+            request.confirmedMail(),
+            authentication.getName());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            new RequestStatusResponseDTO(
+                "Account gelöscht.",
+                PersistenceOperation.DELETE));
     }
 }

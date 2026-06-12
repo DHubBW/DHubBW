@@ -79,4 +79,38 @@ public interface DateiService {
      * @return DTO containing file name and raw bytes
      */
     DateiDownloadDTO downloadDatei(UUID dateiId, String dhbwMail);
+
+    /**
+     * Retrieve the binary content of a file for in-browser preview.
+     *
+     * <p>Behaves like {@link #downloadDatei(UUID, String)} for
+     * authorisation and content retrieval, but does <strong>not</strong>
+     * count toward the file's download counter — preview is a
+     * read-only inspection, not a download.</p>
+     *
+     * @param dateiId  the UUID of the file to preview
+     * @param dhbwMail the DHBW mail of the authenticated user
+     * @return DTO containing file name and raw bytes
+     */
+    DateiDownloadDTO previewDatei(UUID dateiId, String dhbwMail);
+
+    /**
+     * Move a file into another folder.
+     *
+     * <p>The caller must be modify-authorised on the file's
+     * source folder and have upload-rights on the target folder.
+     * The target folder must not already contain a file with the
+     * same display name; otherwise a 409 conflict is raised.</p>
+     *
+     * <p>A file's visibility is derived from its parent folder, so
+     * moving a file across the public/private boundary changes its
+     * visibility implicitly. This is acceptable without an extra
+     * confirmation step because the user explicitly picked the
+     * target folder.</p>
+     *
+     * @param dateiId        the UUID of the file to move
+     * @param targetOrdnerId the UUID of the target folder
+     * @param dhbwMail       the DHBW mail of the authenticated user
+     */
+    void moveDatei(UUID dateiId, UUID targetOrdnerId, String dhbwMail);
 }

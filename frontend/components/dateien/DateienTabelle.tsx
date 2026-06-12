@@ -32,8 +32,16 @@ export interface DateienTabelleProps {
   isError: boolean;
   /** Per-row callbacks. When omitted, the actions column stays empty. */
   onDownload?: (datei: DateiDTO) => void;
-  onRename?: (datei: DateiDTO) => void;
-  onDelete?: (datei: DateiDTO) => void;
+  /**
+   * Called when the user clicks a file's name. Wired to the inline
+   * preview dialog. When omitted the name cell stays static text.
+   */
+  onPreview?: (datei: DateiDTO) => void;
+  /**
+   * Called when the user clicks the row's 3-dot icon. The parent
+   * screen owns the resulting menu (Verschieben / Umbenennen / Löschen).
+   */
+  onMore?: (datei: DateiDTO) => void;
 }
 
 const COLUMN_WIDTHS = {
@@ -42,6 +50,8 @@ const COLUMN_WIDTHS = {
   modified: "w-28",
   size: "w-24",
   downloads: "w-28",
+  // Hosts Vorschau · Download · 3-Punkte-Menü = 3 ActionButtons
+  // (32 px each) plus their gap.
   actions: "w-28",
 } as const;
 
@@ -63,8 +73,8 @@ export function DateienTabelle({
   isLoading,
   isError,
   onDownload,
-  onRename,
-  onDelete,
+  onPreview,
+  onMore,
 }: DateienTabelleProps) {
   const [sort, setSort] = useState<SortState>({
     column: "name",
@@ -138,8 +148,8 @@ export function DateienTabelle({
             datei={datei}
             striped={idx % 2 === 1}
             onDownload={onDownload}
-            onRename={onRename}
-            onDelete={onDelete}
+            onPreview={onPreview}
+            onMore={onMore}
           />
         ))}
       </View>
@@ -196,20 +206,31 @@ interface RowProps {
   datei: DateiDTO;
   striped: boolean;
   onDownload?: (datei: DateiDTO) => void;
-  onRename?: (datei: DateiDTO) => void;
-  onDelete?: (datei: DateiDTO) => void;
+  onPreview?: (datei: DateiDTO) => void;
+  onMore?: (datei: DateiDTO) => void;
 }
 
-function Row({ datei, striped, onDownload, onRename, onDelete }: RowProps) {
+function Row({
+  datei,
+  striped,
+  onDownload,
+  onPreview,
+  onMore,
+}: RowProps) {
   const FileIconCmp = fileIconFor(datei.name);
+  const baseClass = cn(
+    "flex-row items-center border-b border-border px-5 py-2.5",
+    striped ? "bg-muted/20" : "bg-background",
+  );
 
-  return (
-    <View
-      className={cn(
-        "flex-row items-center border-b border-border px-5 py-2.5",
-        striped ? "bg-muted/20" : "bg-background",
-      )}
-    >
+  // The data cells (name → downloads). When `onPreview` is wired
+  // these sit inside a single Pressable so a tap anywhere across
+  // them opens the preview. The Actions cell stays OUTSIDE the
+  // Pressable — nesting a TouchableOpacity (which RN-Web renders as
+  // a `<button>`) inside a Pressable (also `<button>`) is invalid
+  // HTML and triggers a React hydration warning.
+  const dataCells = (
+    <>
       {/* Name */}
       <View className={cn("flex-row items-center gap-2.5", COLUMN_WIDTHS.name)}>
         <View className="rounded-md bg-muted p-1.5">
@@ -253,17 +274,47 @@ function Row({ datei, striped, onDownload, onRename, onDelete }: RowProps) {
           {datei.downloadAnzahl}
         </Text>
       </View>
+    </>
+  );
 
-      {/* Actions */}
-      <View className={COLUMN_WIDTHS.actions}>
-        {(onDownload || onRename || onDelete) && (
-          <RowActions
-            onDownload={() => onDownload?.(datei)}
-            onRename={() => onRename?.(datei)}
-            onDelete={() => onDelete?.(datei)}
-          />
+  const actionsCell = (
+    <View className={COLUMN_WIDTHS.actions}>
+      <RowActions
+        onPreview={onPreview ? () => onPreview(datei) : undefined}
+        onDownload={onDownload ? () => onDownload(datei) : undefined}
+        onMore={onMore ? () => onMore(datei) : undefined}
+      />
+    </View>
+  );
+
+  if (onPreview) {
+    return (
+      <View
+        className={cn(
+          baseClass,
+          "web:cursor-pointer web:hover:bg-accent/30",
         )}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("dateien.preview.open", "Vorschau öffnen")}
+          onPress={() => onPreview(datei)}
+          testID="row-preview"
+          // Stretch the data-cell zone across all available width
+          // so the entire left side of the row is clickable.
+          className="flex-1 flex-row items-center active:bg-accent/40"
+        >
+          {dataCells}
+        </Pressable>
+        {actionsCell}
       </View>
+    );
+  }
+
+  return (
+    <View className={baseClass}>
+      {dataCells}
+      {actionsCell}
     </View>
   );
 }

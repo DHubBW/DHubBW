@@ -1,9 +1,10 @@
-import { LogOut, Trash2, UserMinus } from "lucide-react-native";
+import { Lock, LogOut, Trash2, UserMinus } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Platform, Pressable, View } from "react-native";
 import { toast } from "sonner-native";
 import { useRouter } from "expo-router";
 
+import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ConfirmDialogStrict } from "@/components/ConfirmDialogStrict";
 import {
@@ -81,6 +82,8 @@ export function SettingsModal({
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [leaveKursDialogOpen, setLeaveKursDialogOpen] = React.useState(false);
   const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] =
+    React.useState(false);
+  const [changePasswordDialogOpen, setChangePasswordDialogOpen] =
     React.useState(false);
 
   // Spinner color cannot use NativeWind className — derive from active theme.
@@ -309,6 +312,22 @@ export function SettingsModal({
 
           <Separator />
 
+          {/* Passwort ändern */}
+          <View className="px-2 py-2">
+            <Pressable
+              testID="settings-change-password-button"
+              onPress={() => setChangePasswordDialogOpen(true)}
+              className="flex-row items-center gap-3 rounded-lg px-3 py-3 active:bg-accent disabled:opacity-50"
+            >
+              <Icon as={Lock} size={17} className="text-foreground" />
+              <Text className="text-sm font-medium text-foreground">
+                {t("settings.password.button", "Passwort ändern")}
+              </Text>
+            </Pressable>
+          </View>
+
+          <Separator />
+
           {/* Account löschen */}
           <View className="px-2 py-2">
             <Pressable
@@ -356,6 +375,12 @@ export function SettingsModal({
         verificationText="LÖSCHEN"
         variant="destructive"
         onConfirm={handleDeleteAccount}
+      />
+
+      {/* Passwort ändern – controlled dialog */}
+      <ChangePasswordDialog
+        open={changePasswordDialogOpen}
+        onOpenChange={setChangePasswordDialogOpen}
       />
     </>
   );

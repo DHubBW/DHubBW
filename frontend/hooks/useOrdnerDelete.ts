@@ -15,9 +15,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { fetchClient } from "@/lib/api/fetchClient";
 
-import { ORDNER_CHILDREN_QUERY_KEY } from "./useOrdnerChildren";
-import { ORDNER_TREE_QUERY_KEY } from "./useOrdnerTree";
-
 /** Input shape for the delete mutation. */
 export interface DeleteOrdnerInput {
   /** UUID of the folder to delete. */
@@ -31,8 +28,11 @@ export interface DeleteOrdnerInput {
 
 /**
  * Delete mutation. Caller passes `{ ordnerId, ueberOrdnerId }` to
- * `mutateAsync`; on success the tree, the parent's children and every
- * `['dateien', …]` cache slice are invalidated to reflect the cascade.
+ * `mutateAsync`; on success the entire `['ordner']` and `['dateien']`
+ * cache slices are invalidated to reflect the cascade — the parent's
+ * `hasChildren` flag may flip back to `false`, every file list under
+ * the deleted subtree becomes stale, and any other expanded branch
+ * may need to refresh.
  *
  * @returns the TanStack-Query mutation handle.
  */
@@ -40,18 +40,17 @@ export function useOrdnerDelete() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, DeleteOrdnerInput>({
+    // The DeleteOrdnerConfirm renders its own status-aware toast on
+    // error; suppress the generic global one to avoid stacking two
+    // for the same failure.
+    meta: { suppressGlobalErrorToast: true },
     mutationFn: async ({ ordnerId }) => {
       await fetchClient(`/student/ordner/${ordnerId}`, {
         method: "DELETE",
       });
     },
-    onSuccess: (_data, input) => {
-      void queryClient.invalidateQueries({ queryKey: ORDNER_TREE_QUERY_KEY });
-      if (input.ueberOrdnerId) {
-        void queryClient.invalidateQueries({
-          queryKey: ORDNER_CHILDREN_QUERY_KEY(input.ueberOrdnerId),
-        });
-      }
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["ordner"] });
       // Cascade: every file list that points at the deleted subtree
       // becomes stale. The list keys all start with ['dateien'] so a
       // single prefix invalidation covers them.

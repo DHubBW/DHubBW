@@ -16,9 +16,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchClient } from "@/lib/api/fetchClient";
 import type { RenameOrdnerRequestDTO } from "@/lib/api/types.gen";
 
-import { ORDNER_CHILDREN_QUERY_KEY } from "./useOrdnerChildren";
-import { ORDNER_TREE_QUERY_KEY } from "./useOrdnerTree";
-
 /** Input shape for the rename mutation. */
 export interface RenameOrdnerInput {
   /** UUID of the folder to rename. */
@@ -35,7 +32,8 @@ export interface RenameOrdnerInput {
 
 /**
  * Rename mutation. Caller passes `{ ordnerId, newName, ueberOrdnerId }`
- * to `mutateAsync`; on success the affected caches are invalidated.
+ * to `mutateAsync`; on success the entire `['ordner']` cache slice is
+ * invalidated so the new name appears everywhere the folder is rendered.
  *
  * @returns the TanStack-Query mutation handle.
  */
@@ -43,6 +41,10 @@ export function useOrdnerRename() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, RenameOrdnerInput>({
+    // The RenameOrdnerDialog renders a precise, status-aware toast in
+    // its own onError. Without this opt-out the global mutationCache
+    // subscriber would fire a second generic toast on top.
+    meta: { suppressGlobalErrorToast: true },
     mutationFn: async ({ ordnerId, newName }) => {
       const body: RenameOrdnerRequestDTO = { newName: newName.trim() };
       await fetchClient(`/student/ordner/${ordnerId}`, {
@@ -50,13 +52,8 @@ export function useOrdnerRename() {
         body: JSON.stringify(body),
       });
     },
-    onSuccess: (_data, input) => {
-      void queryClient.invalidateQueries({ queryKey: ORDNER_TREE_QUERY_KEY });
-      if (input.ueberOrdnerId) {
-        void queryClient.invalidateQueries({
-          queryKey: ORDNER_CHILDREN_QUERY_KEY(input.ueberOrdnerId),
-        });
-      }
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["ordner"] });
     },
   });
 }

@@ -3,6 +3,7 @@ package com.se.dhubbw.student.application;
 import com.se.dhubbw.shared.application.dto.output.RequestStatusResponseDTO;
 import com.se.dhubbw.shared.application.dto.output.SmallResponseDTO;
 import com.se.dhubbw.shared.application.dto.util.PersistenceOperation;
+import com.se.dhubbw.student.application.dto.input.ChangePasswordRequestDTO;
 import com.se.dhubbw.student.application.dto.output.StudentProfileDTO;
 import com.se.dhubbw.student.domain.StudentDashboardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,9 +20,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.NoSuchElementException;
 
@@ -241,5 +245,59 @@ public class StudentDashboardController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(
             new SmallResponseDTO(kursName));
+    }
+
+    /**
+     * Change the authenticated student's password.
+     *
+     * <p>Verifies the current password before applying the new one.
+     * Both new-password fields in the request body must match;
+     * otherwise the call returns 400. The new password must differ
+     * from the current one and contain at least 8 characters.</p>
+     *
+     * @param request the request body carrying current, new, and
+     *     repeated new password
+     * @param authentication the current user's security context
+     * @return 200 on success with confirmation message;
+     *     400 if the two new-password fields differ, the new password
+     *     is too short / empty, or equal to the current one;
+     *     401 if the current password is wrong
+     */
+    @Operation(
+            summary = "Change student password",
+            description = "Verifies the current password and replaces "
+                + "it with the new one. Requires both new-password "
+                + "fields to match and the new password to differ "
+                + "from the current one."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Password successfully changed"
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "New passwords do not match, are too short, "
+                + "or equal to the current password"
+    )
+    @ApiResponse(
+            responseCode = "401",
+            description = "Current password is wrong"
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @PatchMapping("/change-password")
+    public ResponseEntity<RequestStatusResponseDTO> changePassword(
+            @RequestBody final ChangePasswordRequestDTO request,
+            final Authentication authentication) {
+        if (!request.repeatPassword().equals(request.newPassword())) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Neue Passwörter stimmen nicht überein");
+        }
+        studentDashboardService.changePassword(
+            authentication.getName(),
+            request.currentPassword(),
+            request.newPassword());
+        return ResponseEntity.ok(new RequestStatusResponseDTO(
+            "Passwort geändert.", PersistenceOperation.UPDATE));
     }
 }

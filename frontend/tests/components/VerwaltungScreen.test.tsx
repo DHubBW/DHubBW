@@ -109,6 +109,32 @@ jest.mock("@/hooks/useKursAdminActions", () => ({
   useKursAdminRemoveKursadmin: () => ({ removeKursadmin: jest.fn() }),
   useKursAdminRemoveMember: () => ({ removeMember: jest.fn() }),
 }));
+// Mensa-Sync wird im SYSTEMADMIN-Tab gerendert; useMutation aus dem
+// Hook wuerde sonst "No QueryClient set" werfen, weil das Smoke-Test-
+// Setup ohne QueryClientProvider rendert.
+jest.mock("@/hooks/useMensaSync", () => ({
+  useMensaSync: () => ({
+    mutate: jest.fn(),
+    mutateAsync: jest.fn(),
+    isPending: false,
+    isError: false,
+    isSuccess: false,
+    error: null,
+    reset: jest.fn(),
+  }),
+}));
+// Sysadmin Datei-Loesch-Hook (nutzt ebenfalls useMutation/useQueryClient).
+jest.mock("@/hooks/useDeleteStudentBySysAdmin", () => ({
+  useDeleteStudentBySysAdmin: () => ({
+    mutate: jest.fn(),
+    mutateAsync: jest.fn(),
+    isPending: false,
+    isError: false,
+    isSuccess: false,
+    error: null,
+    reset: jest.fn(),
+  }),
+}));
 
 jest.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => children,

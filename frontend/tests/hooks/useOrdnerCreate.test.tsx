@@ -16,8 +16,6 @@ jest.mock("@/lib/api/fetchClient", () => ({
 }));
 
 import { useOrdnerCreate } from "@/hooks/useOrdnerCreate";
-import { ORDNER_CHILDREN_QUERY_KEY } from "@/hooks/useOrdnerChildren";
-import { ORDNER_TREE_QUERY_KEY } from "@/hooks/useOrdnerTree";
 
 const NEW_ID = "33333333-3333-3333-3333-333333333333";
 const PARENT_ID = "22222222-2222-2222-2222-222222222222";
@@ -74,7 +72,7 @@ describe("useOrdnerCreate", () => {
     });
 
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ORDNER_TREE_QUERY_KEY,
+      queryKey: ["ordner"],
     });
   });
 
@@ -96,7 +94,7 @@ describe("useOrdnerCreate", () => {
     expect(JSON.parse(init?.body as string)).toMatchObject({ name: "Padded" });
   });
 
-  it("invalidates the parent's children query when ueberOrdnerId is set", async () => {
+  it("invalidates the entire ordner cache when ueberOrdnerId is set", async () => {
     mockFetchClient.mockResolvedValueOnce(buildJsonResponse(201, NEW_ID));
 
     const { result, invalidateSpy } = renderCreateHook();
@@ -111,10 +109,7 @@ describe("useOrdnerCreate", () => {
     });
 
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ORDNER_TREE_QUERY_KEY,
-    });
-    expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ORDNER_CHILDREN_QUERY_KEY(PARENT_ID),
+      queryKey: ["ordner"],
     });
   });
 

@@ -246,7 +246,11 @@ describe('useFileUpload', () => {
   });
 
   it('maps any other ApiError or unexpected throw to unknown', async () => {
-    mockFetchClient.mockRejectedValueOnce(new ApiError(409, 'Conflict'));
+    // Pick a status that is genuinely unmapped on the upload path —
+    // 500 collapses to ApiError(0, 'HTTP 500'). 409 used to land here
+    // before duplicate-name detection was added; now it maps to
+    // 'duplicate-name' (see _classify).
+    mockFetchClient.mockRejectedValueOnce(new ApiError(0, 'HTTP 500'));
 
     const { result } = renderUploadHook();
 

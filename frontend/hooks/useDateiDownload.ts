@@ -132,6 +132,9 @@ export function useDateiDownload() {
   const queryClient = useQueryClient();
 
   return useMutation<void, FileDownloadError, DownloadDateiInput>({
+    // The Dateien screen surfaces its own download-error toast; suppress
+    // the global one so users don't see two for the same failure.
+    meta: { suppressGlobalErrorToast: true },
     mutationFn: async ({ dateiId, name }) => {
       if (Platform.OS !== "web") {
         throw new FileDownloadError(
@@ -142,7 +145,10 @@ export function useDateiDownload() {
 
       let res: Response;
       try {
-        res = await fetchClient(`/student/dateien/${dateiId}/download`);
+        res = await fetchClient(`/student/dateien/${dateiId}/download`, {
+          // Big files easily exceed the shared 15 s default.
+          timeoutMs: 5 * 60 * 1000,
+        });
       } catch (err) {
         const code = _classify(err);
         const message =

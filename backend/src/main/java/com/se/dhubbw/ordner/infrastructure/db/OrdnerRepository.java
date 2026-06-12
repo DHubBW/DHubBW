@@ -64,4 +64,58 @@ public interface OrdnerRepository extends JpaRepository<Ordner, UUID> {
      * @return list of direct child folders, may be empty
      */
     List<Ordner> findChildrenByUeberOrdner(Ordner ueberOrdner);
+
+    /**
+     * Check whether the given folder has at least one direct child.
+     *
+     * <p>Used by the mapping layer to populate
+     * {@code OrdnerDTO.hasChildren} so clients can hide the
+     * "expand"-chevron for leaf folders without paying the cost of
+     * loading the full child list.</p>
+     *
+     * @param ueberOrdner the parent folder
+     * @return {@code true} if at least one child folder references the
+     *     given parent
+     */
+    boolean existsByUeberOrdner(Ordner ueberOrdner);
+
+    /**
+     * Look up a direct child of the given parent by name.
+     *
+     * <p>Used to enforce per-parent folder-name uniqueness in
+     * the create / rename flows.</p>
+     *
+     * @param ueberOrdner the parent folder
+     * @param name        the exact display name to match
+     * @return the matching child folder, if any
+     */
+    java.util.Optional<Ordner> findByUeberOrdnerAndName(
+        Ordner ueberOrdner, String name);
+
+    /**
+     * Look up a top-level folder of the given course by name.
+     *
+     * <p>Top-level folders have a {@code null} parent reference, so
+     * the parent-based uniqueness check is split into this
+     * dedicated query.</p>
+     *
+     * @param kurs the course owning the folder
+     * @param name the exact display name to match
+     * @return the matching root folder, if any
+     */
+    java.util.Optional<Ordner> findByKursAndUeberOrdnerIsNullAndName(
+        Kurs kurs, String name);
+
+    /**
+     * Look up a top-level folder by name when no course is set.
+     *
+     * <p>SYSTEMADMINs may create top-level folders that are not
+     * attached to any course. This query lets the uniqueness
+     * check work for that fringe case too.</p>
+     *
+     * @param name the exact display name to match
+     * @return the matching root folder, if any
+     */
+    java.util.Optional<Ordner>
+        findByKursIsNullAndUeberOrdnerIsNullAndName(String name);
 }

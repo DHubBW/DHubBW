@@ -229,4 +229,17 @@ public class KursServiceIT {
             () -> kursService.openCreateCourseRequest(
                 "TINF26A1", "2026", null, "nobody.user.test123@student.dhbw-karlsruhe.de"));
     }
+
+    /**
+     * A kursName containing a forbidden character is rejected with 422.
+     */
+    @Test
+    public void givenInvalidKursName_whenOpenCreateCourseRequest_thenUnprocessable() {
+        // "AB1!" contains '!' which is not in the allowed character set
+        ResponseStatusException ex = Assertions.assertThrows(
+            ResponseStatusException.class,
+            () -> kursService.openCreateCourseRequest(
+                "AB1!", "2026", null, TOM_MAIL));
+        Assertions.assertEquals(422, ex.getStatusCode().value());
+    }
 }

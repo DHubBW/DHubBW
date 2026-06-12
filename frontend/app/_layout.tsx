@@ -53,19 +53,49 @@ function ThemedStack({ isLoading }: { isLoading: boolean }) {
         <Stack.Screen name="+not-found" options={{ title: "Nicht gefunden" }} />
       </Stack>
       <StatusBar style={effectiveTheme === "dark" ? "light" : "dark"} />
+      {/*
+       * PortalHost MUST mount BEFORE the Toaster so the Toaster's View
+       * is the very last sibling in the tree. RN-Web layers Views in
+       * paint order — the toast's `position: fixed` overlay paints
+       * above any radix-portal dialog overlay only when its DOM node
+       * comes after the dialog's portal target. The explicit
+       * z-index: 9999 below is belt-and-braces for the rare case where
+       * a Stack.Screen mounts another portal that re-orders things.
+       */}
+      <PortalHost />
       <Toaster
         theme={effectiveTheme}
         position="bottom-center"
         offset={24}
         positionerStyle={
           isMobile
-            ? { width: "100%", paddingHorizontal: 0, alignItems: "stretch" }
+            ? {
+                width: "100%",
+                paddingHorizontal: 0,
+                alignItems: "stretch",
+                // On web `sonner-native` defaults to `position: absolute`,
+                // which paints the toast relative to its React parent and
+                // therefore BENEATH any radix-portal dialog overlay
+                // (mounted at document.body end with `position: fixed`).
+                // Override to `fixed` + a very high z-index so toasts
+                // always layer above the dialog backdrop.
+                ...(Platform.OS === "web"
+                  ? ({ position: "fixed" } as object)
+                  : {}),
+                zIndex: 2147483647,
+                elevation: 9999,
+              }
             : {
                 alignItems: "flex-end",
                 right: 0,
                 left: undefined,
                 width: "auto",
                 paddingRight: 20,
+                ...(Platform.OS === "web"
+                  ? ({ position: "fixed" } as object)
+                  : {}),
+                zIndex: 2147483647,
+                elevation: 9999,
               }
         }
         toastOptions={{
@@ -84,7 +114,6 @@ function ThemedStack({ isLoading }: { isLoading: boolean }) {
           },
         }}
       />
-      <PortalHost />
     </NavigationThemeProvider>
   );
 }

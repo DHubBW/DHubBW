@@ -30,16 +30,16 @@ import { useCookieConsent } from '@/lib/consent/useCookieConsent';
  * suggests the cohort year (`2024`).
  *
  * Kursname pattern matches the backend regex in `KursServiceImpl.java`
- * (`[A-Z]{2,4}[0-9]{2}[A-Z][0-9]`, e.g. `TINF24B2`, `WWI24B1`). The form
- * surfaces a soft inline warning when the value does not match — submit
- * is still allowed (the backend would respond with 422 and the toast
- * forwards the backend message verbatim) so that legitimate edge cases
- * the regex misses can still pass through.
+ * (`^[A-Za-zÄÖÜäöüß0-9 _-]{2,40}$`, e.g. `TINF24B2`, `Mathe AG`). The
+ * form surfaces a soft inline warning when the value does not match —
+ * submit is still allowed (the backend would respond with 422 and the
+ * toast forwards the backend message verbatim) so that legitimate edge
+ * cases the regex misses can still pass through.
  */
 const KURSNAME_MIN = 3;
 const KURSNAME_MAX = 100;
 const NOTES_MAX = 500;
-const KURSNAME_PATTERN_RE = /^[A-Z]{2,4}\d{2}[A-Z]\d$/;
+const KURSNAME_PATTERN_RE = /^[A-Za-zÄÖÜäöüß0-9 _-]{2,40}$/;
 
 /**
  * Props for {@link NewKursDialog}.
@@ -200,8 +200,8 @@ export function NewKursDialog({
             </Text>
             {trimmedName.length > 0 && !KURSNAME_PATTERN_RE.test(trimmedName) && (
               <Text className="mt-1 text-xs text-amber-600">
-                Hinweis: Der Name folgt nicht dem üblichen Format. Du kannst
-                trotzdem absenden — der System Admin entscheidet final.
+                Hinweis: Ungewöhnliches Format. Du kannst trotzdem absenden
+                — der System Admin entscheidet final.
               </Text>
             )}
           </View>

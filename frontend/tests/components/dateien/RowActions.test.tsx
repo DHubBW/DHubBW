@@ -1,5 +1,9 @@
 /**
  * Tests for {@link RowActions}.
+ *
+ * The component renders three optional action buttons:
+ * Vorschau, Download, and a 3-dot menu trigger ("More"). All three
+ * are conditional on their callback being wired.
  */
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import { View } from "react-native";
@@ -17,58 +21,69 @@ describe("RowActions", () => {
     const onDownload = jest.fn();
     render(
       <RowActions
+        onPreview={jest.fn()}
         onDownload={onDownload}
-        onRename={jest.fn()}
-        onDelete={jest.fn()}
+        onMore={jest.fn()}
       />,
     );
     fireEvent.press(screen.getByTestId("row-action-download"));
     expect(onDownload).toHaveBeenCalledTimes(1);
   });
 
-  it("invokes onRename when the rename icon is pressed", () => {
-    const onRename = jest.fn();
+  it("invokes onPreview when the preview icon is pressed", () => {
+    const onPreview = jest.fn();
     render(
       <RowActions
+        onPreview={onPreview}
         onDownload={jest.fn()}
-        onRename={onRename}
-        onDelete={jest.fn()}
+        onMore={jest.fn()}
       />,
     );
-    fireEvent.press(screen.getByTestId("row-action-rename"));
-    expect(onRename).toHaveBeenCalledTimes(1);
+    fireEvent.press(screen.getByTestId("row-action-preview"));
+    expect(onPreview).toHaveBeenCalledTimes(1);
   });
 
-  it("invokes onDelete when the delete icon is pressed", () => {
-    const onDelete = jest.fn();
+  it("invokes onMore when the 3-dot icon is pressed", () => {
+    const onMore = jest.fn();
     render(
       <RowActions
+        onPreview={jest.fn()}
         onDownload={jest.fn()}
-        onRename={jest.fn()}
-        onDelete={onDelete}
+        onMore={onMore}
       />,
     );
-    fireEvent.press(screen.getByTestId("row-action-delete"));
-    expect(onDelete).toHaveBeenCalledTimes(1);
+    fireEvent.press(screen.getByTestId("row-action-more"));
+    expect(onMore).toHaveBeenCalledTimes(1);
+  });
+
+  it("hides icons whose callback is not wired", () => {
+    render(<RowActions onDownload={jest.fn()} />);
+    expect(screen.queryByTestId("row-action-preview")).toBeNull();
+    expect(screen.getByTestId("row-action-download")).toBeTruthy();
+    expect(screen.queryByTestId("row-action-more")).toBeNull();
   });
 
   it("blocks presses while disabled", () => {
+    const onPreview = jest.fn();
     const onDownload = jest.fn();
-    const onRename = jest.fn();
-    const onDelete = jest.fn();
+    const onMore = jest.fn();
     render(
       <RowActions
+        onPreview={onPreview}
         onDownload={onDownload}
-        onRename={onRename}
-        onDelete={onDelete}
+        onMore={onMore}
         disabled
       />,
     );
+    fireEvent.press(screen.getByTestId("row-action-preview"));
     fireEvent.press(screen.getByTestId("row-action-download"));
-    fireEvent.press(screen.getByTestId("row-action-rename"));
-    fireEvent.press(screen.getByTestId("row-action-delete"));
+    fireEvent.press(screen.getByTestId("row-action-more"));
+    expect(onPreview).not.toHaveBeenCalled();
     expect(onDownload).not.toHaveBeenCalled();
-    expect(onRename).not.toHaveBeenCalled();
-    expect(onDelete).not.toHaveBeenCalled();
+    expect(onMore).not.toHaveBeenCalled();
   });
 });
+
+// Silence the unused-import warning — `View` is imported above for
+// the JSX scope of the lucide mock factory.
+void View;

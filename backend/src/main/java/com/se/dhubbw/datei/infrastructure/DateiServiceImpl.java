@@ -3,6 +3,7 @@ package com.se.dhubbw.datei.infrastructure;
 import com.se.dhubbw.datei.application.dto.output.DateiDTO;
 import com.se.dhubbw.datei.application.dto.output.DateiDownloadDTO;
 import com.se.dhubbw.datei.domain.FileStorageStrategy;
+import com.se.dhubbw.datei.domain.UploadSecurityValidator;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegung;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegungRepository;
@@ -98,6 +99,12 @@ public class DateiServiceImpl
     private final FileStorageStrategy fileStorageStrategy;
 
     /**
+     * Validator that vets every upload against the platform's
+     * security policy (size, type, dangerous extensions).
+     */
+    private final UploadSecurityValidator uploadSecurityValidator;
+
+    /**
      * Maximum total platform storage in megabytes.
      */
     @Value("${dhubbw.storage.max-mb:1000.0}")
@@ -141,7 +148,9 @@ public class DateiServiceImpl
             .findStudentByEmail(dhbwMail);
         Ordner ordner = findOrdnerOrThrow(ueberordnerId);
         verifyUploadAuthorized(ordner, student);
+        uploadSecurityValidator.validate(file, name);
         verifyStorageAvailable(file.getSize());
+        verifyDateiNameAvailable(ordner, name, null);
 
         Datei datei = new Datei();
         datei.setOrdner(ordner);
@@ -201,9 +210,93 @@ public class DateiServiceImpl
         Student student = studentLookupHelper
             .findStudentByEmail(dhbwMail);
         verifyModifyAuthorized(datei, student);
-        datei.setName(StringUtils.cleanPath(newName));
+
+        // The user must not be able to change the file extension via
+        // rename — the original extension is part of the file's
+        // identity (and the security validator already vetted it on
+        // upload). Take only the base part of `newName` and re-attach
+        // the original extension stored on the existing entity. Empty
+        // base ⇒ HTTP 400 so the user knows what went wrong.
+        String cleanedNewName = StringUtils.cleanPath(newName);
+        String resolvedName = applyOriginalExtension(
+            datei.getName(), cleanedNewName);
+
+        verifyDateiNameAvailable(
+            datei.getOrdner(), resolvedName, datei.getDateiID());
+        datei.setName(resolvedName);
         datei.setZuletztBearbeitet(LocalDate.now());
         dateiRepository.save(datei);
+    }
+
+    /**
+     * Combine the user-supplied base name with the file's original
+     * extension. Both leading/trailing whitespace and any extension
+     * the user might have typed are stripped from the input — only
+     * the base survives.
+     *
+     * @param originalName the file's existing name (e.g. {@code
+     *     "Skript.pdf"})
+     * @param requestedName the new name from the user (may include
+     *     an extension that will be discarded)
+     * @return the new full name with the original extension reattached
+     * @throws ResponseStatusException 400 if the resulting base name
+     *     is empty
+     */
+    private String applyOriginalExtension(
+            final String originalName,
+            final String requestedName) {
+        String trimmed = requestedName == null
+            ? "" : requestedName.trim();
+        String requestedBase = stripExtension(trimmed);
+        if (requestedBase.isEmpty()) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Dateiname darf nicht leer sein");
+        }
+        String originalExt = extensionOf(originalName);
+        if (originalExt.isEmpty()) {
+            return requestedBase;
+        }
+        return requestedBase + "." + originalExt;
+    }
+
+    /**
+     * Returns everything before the final dot in {@code name}, or the
+     * whole string when no dot is present. Used by
+     * {@link #applyOriginalExtension} to discard whatever extension
+     * the user typed.
+     *
+     * @param name the file name to inspect, may be {@code null}
+     * @return the base part of the name (no extension)
+     */
+    private static String stripExtension(final String name) {
+        if (name == null) {
+            return "";
+        }
+        int dot = name.lastIndexOf('.');
+        if (dot < 0) {
+            return name;
+        }
+        return name.substring(0, dot);
+    }
+
+    /**
+     * Returns the extension after the final dot in {@code name}, or
+     * an empty string when the name has no extension. The leading
+     * dot is <strong>not</strong> included.
+     *
+     * @param name the file name to inspect, may be {@code null}
+     * @return the extension without the leading dot
+     */
+    private static String extensionOf(final String name) {
+        if (name == null) {
+            return "";
+        }
+        int dot = name.lastIndexOf('.');
+        if (dot < 0 || dot == name.length() - 1) {
+            return "";
+        }
+        return name.substring(dot + 1);
     }
 
     /**
@@ -235,6 +328,69 @@ public class DateiServiceImpl
             fileStorageStrategy.delete(datei.getDataOid());
         }
         dateiRepository.delete(datei);
+    }
+
+    /**
+     * Move a file into another folder.
+     *
+     * <p>Permission rules:</p>
+     * <ul>
+     *   <li>The caller must be modify-authorised on the file's
+     *       current folder.</li>
+     *   <li>The caller must be upload-authorised on the target
+     *       folder. SYSTEMADMINs may always upload; everyone else
+     *       must be a member of the target folder's course (or any
+     *       course at all when the target folder is public).</li>
+     *   <li>The target folder must not already contain a file with
+     *       the same display name (HTTP 409).</li>
+     * </ul>
+     *
+     * <p>The file's visibility is derived from its parent folder
+     * (public folder ⇒ public file). Moving across the
+     * public/private boundary therefore changes visibility
+     * implicitly — acceptable here because the caller picked the
+     * target folder explicitly.</p>
+     *
+     * @param dateiId        the UUID of the file to move
+     * @param targetOrdnerId the UUID of the target folder
+     * @param dhbwMail       the DHBW mail of the authenticated user
+     * @throws ResponseStatusException 404 if file, target folder
+     *     or student is not found
+     * @throws ResponseStatusException 403 if the caller lacks
+     *     modify rights on the source folder or upload rights on
+     *     the target folder
+     * @throws ResponseStatusException 409 if a file with the same
+     *     name already exists in the target folder
+     * @throws ResponseStatusException 400 if the target folder is
+     *     identical to the file's current folder
+     */
+    @Override
+    @RetryableTransactional
+    public void moveDatei(
+            final UUID dateiId,
+            final UUID targetOrdnerId,
+            final String dhbwMail) {
+        Datei datei = findDateiOrThrow(dateiId);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
+        verifyModifyAuthorized(datei, student);
+
+        Ordner targetOrdner = findOrdnerOrThrow(targetOrdnerId);
+        Ordner sourceOrdner = datei.getOrdner();
+        if (sourceOrdner != null
+                && sourceOrdner.getOrdnerID()
+                    .equals(targetOrdner.getOrdnerID())) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Datei liegt bereits in diesem Ordner");
+        }
+        verifyUploadAuthorized(targetOrdner, student);
+        verifyDateiNameAvailable(
+            targetOrdner, datei.getName(), datei.getDateiID());
+
+        datei.setOrdner(targetOrdner);
+        datei.setZuletztBearbeitet(LocalDate.now());
+        dateiRepository.save(datei);
     }
 
     /**
@@ -339,6 +495,47 @@ public class DateiServiceImpl
                 usedMb, fileSizeMb, ex.getMessage(), ex);
             throw ex;
         }
+    }
+
+    /**
+     * Assert that no other file in the given folder already uses
+     * the proposed display name.
+     *
+     * <p>Enforces per-folder file-name uniqueness for both upload
+     * and rename. The {@code excludeDateiId} parameter lets the
+     * rename flow skip the row being renamed so a no-op rename is
+     * not flagged as a conflict.</p>
+     *
+     * @param ordner          the target folder
+     * @param name            the desired display name (will be
+     *     {@link StringUtils#cleanPath cleaned} the same way the
+     *     upload / rename writes do)
+     * @param excludeDateiId  the file UUID to exclude from the
+     *     uniqueness check, or {@code null} to consider every row
+     * @throws ResponseStatusException 409 when another file in
+     *     the folder already uses the cleaned name
+     */
+    private void verifyDateiNameAvailable(
+            final Ordner ordner,
+            final String name,
+            final UUID excludeDateiId) {
+        String cleaned = StringUtils.cleanPath(name);
+        dateiRepository
+            .findByOrdnerIdAndName(ordner.getOrdnerID(), cleaned)
+            .filter(existing -> excludeDateiId == null
+                || !existing.getDateiID().equals(excludeDateiId))
+            .ifPresent(existing -> {
+                ResponseStatusException ex =
+                    new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Eine Datei mit diesem Namen existiert"
+                            + " bereits in diesem Ordner");
+                colorLogger.colorError(
+                    "Datei-Name conflict in folder {} for {}: {}",
+                    ordner.getOrdnerID(), cleaned,
+                    ex.getMessage(), ex);
+                throw ex;
+            });
     }
 
     /**
@@ -464,6 +661,41 @@ public class DateiServiceImpl
         verifyReadAuthorized(datei.getOrdner(), student);
         datei.setDownloadAnzahl(datei.getDownloadAnzahl() + 1);
         dateiRepository.save(datei);
+
+        byte[] data;
+        if (datei.getDataOid() != null) {
+            data = fileStorageStrategy.retrieve(datei.getDataOid());
+        } else {
+            data = datei.getData();
+        }
+        return new DateiDownloadDTO(datei.getName(), data);
+    }
+
+    /**
+     * Retrieve the binary content of a file for in-browser preview.
+     *
+     * <p>The caller must be a member of the file's course or a
+     * SYSTEMADMIN. If the file's folder has no assigned course,
+     * the restriction is waived. The download counter is
+     * <strong>not</strong> incremented.</p>
+     *
+     * @param dateiId  the UUID of the file to preview
+     * @param dhbwMail the DHBW mail of the authenticated user
+     * @return DTO containing file name and raw bytes
+     * @throws ResponseStatusException 404 if the file or
+     *     student is not found
+     * @throws ResponseStatusException 403 if the user is not
+     *     authorised to view the file
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public DateiDownloadDTO previewDatei(
+            final UUID dateiId,
+            final String dhbwMail) {
+        Datei datei = findDateiOrThrow(dateiId);
+        Student student = studentLookupHelper
+            .findStudentByEmail(dhbwMail);
+        verifyReadAuthorized(datei.getOrdner(), student);
 
         byte[] data;
         if (datei.getDataOid() != null) {

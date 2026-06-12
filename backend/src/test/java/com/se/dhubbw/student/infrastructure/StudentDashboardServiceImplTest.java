@@ -21,6 +21,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -65,6 +68,9 @@ public class StudentDashboardServiceImplTest {
 
     @Mock
     private DateiRepository dateiRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private StudentDashboardServiceImpl studentDashboardService;
@@ -569,5 +575,102 @@ public class StudentDashboardServiceImplTest {
         );
 
         assertEquals("Student not found: " + STUDENT_MAIL, exception.getMessage());
+    }
+
+    // ==================== changePassword Tests ====================
+
+    private static final String CURRENT_PASSWORD = "OldPass123!";
+    private static final String CURRENT_HASH = "$2a$10$currenthash";
+    private static final String NEW_PASSWORD = "Abcdefghij1!";
+    private static final String NEW_HASH = "$2a$10$newhash";
+
+    @Test
+    public void givenValidPasswords_whenChangePassword_thenSavesNewHash() {
+        student.setPasswordHash(CURRENT_HASH);
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
+        when(passwordEncoder.matches(CURRENT_PASSWORD, CURRENT_HASH))
+            .thenReturn(true);
+        when(passwordEncoder.encode(NEW_PASSWORD)).thenReturn(NEW_HASH);
+
+        studentDashboardService.changePassword(
+            STUDENT_MAIL, CURRENT_PASSWORD, NEW_PASSWORD);
+
+        assertEquals(NEW_HASH, student.getPasswordHash());
+        verify(studentRepository).save(student);
+    }
+
+    @Test
+    public void givenWrongCurrentPassword_whenChangePassword_thenThrows401() {
+        student.setPasswordHash(CURRENT_HASH);
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
+        when(passwordEncoder.matches("wrong", CURRENT_HASH))
+            .thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> studentDashboardService.changePassword(
+                STUDENT_MAIL, "wrong", NEW_PASSWORD)
+        );
+
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
+        verify(studentRepository, never()).save(any());
+    }
+
+    @Test
+    public void givenTooShortNewPassword_whenChangePassword_thenThrows400() {
+        student.setPasswordHash(CURRENT_HASH);
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
+        when(passwordEncoder.matches(CURRENT_PASSWORD, CURRENT_HASH))
+            .thenReturn(true);
+
+        // 9 chars, otherwise satisfies all character-class rules.
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> studentDashboardService.changePassword(
+                STUDENT_MAIL, CURRENT_PASSWORD, "Abcdefg1!")
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        verify(studentRepository, never()).save(any());
+    }
+
+    @Test
+    public void givenNoDigitNewPassword_whenChangePassword_thenThrows400() {
+        student.setPasswordHash(CURRENT_HASH);
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
+        when(passwordEncoder.matches(CURRENT_PASSWORD, CURRENT_HASH))
+            .thenReturn(true);
+
+        // 10 chars, lower + upper + special, but missing a digit.
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> studentDashboardService.changePassword(
+                STUDENT_MAIL, CURRENT_PASSWORD, "Abcdefghi!")
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        verify(studentRepository, never()).save(any());
+    }
+
+    @Test
+    public void givenSameAsCurrentNewPassword_whenChangePassword_thenThrows400() {
+        student.setPasswordHash(CURRENT_HASH);
+        when(studentLookupHelper.findStudentByEmail(STUDENT_MAIL))
+            .thenReturn(student);
+        when(passwordEncoder.matches(CURRENT_PASSWORD, CURRENT_HASH))
+            .thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> studentDashboardService.changePassword(
+                STUDENT_MAIL, CURRENT_PASSWORD, CURRENT_PASSWORD)
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        verify(studentRepository, never()).save(any());
     }
 }

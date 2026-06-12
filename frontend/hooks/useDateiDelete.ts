@@ -37,6 +37,9 @@ export function useDateiDelete() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, DeleteDateiInput>({
+    // The Dateien screen renders its own status-aware toast on error;
+    // suppress the generic global one to avoid stacking two.
+    meta: { suppressGlobalErrorToast: true },
     mutationFn: async ({ dateiId }) => {
       await fetchClient(`/student/dateien/${dateiId}`, {
         method: "DELETE",

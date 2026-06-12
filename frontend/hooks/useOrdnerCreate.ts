@@ -17,9 +17,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchClient } from "@/lib/api/fetchClient";
 import type { CreateOrdnerRequestDTO } from "@/lib/api/types.gen";
 
-import { ORDNER_CHILDREN_QUERY_KEY } from "./useOrdnerChildren";
-import { ORDNER_TREE_QUERY_KEY } from "./useOrdnerTree";
-
 /** Input shape for the create mutation. Matches the backend DTO 1:1. */
 export type CreateOrdnerInput = CreateOrdnerRequestDTO;
 
@@ -34,6 +31,10 @@ export function useOrdnerCreate() {
   const queryClient = useQueryClient();
 
   return useMutation<string, Error, CreateOrdnerInput>({
+    // The CreateOrdnerDialog renders a precise, status-aware toast in
+    // its own onError. Without this opt-out the global mutationCache
+    // subscriber would fire a second generic toast on top.
+    meta: { suppressGlobalErrorToast: true },
     mutationFn: async (input) => {
       const body: CreateOrdnerRequestDTO = {
         ueberOrdnerId: input.ueberOrdnerId,
@@ -49,14 +50,13 @@ export function useOrdnerCreate() {
       return (await res.json()) as string;
     },
     onSuccess: (_data, input) => {
-      void queryClient.invalidateQueries({ queryKey: ORDNER_TREE_QUERY_KEY });
-      // Sub-folder: also refresh the parent's lazy children list so the
-      // new entry is visible inside an already-expanded branch.
-      if (input.ueberOrdnerId) {
-        void queryClient.invalidateQueries({
-          queryKey: ORDNER_CHILDREN_QUERY_KEY(input.ueberOrdnerId),
-        });
-      }
+      // Invalidate the entire ordner-cache slice. A new folder may flip
+      // its parent's `hasChildren` from false → true (so the chevron
+      // appears) and the grand-parent's children list also changes —
+      // it's cheaper and less error-prone to refetch every active
+      // `["ordner", ...]` query than to thread the dependency through
+      // the call sites.
+      void queryClient.invalidateQueries({ queryKey: ["ordner"] });
     },
   });
 }

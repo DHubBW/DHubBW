@@ -209,6 +209,7 @@ public class OrdnerServiceImpl implements OrdnerService {
         } else {
             kurs = findKursOrThrow(student);
         }
+        verifyOrdnerNameAvailable(ueberOrdner, kurs, name, null);
         Ordner ordner = new Ordner();
         ordner.setUeberOrdner(ueberOrdner);
         ordner.setKurs(kurs);
@@ -238,6 +239,9 @@ public class OrdnerServiceImpl implements OrdnerService {
             .findStudentByEmail(dhbwMail);
         Ordner ordner = findOrdnerOrThrow(ordnerId);
         verifyModifyAuthorized(ordner, student);
+        verifyOrdnerNameAvailable(
+            ordner.getUeberOrdner(), ordner.getKurs(),
+            newName, ordner.getOrdnerID());
         ordner.setName(newName);
         ordnerRepository.save(ordner);
     }
@@ -403,6 +407,63 @@ public class OrdnerServiceImpl implements OrdnerService {
     }
 
     /**
+     * Assert that no sibling folder under the given parent (or
+     * within the given course at the root level) already uses the
+     * proposed name.
+     *
+     * <p>Enforces per-parent folder-name uniqueness for both
+     * create and rename. The {@code excludeOrdnerId} parameter
+     * lets the rename flow skip the row being renamed so a no-op
+     * rename is not flagged as a conflict.</p>
+     *
+     * @param ueberOrdner       the parent folder, or {@code null}
+     *     when the new folder is at the course root
+     * @param kurs              the course owning the new folder,
+     *     used only when {@code ueberOrdner} is {@code null}; may
+     *     itself be {@code null} for SYSTEMADMIN-level folders
+     *     without a course assignment
+     * @param name              the desired display name
+     * @param excludeOrdnerId   the folder UUID to exclude from
+     *     the check, or {@code null} to consider every sibling
+     * @throws ResponseStatusException 409 when a sibling already
+     *     uses the requested name
+     */
+    private void verifyOrdnerNameAvailable(
+            final Ordner ueberOrdner,
+            final Kurs kurs,
+            final String name,
+            final UUID excludeOrdnerId) {
+        java.util.Optional<Ordner> conflict;
+        if (ueberOrdner != null) {
+            conflict = ordnerRepository
+                .findByUeberOrdnerAndName(ueberOrdner, name);
+        } else if (kurs != null) {
+            conflict = ordnerRepository
+                .findByKursAndUeberOrdnerIsNullAndName(kurs, name);
+        } else {
+            conflict = ordnerRepository
+                .findByKursIsNullAndUeberOrdnerIsNullAndName(name);
+        }
+        conflict
+            .filter(existing -> excludeOrdnerId == null
+                || !existing.getOrdnerID().equals(excludeOrdnerId))
+            .ifPresent(existing -> {
+                ResponseStatusException ex =
+                    new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Ein Ordner mit diesem Namen existiert"
+                            + " bereits an gleicher Stelle");
+                colorLogger.colorError(
+                    "Ordner-Name conflict under parent {} for {}: {}",
+                    ueberOrdner != null
+                        ? ueberOrdner.getOrdnerID()
+                        : "<root>",
+                    name, ex.getMessage(), ex);
+                throw ex;
+            });
+    }
+
+    /**
      * Map a folder entity to its DTO representation.
      *
      * @param ordner the source entity
@@ -415,6 +476,8 @@ public class OrdnerServiceImpl implements OrdnerService {
         UUID kursID = ordner.getKurs() != null
             ? ordner.getKurs().getKursID()
             : null;
+        boolean hasChildren = ordnerRepository
+            .existsByUeberOrdner(ordner);
         return new OrdnerDTO(
             ordner.getOrdnerID(),
             ordner.getName(),
@@ -422,6 +485,7 @@ public class OrdnerServiceImpl implements OrdnerService {
             ordner.getFarbe(),
             ordner.isPublic(),
             ueberOrdnerID,
-            kursID);
+            kursID,
+            hasChildren);
     }
 }

@@ -125,4 +125,45 @@ public interface PlattformVerwaltungService {
      * @throws IllegalStateException if target is the only KURSADMIN
      */
     void removeKursadminForCourse(UUID kursId, UUID studentId);
+
+    /**
+     * Delete a student account on behalf of a SYSTEMADMIN, with
+     * email confirmation.
+     *
+     * <p>The cleanup performed is identical to a self-service
+     * account deletion: enrollment requests, creation tracking
+     * records, file uploader references and the student record
+     * itself. Files and folders are preserved.</p>
+     *
+     * <p>Validation order:</p>
+     * <ol>
+     *   <li>Target student must exist (404 otherwise).</li>
+     *   <li>Caller must exist (404 otherwise).</li>
+     *   <li>Caller must not delete their own account through
+     *       this endpoint — sysadmins must use self-service
+     *       (400 otherwise).</li>
+     *   <li>{@code confirmedMail} must match the target's
+     *       {@code dhbwMail} after trim + lower-case compare
+     *       (400 otherwise).</li>
+     *   <li>The same last-SYSTEMADMIN and last-KURSADMIN guards
+     *       enforced by the self-service deletion apply
+     *       (409 otherwise).</li>
+     * </ol>
+     *
+     * @param studentId     the ID of the student to delete
+     * @param confirmedMail the DHBW email of the target as typed
+     *     into the confirmation field by the SYSTEMADMIN
+     * @param callerMail    the authenticated SYSTEMADMIN's email,
+     *     resolved from {@code Authentication#getName()}
+     * @throws java.util.NoSuchElementException if the target
+     *     student or the caller is not found
+     * @throws IllegalArgumentException if the caller targets
+     *     their own account, or {@code confirmedMail} does not
+     *     match the target's email
+     * @throws IllegalStateException if removing the target would
+     *     leave zero SYSTEMADMINs, or strand a course with zero
+     *     KURSADMINs
+     */
+    void deleteStudent(UUID studentId, String confirmedMail,
+        String callerMail);
 }

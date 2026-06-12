@@ -12,6 +12,7 @@ import { toast } from 'sonner-native';
 
 import { CookieBanner } from '@/components/CookieBanner';
 import { EmailInput } from '@/components/auth/EmailInput';
+import { PasswordStrengthList } from '@/components/auth/PasswordStrengthList';
 import { RegisterStep2 } from '@/components/auth/RegisterStep2';
 import { StepIndicator } from '@/components/auth/StepIndicator';
 import { Footer } from '@/components/layout/Footer';
@@ -21,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ApiError } from '@/lib/api/errors';
 import { useAuth } from '@/lib/auth/AuthContext';
+import { evaluatePassword } from '@/lib/auth/passwordPolicy';
 import {
   getMailErrorMessage,
   getNameErrorMessage,
@@ -29,8 +31,11 @@ import {
 } from '@/lib/auth/validators';
 import { useCookieConsent } from '@/lib/consent/useCookieConsent';
 
-/** Hard cap on the password input — see {@link LoginScreen} for rationale. */
-const PASSWORD_MAX_LENGTH = 256;
+/**
+ * Hard cap on the password input. Matches the policy's {@link MAX_PASSWORD_LENGTH}
+ * so the live rule "Maximal 128 Zeichen" can never go red without further input.
+ */
+const PASSWORD_MAX_LENGTH = 128;
 
 /**
  * Registration screen — two-step flow.
@@ -86,7 +91,7 @@ export default function RegisterScreen() {
   const canSubmitStep1 =
     isValidName(name.trim()) &&
     isValidDhbwMail(mail.trim()) &&
-    password.length > 0 &&
+    evaluatePassword(password).allPassed &&
     !submitting &&
     consent !== 'rejected';
 
@@ -216,6 +221,7 @@ export default function RegisterScreen() {
                       />
                     </Pressable>
                   </View>
+                  <PasswordStrengthList value={password} />
                 </View>
 
                 <Button

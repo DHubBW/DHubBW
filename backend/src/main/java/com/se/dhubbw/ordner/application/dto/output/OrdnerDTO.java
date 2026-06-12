@@ -58,4 +58,14 @@ public class OrdnerDTO {
      * Identifier of the course this folder belongs to.
      */
     private UUID kursID;
+
+    /**
+     * Whether the folder has at least one direct child folder.
+     *
+     * <p>Used by clients to suppress an "expand"-affordance for leaf
+     * folders without paying the round-trip of an extra
+     * {@code /children} call. Computed at mapping time from the
+     * folder's eagerly-loaded child list.</p>
+     */
+    private boolean hasChildren;
 }

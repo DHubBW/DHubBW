@@ -43,14 +43,21 @@ export interface UploadButtonProps {
 
 /**
  * Maps a {@link FileUploadError} to the toast message that should be
- * shown to the user. The {@code 'too-large'} branch renders a precise
- * message including the actual file size and the configured cap when
- * the hook supplies them.
+ * shown to the user.
+ *
+ * <p>For every code the helper first prefers the backend's own
+ * {@code serverMessage} so the user sees the precise reason
+ * ("Dateityp nicht erlaubt: .exe", "Datei zu groß: 67.2 MB. Limit:
+ *  50.0 MB.", "Eine Datei mit diesem Namen existiert bereits …").
+ * The localised fall-back text is only used when no body text is
+ * available (e.g. on a network error before the server even
+ * answered).</p>
  *
  * @param err - The error rejected by the upload mutation.
  * @returns The localised toast message.
  */
 function _toastForError(err: FileUploadError): string {
+  if (err.serverMessage) return err.serverMessage;
   switch (err.code) {
     case "too-large":
       if (err.actualMb !== undefined && err.limitMb !== undefined) {
@@ -70,6 +77,26 @@ function _toastForError(err: FileUploadError): string {
       return t(
         "dateien.upload.error.tooLarge",
         "Datei ist zu groß für den Server.",
+      );
+    case "duplicate-name":
+      return t(
+        "dateien.upload.error.duplicateName",
+        "Eine Datei mit diesem Namen existiert bereits in diesem Ordner.",
+      );
+    case "invalid-type":
+      return t(
+        "dateien.upload.error.invalidType",
+        "Dateityp ist aus Sicherheitsgründen nicht erlaubt.",
+      );
+    case "empty-file":
+      return t(
+        "dateien.upload.error.emptyFile",
+        "Datei ist leer.",
+      );
+    case "invalid-name":
+      return t(
+        "dateien.upload.error.invalidName",
+        "Dateiname enthält ungültige Zeichen.",
       );
     case "forbidden":
       return t(

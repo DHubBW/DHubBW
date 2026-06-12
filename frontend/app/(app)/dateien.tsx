@@ -36,13 +36,17 @@ import { CourseRoute } from "@/components/auth/CourseRoute";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { CreateOrdnerDialog } from "@/components/dateien/CreateOrdnerDialog";
 import { DateienCardList } from "@/components/dateien/DateienCardList";
+import { DateienDropZone } from "@/components/dateien/DateienDropZone";
 import { DateienTabelle } from "@/components/dateien/DateienTabelle";
 import { DateienToolbar } from "@/components/dateien/DateienToolbar";
+import { DateiKontextMenu } from "@/components/dateien/DateiKontextMenu";
 import { DeleteOrdnerConfirm } from "@/components/dateien/DeleteOrdnerConfirm";
 import { ErrorHint, NoTopLevelHint } from "@/components/dateien/EmptyStates";
+import { MoveDateiDialog } from "@/components/dateien/MoveDateiDialog";
 import { OrdnerKontextMenu } from "@/components/dateien/OrdnerKontextMenu";
 import { OrdnerTree } from "@/components/dateien/OrdnerTree";
 import { OrdnerTreeInline } from "@/components/dateien/OrdnerTreeInline";
+import { PreviewDialog } from "@/components/dateien/PreviewDialog";
 import { RenameDialog } from "@/components/dateien/RenameDialog";
 import { RenameOrdnerDialog } from "@/components/dateien/RenameOrdnerDialog";
 import { UploadButton } from "@/components/dateien/UploadButton";
@@ -51,7 +55,7 @@ import { useDateienListe } from "@/hooks/useDateienListe";
 import { useDateiDelete } from "@/hooks/useDateiDelete";
 import { useDateiDownload } from "@/hooks/useDateiDownload";
 import { useOrdnerTree } from "@/hooks/useOrdnerTree";
-import { ApiError } from "@/lib/api/errors";
+import { toastForApiError } from "@/lib/api/toastForApiError";
 import type { DateiDTO, OrdnerDTO } from "@/lib/api/types.gen";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { t } from "@/lib/i18n/t";
@@ -74,28 +78,21 @@ export default function DateienScreen() {
 }
 
 /**
- * Maps an {@link ApiError} from the delete endpoint to the toast text
- * shown to the user.
+ * Maps an error from the delete endpoint to the toast text shown to
+ * the user. Always prefers the backend's own German message text and
+ * only falls back to the localised hint when no body is available.
  *
  * @param err - The thrown error from the mutation's onError callback.
  * @returns The localised toast message.
  */
 function _deleteErrorMessage(err: unknown): string {
-  if (err instanceof ApiError) {
-    if (err.status === 403) {
-      return t(
-        "dateien.delete.error.forbidden",
-        "Keine Berechtigung zum Löschen.",
-      );
-    }
-    if (err.status === 0 && err.message.includes("404")) {
-      return t("dateien.delete.error.notFound", "Datei nicht gefunden.");
-    }
-    if (err.status === 0) {
-      return t("error.network", "Netzwerkfehler – Server nicht erreichbar");
-    }
-  }
-  return t("dateien.delete.error.unknown", "Löschen fehlgeschlagen.");
+  return toastForApiError(err, {
+    403: t(
+      "dateien.delete.error.forbidden",
+      "Keine Berechtigung zum Löschen.",
+    ),
+    404: t("dateien.delete.error.notFound", "Datei nicht gefunden."),
+  });
 }
 
 /**
@@ -130,6 +127,12 @@ function DateienScreenInner() {
   // Datei-CRUD dialog state — `target` holds the row currently being acted on.
   const [renameTarget, setRenameTarget] = useState<DateiDTO | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DateiDTO | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<DateiDTO | null>(null);
+  const [moveTarget, setMoveTarget] = useState<DateiDTO | null>(null);
+  // Holds the row whose 3-dot menu is currently open. The menu hosts
+  // the secondary actions (Verschieben / Umbenennen / Löschen) so the
+  // table itself only shows Vorschau + Download + ⋮.
+  const [moreTarget, setMoreTarget] = useState<DateiDTO | null>(null);
 
   // Ordner-CRUD dialog state.
   const [createOrdnerOpen, setCreateOrdnerOpen] = useState(false);
@@ -167,8 +170,7 @@ function DateienScreenInner() {
         ),
       );
       return;
-    }
-    download.mutate(
+    }    download.mutate(
       {
         dateiId: datei.dateiID,
         name: datei.name,
@@ -239,6 +241,19 @@ function DateienScreenInner() {
     if (!canEditOrdner(folder)) return;
     setContextOrdner(folder);
     setContextMenuOpen(true);
+  }
+
+  function handlePreview(datei: DateiDTO) {
+    if (!isWeb) {
+      toast(
+        t(
+          "dateien.preview.error.native",
+          "Datei-Vorschau ist auf Native im MVP noch nicht verfügbar.",
+        ),
+      );
+      return;
+    }
+    setPreviewTarget(datei);
   }
 
   if (ordnerTree.isLoading) {
@@ -327,23 +342,27 @@ function DateienScreenInner() {
           onSearchTermChange={setSearchTerm}
         />
         {isWide ? (
-          <DateienTabelle
-            dateien={filteredDateien}
-            isLoading={dateienListe.isLoading}
-            isError={dateienListe.isError}
-            onDownload={handleDownload}
-            onRename={setRenameTarget}
-            onDelete={setDeleteTarget}
-          />
+          <DateienDropZone ueberordnerId={selectedOrdnerId}>
+            <DateienTabelle
+              dateien={filteredDateien}
+              isLoading={dateienListe.isLoading}
+              isError={dateienListe.isError}
+              onDownload={handleDownload}
+              onPreview={handlePreview}
+              onMore={setMoreTarget}
+            />
+          </DateienDropZone>
         ) : (
-          <DateienCardList
-            dateien={filteredDateien}
-            isLoading={dateienListe.isLoading}
-            isError={dateienListe.isError}
-            onDownload={handleDownload}
-            onRename={setRenameTarget}
-            onDelete={setDeleteTarget}
-          />
+          <DateienDropZone ueberordnerId={selectedOrdnerId}>
+            <DateienCardList
+              dateien={filteredDateien}
+              isLoading={dateienListe.isLoading}
+              isError={dateienListe.isError}
+              onDownload={handleDownload}
+              onPreview={handlePreview}
+              onMore={setMoreTarget}
+            />
+          </DateienDropZone>
         )}
       </View>
 
@@ -355,6 +374,44 @@ function DateienScreenInner() {
         dateiId={renameTarget?.dateiID ?? null}
         currentName={renameTarget?.name ?? ""}
         ordnerId={selectedOrdnerId}
+      />
+
+      <PreviewDialog
+        open={previewTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setPreviewTarget(null);
+        }}
+        datei={previewTarget}
+        onDownload={handleDownload}
+      />
+
+      <MoveDateiDialog
+        open={moveTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setMoveTarget(null);
+        }}
+        datei={moveTarget}
+        sourceOrdnerId={selectedOrdnerId}
+      />
+
+      <DateiKontextMenu
+        open={moreTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setMoreTarget(null);
+        }}
+        datei={moreTarget}
+        onMove={() => {
+          if (moreTarget) setMoveTarget(moreTarget);
+          setMoreTarget(null);
+        }}
+        onRename={() => {
+          if (moreTarget) setRenameTarget(moreTarget);
+          setMoreTarget(null);
+        }}
+        onDelete={() => {
+          if (moreTarget) setDeleteTarget(moreTarget);
+          setMoreTarget(null);
+        }}
       />
 
       <ConfirmDialog

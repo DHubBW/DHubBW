@@ -271,12 +271,13 @@ describe('RegisterStep2', () => {
     renderStep2();
 
     fireEvent.press(screen.getByLabelText('Neuen Kurs anlegen'));
-    // Use a value that stays invalid after toUpperCase() (no digits/wrong format).
-    fireEvent.changeText(screen.getByLabelText('Kursname'), 'INVALID');
+    // "AB!" contains '!' which is outside the allowed character set,
+    // so the warning should render. (toUpperCase() leaves '!' untouched.)
+    fireEvent.changeText(screen.getByLabelText('Kursname'), 'AB!');
     fireEvent.changeText(screen.getByLabelText('Jahrgang'), '2024');
 
     // Value misses the BE pattern → warning is rendered.
-    expect(screen.getByText(/Hinweis: Der Name folgt nicht dem üblichen Format/i)).toBeTruthy();
+    expect(screen.getByText(/Hinweis: Ungewöhnliches Format/i)).toBeTruthy();
     // Submit stays enabled — the warning is advisory, not blocking.
     const submit = screen.getByLabelText('Anfrage senden');
     expect(submit.props.accessibilityState?.disabled).not.toBe(true);
@@ -287,10 +288,11 @@ describe('RegisterStep2', () => {
     renderStep2();
 
     fireEvent.press(screen.getByLabelText('Neuen Kurs anlegen'));
-    fireEvent.changeText(screen.getByLabelText('Kursname'), 'TINF24B2');
+    // "INVALID" is letters only / 7 chars → matches the loosened regex.
+    fireEvent.changeText(screen.getByLabelText('Kursname'), 'INVALID');
     fireEvent.changeText(screen.getByLabelText('Jahrgang'), '2024');
 
-    expect(screen.queryByText(/Hinweis: Der Name folgt nicht/i)).toBeNull();
+    expect(screen.queryByText(/Hinweis: Ungewöhnliches Format/i)).toBeNull();
   });
 
   it('NewKursDialog: posts to /student/kurse/erstellen, toasts and replaces', async () => {

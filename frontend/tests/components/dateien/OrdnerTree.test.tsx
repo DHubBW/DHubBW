@@ -2,9 +2,13 @@
  * Unit tests for the OrdnerTree component.
  *
  * `useOrdnerChildren` is mocked so the test runs without a real
- * QueryClient or network layer.
+ * network layer. The component still uses {@code useQueryClient} for
+ * its ancestor lookup, so each render is wrapped in a
+ * {@link QueryClientProvider}.
  */
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import * as React from "react";
 
 import type { OrdnerDTO } from "@/lib/api/types.gen";
 
@@ -24,6 +28,15 @@ jest.mock("@/hooks/useOrdnerChildren", () => ({
 
 import { OrdnerTree } from "@/components/dateien/OrdnerTree";
 
+function renderWithClient(ui: React.ReactElement) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
+  );
+}
+
 const ROOT_FOLDER: OrdnerDTO = {
   ordnerID: "11111111-1111-1111-1111-111111111111",
   name: "Vorlesungen",
@@ -32,6 +45,7 @@ const ROOT_FOLDER: OrdnerDTO = {
   public: true,
   ueberOrdnerID: null,
   kursID: "kkkkkkkk-kkkk-kkkk-kkkk-kkkkkkkkkkkk",
+  hasChildren: true,
 };
 
 const CHILD_FOLDER: OrdnerDTO = {
@@ -42,6 +56,7 @@ const CHILD_FOLDER: OrdnerDTO = {
   public: false,
   ueberOrdnerID: ROOT_FOLDER.ordnerID,
   kursID: ROOT_FOLDER.kursID,
+  hasChildren: false,
 };
 
 describe("OrdnerTree", () => {
@@ -50,7 +65,7 @@ describe("OrdnerTree", () => {
   });
 
   it("renders the synthetic 'Alle Dateien' root and the supplied root folders", () => {
-    render(
+    renderWithClient(
       <OrdnerTree
         rootFolders={[ROOT_FOLDER]}
         selectedOrdnerId={null}
@@ -63,7 +78,7 @@ describe("OrdnerTree", () => {
 
   it("calls onSelect with the folder DTO when a folder row is tapped", () => {
     const onSelect = jest.fn();
-    render(
+    renderWithClient(
       <OrdnerTree
         rootFolders={[ROOT_FOLDER]}
         selectedOrdnerId={null}
@@ -76,7 +91,7 @@ describe("OrdnerTree", () => {
 
   it("calls onSelect(null) when the root row is tapped", () => {
     const onSelect = jest.fn();
-    render(
+    renderWithClient(
       <OrdnerTree
         rootFolders={[ROOT_FOLDER]}
         selectedOrdnerId={ROOT_FOLDER.ordnerID}
@@ -89,7 +104,7 @@ describe("OrdnerTree", () => {
 
   it("expands a folder and lazy-loads its children on chevron click", () => {
     childrenByParent[ROOT_FOLDER.ordnerID] = [CHILD_FOLDER];
-    render(
+    renderWithClient(
       <OrdnerTree
         rootFolders={[ROOT_FOLDER]}
         selectedOrdnerId={null}
@@ -101,5 +116,18 @@ describe("OrdnerTree", () => {
     fireEvent.press(screen.getByLabelText("Ordner aufklappen"));
 
     expect(screen.getByText("Mathematik")).toBeTruthy();
+  });
+
+  it("hides the expand chevron for leaf folders (hasChildren=false)", () => {
+    const LEAF: OrdnerDTO = { ...ROOT_FOLDER, hasChildren: false };
+    renderWithClient(
+      <OrdnerTree
+        rootFolders={[LEAF]}
+        selectedOrdnerId={null}
+        onSelect={jest.fn()}
+      />,
+    );
+    expect(screen.queryByLabelText("Ordner aufklappen")).toBeNull();
+    expect(screen.queryByLabelText("Ordner einklappen")).toBeNull();
   });
 });
