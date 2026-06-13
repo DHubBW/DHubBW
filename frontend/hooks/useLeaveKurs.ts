@@ -1,12 +1,18 @@
 /**
  * Hook for the "Kurs verlassen" action.
  *
- * Calls `GET /student/dashboard/leave-kurs` (intentional GET per backend
- * design — see issue Errinnerung.md note). On success the profile query is
- * invalidated so navItems / dashboard reflect the new kursName=null state.
+ * Calls `GET /student/dashboard/leave-kurs` (the backend uses GET for this
+ * idempotent action — see {@link StudentDashboardController#leaveKurs}).
+ * On success the profile query is invalidated so navItems / dashboard
+ * reflect the new kursName=null state.
  *
  * Error handling:
- * - 400 → the student is Kursadmin; caller should surface a toast.
+ * - 400 → the student is the last KURSADMIN of the course; the controller
+ *   catches {@link IllegalStateException} locally and returns 400 with a
+ *   plain-text body. 400 is not in {@link ApiErrorStatus}, so it surfaces
+ *   as `ApiError(0, 'HTTP 400', body)`. Callers branch on the body text
+ *   ({@code "KURSADMIN"} substring) to detect this case.
+ * - 404 → no course enrollment (also lands on `ApiError(0, 'HTTP 404')`).
  * - Network/other → re-thrown as ApiError(0).
  */
 import { useQueryClient } from "@tanstack/react-query";
@@ -27,7 +33,9 @@ export interface UseLeaveKursResult {
   /**
    * Initiates the leave-kurs API call.
    *
-   * @throws {ApiError} on 400 (student is Kursadmin) or network error.
+   * @throws {ApiError} on 400 (last KURSADMIN — surfaces as
+   *     `ApiError(0, 'HTTP 400')`), 404 (no enrollment) or network
+   *     error.
    */
   leaveKurs: () => Promise<void>;
 }

@@ -1,12 +1,12 @@
 import { Redirect } from 'expo-router';
 
 /**
- * Root route – redirects directly to the dashboard.
+ * Root route — redirects to the dashboard.
  *
- * The protected-route guard in `(app)/_layout.tsx` handles the redirect to
- * `/(auth)/login` when the user is not authenticated.
- * After FE-S1 (#206) this file will decide auth-dependently between
- * `/(app)/dashboard` and `/(auth)/login`.
+ * The {@link ProtectedRoute} guard in `(app)/_layout.tsx` decides
+ * auth-dependently between rendering the dashboard and redirecting to
+ * `/(auth)/login?returnTo=/(app)/dashboard`, so this entry point only has
+ * to forward into the `(app)` group.
  *
  * @returns A `<Redirect>` to the dashboard.
  */

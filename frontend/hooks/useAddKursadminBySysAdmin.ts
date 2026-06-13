@@ -1,12 +1,19 @@
 /**
- * Mutation hook for a SYSTEMADMIN to assign a KURSADMIN role to a student.
+ * @deprecated Dead code — kept only as a placeholder until
+ * the next cleanup. Use {@link useAddKursadminBySysAdmin} from
+ * `@/hooks/useKursadminBySysAdmin` instead.
  *
- * Sends `PATCH /kursadmin/mitglieder/add-kursadmin/{studentId}`.
- * Requires the caller to be authenticated with SYSTEMADMIN (which holds
- * KURSADMIN authority via the role hierarchy in Spring Security).
- *
- * On success the kurse and studenten caches are invalidated so the
- * member drawer and student list refresh automatically.
+ * This file shadows the same export name from
+ * `useKursadminBySysAdmin.ts`. Nothing imports this module
+ * (`grep -rn "from .@/hooks/useAddKursadminBySysAdmin." src/` is
+ * empty), and the path it calls
+ * (`PATCH /kursadmin/mitglieder/add-kursadmin/{studentId}`) is
+ * the KURSADMIN-scoped endpoint that requires the caller to be
+ * an approved member of a course — i.e. it would 404 for a
+ * SYSTEMADMIN without a course assignment, which is exactly the
+ * bug the dedicated SA endpoint
+ * `PATCH /systemadmin/kurse/{kursId}/kursadmin/{studentId}/add`
+ * was introduced to avoid (see {@link useKursadminBySysAdmin}).
  */
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
@@ -17,13 +24,11 @@ import { SYSADMIN_KURSE_QUERY_KEY } from "@/hooks/useSysAdminKurse";
 import { SYSADMIN_STUDENTEN_QUERY_KEY } from "@/hooks/useSysAdminStudenten";
 
 /**
- * Assigns the KURSADMIN role to a student within a course.
- *
- * Uses the `PATCH /kursadmin/mitglieder/add-kursadmin/{studentId}` endpoint.
- * The SYSTEMADMIN inherits the KURSADMIN role via Spring Security role
- * hierarchy, so the same endpoint works.
- *
- * @returns `{ isPending, addKursadmin }`
+ * @deprecated Use the version exported from
+ *     `@/hooks/useKursadminBySysAdmin` (signature
+ *     `(kursId, studentId)`) instead. This implementation calls
+ *     the wrong endpoint for the SYSTEMADMIN-without-own-course
+ *     case.
  */
 export function useAddKursadminBySysAdmin() {
   const queryClient = useQueryClient();

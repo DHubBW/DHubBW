@@ -1,11 +1,13 @@
 /**
- * Mutation hook for a SYSTEMADMIN to revoke a KURSADMIN role from a student.
- *
- * Sends `PATCH /kursadmin/mitglieder/remove-kursadmin/{studentId}`.
- * SYSTEMADMIN inherits KURSADMIN authority via the role hierarchy configured
- * in Spring Security's {@code CustomUserDetailsService}.
- *
- * On success the kurse and mitglieder caches are invalidated.
+ * @deprecated Dead code — kept only as a placeholder until the
+ * next cleanup. Use {@link useRemoveKursadminBySysAdmin} from
+ * `@/hooks/useKursadminBySysAdmin` instead. The path this module
+ * calls (`PATCH /kursadmin/mitglieder/remove-kursadmin/{studentId}`)
+ * is KURSADMIN-scoped — a SYSTEMADMIN without a course assignment
+ * would 404 there. The dedicated SA endpoint
+ * `PATCH /systemadmin/kurse/{kursId}/kursadmin/{studentId}/remove`
+ * lives in {@link useKursadminBySysAdmin} and is the one the
+ * Verwaltung screen actually imports.
  */
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
@@ -16,11 +18,11 @@ import { SYSADMIN_KURSE_QUERY_KEY } from "@/hooks/useSysAdminKurse";
 import { SYSADMIN_STUDENTEN_QUERY_KEY } from "@/hooks/useSysAdminStudenten";
 
 /**
- * Revokes the KURSADMIN role from a student within a course.
- *
- * Uses `PATCH /kursadmin/mitglieder/remove-kursadmin/{studentId}`.
- *
- * @returns `{ isPending, removeKursadmin }`
+ * @deprecated Use the version exported from
+ *     `@/hooks/useKursadminBySysAdmin` (signature
+ *     `(kursId, studentId)`) instead. This implementation calls
+ *     the wrong endpoint for the SYSTEMADMIN-without-own-course
+ *     case.
  */
 export function useRemoveKursadminBySysAdmin() {
   const queryClient = useQueryClient();

@@ -8,9 +8,10 @@
  * other without manual refetching.</p>
  *
  * <p>Errors surface as the {@link ApiError} thrown by
- * {@link fetchClient} (400/403/404/409/0). The Dateien screen
- * consumes them via {@code onError} to drive the move-dialog toast,
- * so we suppress the generic global error toast.</p>
+ * {@link fetchClient} (400/403/404/409/0). The {@link MoveDateiDialog}
+ * consumes them via {@code onError} to drive a status-aware toast
+ * (see {@code _moveErrorMessage}), so we suppress the generic global
+ * error toast.</p>
  */
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 

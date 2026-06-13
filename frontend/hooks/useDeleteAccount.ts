@@ -6,7 +6,12 @@
  * navigate itself (separation of concerns: UI decides the redirect path).
  *
  * Error handling:
- * - 400 → student is the last system admin; caller should surface a toast.
+ * - 409 → student is the last SYSTEMADMIN globally OR the last KURSADMIN
+ *   in their own course (the controller does NOT catch
+ *   {@link IllegalStateException} locally; the
+ *   {@code GlobalExceptionHandler} maps it to 409 with a plain-text body
+ *   that callers inspect to disambiguate the two cases — see
+ *   {@code SettingsModal.handleDeleteAccount}).
  * - Network/other → re-thrown as ApiError(0).
  */
 import { useCallback, useState } from "react";
@@ -25,7 +30,8 @@ export interface UseDeleteAccountResult {
   /**
    * Initiates the delete-account API call.
    *
-   * @throws {ApiError} on 400 (last system admin) or network error.
+   * @throws {ApiError} on 409 (last SYSTEMADMIN / last KURSADMIN) or
+   *     network error.
    */
   deleteAccount: () => Promise<void>;
 }
