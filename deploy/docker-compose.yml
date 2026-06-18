@@ -27,6 +27,9 @@ services:
   backend:
     image: dhubbw-backend:latest
     pull_policy: never
+    build:
+      context: ../backend
+      dockerfile: docker/Dockerfile
     container_name: backend
     restart: always
     environment:
@@ -57,6 +60,8 @@ services:
   frontend:
     image: dhubbw-frontend:latest
     pull_policy: never
+    build:
+      context: ../frontend
     container_name: frontend
     restart: always
     depends_on:
