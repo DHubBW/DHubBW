@@ -1,9 +1,6 @@
-src/
 target/
-!target/*.jar
 .git
 .gitignore
 *.md
 docker/
-checkstyle*.xml
 *.log
