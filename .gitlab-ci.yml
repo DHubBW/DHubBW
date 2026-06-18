@@ -192,7 +192,7 @@ test:frontend:docs:
 # DEPLOY – GitLab Pages + VM deployment
 # ═══════════════════════════════════════════════════════════════════════════════
 
-deploy:pages:
+pages:
   stage: deploy
   needs:
     - job: test:backend:unit
