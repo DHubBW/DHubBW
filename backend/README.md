@@ -175,3 +175,4 @@ Checkstyle läuft automatisch bei `mvn verify` (nur `src/main/java`):
 ---
 
 _Stand: Mai 2026 | DHBW Karlsruhe TINF24B2 Gruppe 4_
+

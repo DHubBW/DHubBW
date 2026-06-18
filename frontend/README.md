@@ -250,3 +250,4 @@ Consent immer `'accepted'` (kein Browser-Cookie-Konzept).
 ---
 
 _Stand: Mai 2026 | DHBW Karlsruhe TINF24B2 Gruppe 4_
+
