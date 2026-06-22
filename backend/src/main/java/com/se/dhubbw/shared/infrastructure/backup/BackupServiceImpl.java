@@ -1114,9 +1114,9 @@ public class BackupServiceImpl implements BackupService {
         entityManager.createNativeQuery(
                 "MERGE INTO datei AS t USING (VALUES "
                     + "(CAST(?1 AS UUID), CAST(?2 AS UUID), ?3, "
-                    + "CAST(?4 AS DATE), ?5, ?6, "
-                    + "CAST(?7 AS UUID), ?8, ?9, ?10, "
-                    + "?11)) "
+                    + "CAST(?4 AS DATE), CAST(?5 AS OID), ?6, "
+                    + "CAST(?7 AS UUID), ?8, CAST(?9 AS OID), "
+                    + "?10, ?11)) "
                     + "AS s(datei_id, ordner_id, name, "
                     + "zuletzt_bearbeitet, data, file_size, "
                     + "uploader, download_anzahl, data_oid, "
