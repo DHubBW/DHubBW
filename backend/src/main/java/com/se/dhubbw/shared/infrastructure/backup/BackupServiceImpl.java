@@ -255,6 +255,20 @@ public class BackupServiceImpl implements BackupService {
     @RetryableTransactional
     public BackupDTO createBackup(final String quelle) {
         Map<String, Object> snapshot = captureSnapshot();
+
+        // Read the counters BEFORE serialising so we can clear the
+        // map afterwards. The map holds the full Base64-encoded
+        // Datei payload — keeping it alive while the JSON string is
+        // also alive doubles the peak heap usage and triggers OOM
+        // on prod's 1 GiB-per-container budget.
+        int ordnerAnzahl = ((List<?>) snapshot.get("ordner")).size();
+        int dateiAnzahl = ((List<?>) snapshot.get("dateien")).size();
+        int kommentarAnzahl =
+            ((List<?>) snapshot.get("kommentare")).size();
+        int bewertungAnzahl =
+            ((List<?>) snapshot.get("bewertungen")).size();
+        int tagAnzahl = ((List<?>) snapshot.get("tags")).size();
+
         String json;
         try {
             json = objectMapper.writeValueAsString(snapshot);
@@ -266,17 +280,19 @@ public class BackupServiceImpl implements BackupService {
                 "Backup serialise failed: {}", ex.getMessage(), rse);
             throw rse;
         }
+        // Drop references to the in-memory snapshot tree so the GC
+        // can reclaim the Base64 strings before the next allocation
+        // wave (Backup row, JDBC large-object write).
+        snapshot.clear();
 
         Backup b = new Backup();
         b.setErstelltAm(LocalDateTime.now());
         b.setQuelle(quelle == null ? "AUTO" : quelle);
-        b.setOrdnerAnzahl(((List<?>) snapshot.get("ordner")).size());
-        b.setDateiAnzahl(((List<?>) snapshot.get("dateien")).size());
-        b.setKommentarAnzahl(
-            ((List<?>) snapshot.get("kommentare")).size());
-        b.setBewertungAnzahl(
-            ((List<?>) snapshot.get("bewertungen")).size());
-        b.setTagAnzahl(((List<?>) snapshot.get("tags")).size());
+        b.setOrdnerAnzahl(ordnerAnzahl);
+        b.setDateiAnzahl(dateiAnzahl);
+        b.setKommentarAnzahl(kommentarAnzahl);
+        b.setBewertungAnzahl(bewertungAnzahl);
+        b.setTagAnzahl(tagAnzahl);
         b.setPayload(json);
         Backup saved = backupRepository.save(b);
         colorLogger.colorInfo(
@@ -1587,7 +1603,12 @@ public class BackupServiceImpl implements BackupService {
         map.put("bewertungSumme", d.getBewertungSumme());
         map.put("bewertungAnzahl", d.getBewertungAnzahl());
         // Bytes: prefer the inline payload when present (DEV) and
-        // fall back to the storage strategy reference (PROD).
+        // fall back to the storage strategy reference (PROD). The
+        // local variable is nulled out immediately after the
+        // Base64 / SHA-256 work so the raw bytes are GC-eligible
+        // before we encode the next Datei — without this, every
+        // Datei keeps its bytes alive until the surrounding stream
+        // collector completes.
         byte[] bytes = d.getData();
         if ((bytes == null || bytes.length == 0)
                 && d.getDataOid() != null) {
@@ -1601,9 +1622,10 @@ public class BackupServiceImpl implements BackupService {
             }
         }
         if (bytes != null) {
+            map.put("dataSha256", sha256Hex(bytes));
             map.put("dataBase64",
                 Base64.getEncoder().encodeToString(bytes));
-            map.put("dataSha256", sha256Hex(bytes));
+            bytes = null;
         } else {
             map.put("dataBase64", null);
             map.put("dataSha256", null);

@@ -49,7 +49,7 @@ services:
       resources:
         limits:
           cpus: "0.8"
-          memory: 1024M
+          memory: 2048M
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1"]
       interval: 10s
