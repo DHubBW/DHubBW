@@ -1114,7 +1114,8 @@ public class BackupServiceImpl implements BackupService {
         entityManager.createNativeQuery(
                 "MERGE INTO datei AS t USING (VALUES "
                     + "(CAST(?1 AS UUID), CAST(?2 AS UUID), ?3, "
-                    + "?4, ?5, ?6, CAST(?7 AS UUID), ?8, ?9, ?10, "
+                    + "CAST(?4 AS DATE), ?5, ?6, "
+                    + "CAST(?7 AS UUID), ?8, ?9, ?10, "
                     + "?11)) "
                     + "AS s(datei_id, ordner_id, name, "
                     + "zuletzt_bearbeitet, data, file_size, "
@@ -1168,7 +1169,7 @@ public class BackupServiceImpl implements BackupService {
         entityManager.createNativeQuery(
                 "MERGE INTO tag AS x USING (VALUES "
                     + "(CAST(?1 AS UUID), ?2, "
-                    + "CAST(?3 AS UUID), ?4)) "
+                    + "CAST(?3 AS UUID), CAST(?4 AS TIMESTAMP))) "
                     + "AS s(tag_id, name, ersteller_id, erstellt_am) "
                     + "ON x.tag_id = s.tag_id "
                     + "WHEN MATCHED THEN UPDATE SET "
@@ -1246,7 +1247,8 @@ public class BackupServiceImpl implements BackupService {
         entityManager.createNativeQuery(
                 "MERGE INTO bewertung AS x USING (VALUES "
                     + "(CAST(?1 AS UUID), CAST(?2 AS UUID), "
-                    + "CAST(?3 AS UUID), ?4, ?5)) "
+                    + "CAST(?3 AS UUID), ?4, "
+                    + "CAST(?5 AS TIMESTAMP))) "
                     + "AS s(bewertung_id, datei_id, autor_id, "
                     + "sterne, bewertet_am) "
                     + "ON x.bewertung_id = s.bewertung_id "
@@ -1285,7 +1287,9 @@ public class BackupServiceImpl implements BackupService {
         entityManager.createNativeQuery(
                 "MERGE INTO kommentar AS x USING (VALUES "
                     + "(CAST(?1 AS UUID), CAST(?2 AS UUID), "
-                    + "CAST(?3 AS UUID), ?4, ?5, ?6, ?7)) "
+                    + "CAST(?3 AS UUID), ?4, "
+                    + "CAST(?5 AS TIMESTAMP), "
+                    + "CAST(?6 AS TIMESTAMP), ?7)) "
                     + "AS s(kommentar_id, datei_id, autor_id, "
                     + "inhalt, erstellt_am, zuletzt_bearbeitet, "
                     + "bearbeitet) "
@@ -1331,7 +1335,7 @@ public class BackupServiceImpl implements BackupService {
         entityManager.createNativeQuery(
                 "MERGE INTO datei_anlegung AS x USING (VALUES "
                     + "(CAST(?1 AS UUID), CAST(?2 AS UUID), "
-                    + "CAST(?3 AS UUID), ?4)) "
+                    + "CAST(?3 AS UUID), CAST(?4 AS DATE))) "
                     + "AS s(anlegung_id, student_id, "
                     + "datei_id, datum) "
                     + "ON x.anlegung_id = s.anlegung_id "
@@ -1368,7 +1372,7 @@ public class BackupServiceImpl implements BackupService {
         entityManager.createNativeQuery(
                 "MERGE INTO ordner_anlegung AS x USING (VALUES "
                     + "(CAST(?1 AS UUID), CAST(?2 AS UUID), "
-                    + "CAST(?3 AS UUID), ?4)) "
+                    + "CAST(?3 AS UUID), CAST(?4 AS DATE))) "
                     + "AS s(anlegung_id, student_id, "
                     + "ordner_id, datum) "
                     + "ON x.anlegung_id = s.anlegung_id "
