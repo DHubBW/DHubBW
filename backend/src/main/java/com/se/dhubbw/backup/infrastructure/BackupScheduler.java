@@ -1,5 +1,7 @@
-package com.se.dhubbw.shared.infrastructure.backup;
+package com.se.dhubbw.backup.infrastructure;
 
+import com.se.dhubbw.backup.application.dto.output.BackupDTO;
+import com.se.dhubbw.backup.domain.BackupService;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;

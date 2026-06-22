@@ -1,4 +1,4 @@
-package com.se.dhubbw.shared.infrastructure.backup;
+package com.se.dhubbw.backup.application.dto.input;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,8 +15,8 @@ import lombok.Setter;
  * </ul>
  *
  * <p>The {@code confirmationCount} field is checked against
- * {@link BackupServiceImpl#MIN_CONFIRMATION_COUNT} so even a hand-
- * rolled HTTP call cannot bypass the double-confirm rule.</p>
+ * {@code BackupServiceImpl#MIN_CONFIRMATION_COUNT} so even a
+ * hand-rolled HTTP call cannot bypass the double-confirm rule.</p>
  *
  * @architecture.component Dateiverwaltung
  * @architecture.layer Application Layer
@@ -30,8 +30,9 @@ public class RestoreBackupRequestDTO {
 
     /**
      * Number of confirmations the admin has clicked through. Must
-     * be at least {@link BackupServiceImpl#MIN_CONFIRMATION_COUNT}
-     * for the action (restore or delete) to actually run.
+     * be at least
+     * {@code BackupServiceImpl#MIN_CONFIRMATION_COUNT} for the
+     * action (restore or delete) to actually run.
      */
     private int confirmationCount;
 }

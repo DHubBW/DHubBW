@@ -1,4 +1,6 @@
-package com.se.dhubbw.shared.infrastructure.backup;
+package com.se.dhubbw.backup.domain;
+
+import com.se.dhubbw.backup.application.dto.output.BackupDTO;
 
 import java.util.List;
 import java.util.UUID;
