@@ -5,9 +5,13 @@
 /**
  * Formats an ISO `YYYY-MM-DD` date string as `dd.MM.yyyy` (German locale,
  * via `Date.toLocaleDateString`). Returns the input unchanged if the
- * backend ever delivers a non-parseable value.
+ * backend ever delivers a non-parseable value, and an empty string for
+ * `null`/`undefined`/empty input — the file table renders the cell
+ * blank when no `zuletztBearbeitet` was ever set rather than printing
+ * the unix-epoch fallback `01.01.1970`.
  */
-export function formatIsoDate(iso: string): string {
+export function formatIsoDate(iso: string | null | undefined): string {
+  if (iso == null || iso === "") return "";
   const parsed = new Date(iso);
   if (Number.isNaN(parsed.getTime())) return iso;
   return parsed.toLocaleDateString("de-DE");

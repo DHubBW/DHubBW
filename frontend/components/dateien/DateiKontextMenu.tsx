@@ -14,6 +14,10 @@
  *   <li>Löschen → opens the destructive confirm dialog.</li>
  * </ul>
  *
+ * <p>Bewertung lives in the file detail dialog (the rating widget
+ * is wired into the right-hand sidebar) — keeping it out of this
+ * menu prevents the duplicate entry-point.</p>
+ *
  * <p>Authorisation is enforced by the backend — on failure the
  * downstream dialog surfaces the 403 toast.</p>
  */
@@ -68,18 +72,13 @@ export function DateiKontextMenu({
             {datei?.name ?? t("dateien.menu.title", "Datei-Aktionen")}
           </DialogTitle>
           <DialogDescription>
-            {t(
-              "dateien.menu.description",
-              "Wähle eine Aktion für die Datei.",
-            )}
+            {t("dateien.menu.description", "Wähle eine Aktion für die Datei.")}
           </DialogDescription>
         </DialogHeader>
         <View className="gap-2 py-2">
           <MenuItem
             testID="datei-menu-move"
-            icon={
-              <FolderInput size={16} color="hsl(var(--foreground))" />
-            }
+            icon={<FolderInput size={16} color="hsl(var(--foreground))" />}
             label={t("dateien.menu.move", "Verschieben")}
             onPress={() => {
               onOpenChange(false);

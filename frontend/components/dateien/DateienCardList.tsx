@@ -14,12 +14,7 @@
  * to the bottom action bar. When none are provided, the bar is omitted
  * (back-compat).
  */
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
 import { Text } from "@/components/ui/text";
 import type { DateiDTO } from "@/lib/api/types.gen";
@@ -30,6 +25,8 @@ import { t } from "@/lib/i18n/t";
 
 import { EmptyFolderHint, ErrorHint } from "./EmptyStates";
 import { RowActions } from "./RowActions";
+import { StarRating } from "./StarRating";
+import { TagBadge } from "./TagBadge";
 
 export interface DateienCardListProps {
   dateien: DateiDTO[];
@@ -114,12 +111,7 @@ interface FileCardProps {
  * @param props - {@link FileCardProps}
  * @returns The card.
  */
-function FileCard({
-  datei,
-  onDownload,
-  onPreview,
-  onMore,
-}: FileCardProps) {
+function FileCard({ datei, onDownload, onPreview, onMore }: FileCardProps) {
   const FileIconCmp = fileIconFor(datei.name);
   const downloadsLabel = t("dateien.card.downloads", "Downloads");
 
@@ -156,10 +148,29 @@ function FileCard({
             {"  ·  "}
             {formatIsoDate(datei.zuletztBearbeitet)}
           </Text>
-          {/* Pill chips for size + downloads — quieter than three loose
-              meta lines, easier to scan at a glance. */}
-          <View className="mt-1 flex-row flex-wrap gap-1.5">
+          {/* Size chip plus a combined Bewertung-then-Downloads
+              row that mirrors the table layout (Bewertung sits to
+              the left of Downloads). */}
+          <View className="mt-1 flex-row flex-wrap items-center gap-1.5">
             <MetaChip label={formatFileSize(datei.fileSize)} />
+          </View>
+          {(datei.tags ?? []).length > 0 && (
+            <View className="mt-1.5 flex-row flex-wrap gap-1">
+              {datei.tags.map((tag) => (
+                <TagBadge
+                  key={tag.tagID}
+                  name={tag.name}
+                  testID={`card-tag-${tag.tagID}`}
+                />
+              ))}
+            </View>
+          )}
+          <View className="mt-1.5 flex-row items-center gap-2">
+            <StarRating
+              value={datei.bewertungDurchschnitt}
+              count={datei.bewertungAnzahl}
+              size={14}
+            />
             <MetaChip label={`${datei.downloadAnzahl} ${downloadsLabel}`} />
           </View>
         </View>

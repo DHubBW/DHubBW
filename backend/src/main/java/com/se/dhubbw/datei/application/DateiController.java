@@ -141,6 +141,9 @@ public class DateiController {
      * SYSTEMADMIN.</p>
      *
      * @param ordnerId       the UUID of the target folder
+     * @param tagIds         optional list of tag UUIDs to filter by;
+     *     when present a file must carry every given tag to be
+     *     included
      * @param authentication the current user's security context
      * @return 200 with the list of file metadata DTOs
      */
@@ -171,10 +174,17 @@ public class DateiController {
                     description = "UUID of the target folder",
                     required = true)
             @PathVariable final UUID ordnerId,
+            @Parameter(
+                    description = "Optional comma-separated list of "
+                        + "tag UUIDs — files must carry every given "
+                        + "tag (AND-semantics)")
+            @RequestParam(value = "tagIds", required = false)
+            final List<UUID> tagIds,
             final Authentication authentication) {
         List<DateiDTO> dateien = dateiService
             .retrieveDateienForOrdner(
                 ordnerId,
+                tagIds,
                 authentication.getName());
         return ResponseEntity.ok(dateien);
     }
@@ -187,6 +197,9 @@ public class DateiController {
      * returned. SYSTEMADMIN receives all files across all
      * courses.</p>
      *
+     * @param tagIds         optional list of tag UUIDs to filter
+     *     by; when present a file must carry every given tag to
+     *     be included in the response
      * @param authentication the current user's security context
      * @return 200 with the list of file metadata DTOs
      */
@@ -208,10 +221,35 @@ public class DateiController {
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping
     public ResponseEntity<List<DateiDTO>> retrieveAllFiles(
+            @Parameter(
+                    description = "Optional comma-separated list of "
+                        + "tag UUIDs — files must carry every given "
+                        + "tag (AND-semantics)")
+            @RequestParam(value = "tagIds", required = false)
+            final List<UUID> tagIds,
             final Authentication authentication) {
         List<DateiDTO> dateien = dateiService
             .retrieveAllFiles(authentication.getName());
-        return ResponseEntity.ok(dateien);
+        if (tagIds == null || tagIds.isEmpty()) {
+            return ResponseEntity.ok(dateien);
+        }
+        // AND-semantics: a file must carry every requested tag.
+        // Mirrors the in-folder variant; done in-memory because
+        // the per-folder query already runs through a JPA entity
+        // collection.
+        java.util.Set<UUID> required = new java.util.HashSet<>(tagIds);
+        List<DateiDTO> filtered = dateien.stream()
+            .filter(d -> {
+                if (d.tags() == null) {
+                    return false;
+                }
+                java.util.Set<UUID> dateiTagIds = d.tags().stream()
+                    .map(t -> t.tagID())
+                    .collect(java.util.stream.Collectors.toSet());
+                return dateiTagIds.containsAll(required);
+            })
+            .toList();
+        return ResponseEntity.ok(filtered);
     }
 
     /**

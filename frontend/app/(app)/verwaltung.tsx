@@ -41,6 +41,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ConfirmDialogStrict } from "@/components/ConfirmDialogStrict";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { BackupSection } from "@/components/verwaltung/BackupSection";
 import { Separator } from "@/components/ui/separator";
 import { Text } from "@/components/ui/text";
 import {
@@ -672,7 +673,9 @@ function KursRow({ kurs }: { kurs: KursDTO }) {
               ),
             );
           } catch {
-            toast.error(t("verwaltung.kurse.deleteError", "Kurs löschen fehlgeschlagen"));
+            toast.error(
+              t("verwaltung.kurse.deleteError", "Kurs löschen fehlgeschlagen"),
+            );
           }
         }}
       />
@@ -796,10 +799,7 @@ function StudentRow({
               } catch (err) {
                 if (err instanceof ApiError && err.status === 409) {
                   toast.error(
-                    t(
-                      "verwaltung.studenten.alreadySa",
-                      "Bereits Systemadmin",
-                    ),
+                    t("verwaltung.studenten.alreadySa", "Bereits Systemadmin"),
                   );
                 } else {
                   toast.error(
@@ -888,9 +888,7 @@ function StudentRow({
         disabled={deleteDisabled}
         className={cn(
           "rounded border px-2 py-1",
-          deleteDisabled
-            ? "border-muted opacity-40"
-            : "border-destructive/50",
+          deleteDisabled ? "border-muted opacity-40" : "border-destructive/50",
         )}
       >
         <Trash2
@@ -905,10 +903,7 @@ function StudentRow({
       <ConfirmDialogStrict
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title={t(
-          "verwaltung.studenten.deleteTitle",
-          "Account löschen",
-        )}
+        title={t("verwaltung.studenten.deleteTitle", "Account löschen")}
         message={t(
           "verwaltung.studenten.deleteMsg",
           `Account von ${student.name} (${student.dhbwMail}) wird unwiderruflich gelöscht.`,
@@ -994,9 +989,9 @@ function MensaSyncSection() {
       <Text className="text-sm text-muted-foreground">
         {t(
           "verwaltung.mensa.syncDescription",
-          "Stößt einen sofortigen Re-Scrape des Mensaplans an. Der Sync läuft "
-            + "automatisch im Hintergrund. Nutze diesen Button, wenn "
-            + "ein neu eingestellter Speiseplan früher sichtbar werden soll.",
+          "Stößt einen sofortigen Re-Scrape des Mensaplans an. Der Sync läuft " +
+            "automatisch im Hintergrund. Nutze diesen Button, wenn " +
+            "ein neu eingestellter Speiseplan früher sichtbar werden soll.",
         )}
       </Text>
       <Button
@@ -1158,6 +1153,8 @@ function SystemverwaltungContent() {
           <MensaSyncSection />
         </Card>
 
+        <BackupSection />
+
         <Card className="gap-0 px-5 py-5">
           <SectionHeader
             icon={Users}
@@ -1290,7 +1287,8 @@ function KaAnfragenSection({
             } catch (err) {
               if (err instanceof ApiError && err.status === 409) {
                 toast.error(
-                  err.message ?? t("verwaltung.ka.error", "Aktion fehlgeschlagen"),
+                  err.message ??
+                    t("verwaltung.ka.error", "Aktion fehlgeschlagen"),
                 );
               } else {
                 toast.error(t("verwaltung.ka.error", "Aktion fehlgeschlagen"));
@@ -1300,7 +1298,9 @@ function KaAnfragenSection({
           }}
           onDecline={async () => {
             await declineAnfrage(anfrage.anfrageID);
-            toast.success(t("verwaltung.ka.anfragen.declineSuccess", "Abgelehnt"));
+            toast.success(
+              t("verwaltung.ka.anfragen.declineSuccess", "Abgelehnt"),
+            );
           }}
         />
       ))}
@@ -1493,10 +1493,7 @@ function KaMitgliedRow({
               "verwaltung.ka.mitglieder.removeMsg",
               `${mitglied.name} wird aus dem Kurs entfernt.`,
             )}
-            confirmLabel={t(
-              "verwaltung.ka.mitglieder.removeBtn",
-              "Entfernen",
-            )}
+            confirmLabel={t("verwaltung.ka.mitglieder.removeBtn", "Entfernen")}
             variant="destructive"
             onConfirm={async () => {
               try {
@@ -1589,7 +1586,11 @@ function KaMitgliederSection({
           {filtered.map((m, idx) => (
             <View key={m.studentID}>
               {idx > 0 && <Separator className="opacity-30" />}
-              <KaMitgliedRow mitglied={m} currentUserMail={currentUserMail} onSelfDemoted={onSelfDemoted} />
+              <KaMitgliedRow
+                mitglied={m}
+                currentUserMail={currentUserMail}
+                onSelfDemoted={onSelfDemoted}
+              />
             </View>
           ))}
         </ScrollView>
@@ -1757,7 +1758,7 @@ export default function VerwaltungScreen() {
       {showTabs ? (
         <View className="flex-1 bg-background">
           {/* Tab switcher pill */}
-          <View className="flex-row items-center gap-1 self-center rounded-full bg-muted px-1 py-1 mt-4 mb-2">
+          <View className="mb-2 mt-4 flex-row items-center gap-1 self-center rounded-full bg-muted px-1 py-1">
             <TouchableOpacity
               accessibilityRole="button"
               onPress={() => router.setParams({ tab: "system" })}

@@ -1,7 +1,10 @@
 package com.se.dhubbw.student.infrastructure;
 
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegungRepository;
+import com.se.dhubbw.datei.infrastructure.db.BewertungRepository;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
+import com.se.dhubbw.datei.infrastructure.db.KommentarRepository;
+import com.se.dhubbw.datei.infrastructure.db.TagRepository;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
@@ -90,6 +93,29 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
      * Repository for file uploader reference updates.
      */
     private final DateiRepository dateiRepository;
+
+    /**
+     * Repository for file-comment cleanup. On account deletion all
+     * comments authored by the deleted student are removed.
+     */
+    private final KommentarRepository kommentarRepository;
+
+    /**
+     * Repository for file-rating cleanup. On account deletion all
+     * ratings authored by the deleted student are removed and the
+     * affected files' aggregates are recomputed lazily on next read
+     * (only the rows are deleted here — see {@link
+     *  BewertungRepository#deleteByAutor}).
+     */
+    private final BewertungRepository bewertungRepository;
+
+    /**
+     * Repository for tag cleanup. On account deletion the tags
+     * created by the deleted student keep existing — only the
+     * {@code ersteller} back-link is set to NULL so the tag table
+     * cannot orphan-foreign-key on a deleted student row.
+     */
+    private final TagRepository tagRepository;
 
     /**
      * Password encoder used to verify the current password and to
@@ -217,6 +243,19 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
         // Set file uploader references to null before deleting student
         // Note: Files themselves are NOT deleted
         dateiRepository.setUploaderToNullByUploader(student);
+
+        // Delete comments authored by the student so no orphan
+        // author references remain.
+        kommentarRepository.deleteByAutor(student);
+
+        // Delete ratings authored by the student. Note: this leaves
+        // the per-file aggregate cache slightly stale but only by
+        // the deleted student's contribution — fine for the MVP.
+        bewertungRepository.deleteByAutor(student);
+
+        // Tags survive — only the author back-link is severed so the
+        // tag table cannot foreign-key onto a deleted student row.
+        tagRepository.setErstellerToNullByErsteller(student);
 
         // Delete associated tracking records
         dateiAnlegungRepository.deleteByStudent(student);

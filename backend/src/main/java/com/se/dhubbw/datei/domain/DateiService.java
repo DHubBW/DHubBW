@@ -64,6 +64,23 @@ public interface DateiService {
             UUID ordnerId, String dhbwMail);
 
     /**
+     * Retrieve all files in the given folder, filtered by the
+     * supplied tag UUIDs (AND-semantics: a file must carry every
+     * given tag to be included). When {@code tagIds} is empty or
+     * {@code null} the result is identical to
+     * {@link #retrieveDateienForOrdner(UUID, String)}.
+     *
+     * @param ordnerId the UUID of the folder
+     * @param tagIds   the tag UUIDs to filter by; may be empty/null
+     * @param dhbwMail the DHBW mail of the authenticated user
+     * @return list of file metadata DTOs, sorted by name
+     */
+    List<DateiDTO> retrieveDateienForOrdner(
+            UUID ordnerId,
+            List<UUID> tagIds,
+            String dhbwMail);
+
+    /**
      * Retrieve all files of the authenticated user's course.
      *
      * @param dhbwMail the DHBW mail of the authenticated user

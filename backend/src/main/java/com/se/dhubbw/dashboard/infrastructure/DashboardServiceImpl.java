@@ -2,6 +2,7 @@ package com.se.dhubbw.dashboard.infrastructure;
 
 import com.se.dhubbw.dashboard.domain.DashboardService;
 import com.se.dhubbw.datei.application.dto.output.DateiDTO;
+import com.se.dhubbw.datei.application.dto.output.TagDTO;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrage;
@@ -118,6 +119,17 @@ public class DashboardServiceImpl implements DashboardService {
     private static DateiDTO toDateiDto(final Datei datei) {
         String uploaderName = datei.getUploader() != null
             ? datei.getUploader().getName() : null;
+        double durchschnitt = datei.getBewertungAnzahl() == 0
+            ? 0.0
+            : (double) datei.getBewertungSumme()
+                / datei.getBewertungAnzahl();
+        List<TagDTO> tagDtos = datei.getTags() == null
+            ? List.of()
+            : datei.getTags().stream()
+                .map(t -> new TagDTO(t.getTagID(), t.getName()))
+                .sorted((a, b) -> a.name().compareToIgnoreCase(
+                    b.name()))
+                .toList();
         return new DateiDTO(
             datei.getDateiID(),
             datei.getName(),
@@ -126,7 +138,10 @@ public class DashboardServiceImpl implements DashboardService {
             uploaderName,
             datei.getOrdner().getOrdnerID(),
             datei.getOrdner().getName(),
-            datei.getDownloadAnzahl()
+            datei.getDownloadAnzahl(),
+            durchschnitt,
+            datei.getBewertungAnzahl(),
+            tagDtos
         );
     }
 }

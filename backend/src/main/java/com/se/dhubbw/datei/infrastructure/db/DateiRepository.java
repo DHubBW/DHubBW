@@ -64,27 +64,41 @@ public interface DateiRepository extends JpaRepository<Datei, UUID> {
         @Param("kursId") UUID kursId);
 
     /**
-     * Retrieve all files in public root-level folders that do not
-     * belong to the given course.
+     * Retrieve all files in public folders that do not belong to
+     * the given course — including nested sub-folders of those
+     * public roots.
      *
      * <p>Used to include public files from other courses in the
-     * file listing for students who are in a course. Folders without
-     * an assigned course (SYSTEMADMIN-created platform-wide shares)
-     * are included since they are by definition not the caller's own
-     * course.</p>
+     * "Alle Dateien"-listing for students enrolled in their own
+     * course. The earlier variant only matched files whose
+     * <strong>direct</strong> parent was a root-level public folder,
+     * which silently hid every file that lived in a sub-folder
+     * (e.g. a {@code Vorlesungen / Mathematik} layout) — so a
+     * KURSADMIN of TINF24B1 would not see {@code Skript_Mathe.pdf}
+     * sitting in {@code Vorlesungen/Mathematik} of TINF24B2 even
+     * though the whole tree is public.</p>
      *
-     * <p>The explicit {@code o.kurs IS NULL} disjunction prevents the
-     * three-valued-logic trap that {@code o.kurs.kursID <> :kursId}
-     * would silently drop NULL-kurs rows.</p>
+     * <p>Folders without an assigned course (SYSTEMADMIN-created
+     * platform-wide shares) are included since they are by
+     * definition not the caller's own course. Visibility in the
+     * project is inherited from the parent folder, so checking
+     * {@code o.isPublic = TRUE} on the file's direct parent is
+     * sufficient — a private subfolder of a public root cannot
+     * exist by construction.</p>
+     *
+     * <p>The explicit {@code o.kurs IS NULL} disjunction prevents
+     * the three-valued-logic trap that
+     * {@code o.kurs.kursID <> :kursId} would silently drop
+     * NULL-kurs rows.</p>
      *
      * @param kursId the course to exclude (the caller's own course)
-     * @return list of files in public root folders of other courses,
-     *     including platform-wide (NULL-kurs) public root folders
+     * @return list of files in public folders (any depth) of other
+     *     courses, including platform-wide (NULL-kurs) public
+     *     folders
      */
     @Query("SELECT d FROM Datei d JOIN d.ordner o "
         + "LEFT JOIN o.kurs k "
         + "WHERE o.isPublic = TRUE "
-        + "AND o.ueberOrdner IS NULL "
         + "AND (k IS NULL OR k.kursID <> :kursId) "
         + "ORDER BY d.name ASC")
     List<Datei> findInPublicRootFoldersExcludingKurs(

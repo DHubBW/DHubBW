@@ -35,6 +35,8 @@ import { toast } from "sonner-native";
 import { CourseRoute } from "@/components/auth/CourseRoute";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { CreateOrdnerDialog } from "@/components/dateien/CreateOrdnerDialog";
+import { BewertungDialog } from "@/components/dateien/BewertungDialog";
+import { DateiDetailDialog } from "@/components/dateien/DateiDetailDialog";
 import { DateienCardList } from "@/components/dateien/DateienCardList";
 import { DateienDropZone } from "@/components/dateien/DateienDropZone";
 import { DateienTabelle } from "@/components/dateien/DateienTabelle";
@@ -55,6 +57,7 @@ import { useDateienListe } from "@/hooks/useDateienListe";
 import { useDateiDelete } from "@/hooks/useDateiDelete";
 import { useDateiDownload } from "@/hooks/useDateiDownload";
 import { useOrdnerTree } from "@/hooks/useOrdnerTree";
+import { useTags } from "@/hooks/useTags";
 import { toastForApiError } from "@/lib/api/toastForApiError";
 import type { DateiDTO, OrdnerDTO } from "@/lib/api/types.gen";
 import { useAuth } from "@/lib/auth/AuthContext";
@@ -87,10 +90,7 @@ export default function DateienScreen() {
  */
 function _deleteErrorMessage(err: unknown): string {
   return toastForApiError(err, {
-    403: t(
-      "dateien.delete.error.forbidden",
-      "Keine Berechtigung zum Löschen.",
-    ),
+    403: t("dateien.delete.error.forbidden", "Keine Berechtigung zum Löschen."),
     404: t("dateien.delete.error.notFound", "Datei nicht gefunden."),
   });
 }
@@ -120,9 +120,9 @@ function DateienScreenInner() {
     // STUDENT: only private folders they created — backend enforces this,
     // so show the menu only for private folders in their own course.
     if (
-      !folder.public
-      && user?.kursID != null
-      && folder.kursID === user.kursID
+      !folder.public &&
+      user?.kursID != null &&
+      folder.kursID === user.kursID
     ) {
       return true;
     }
@@ -136,7 +136,9 @@ function DateienScreenInner() {
   const [renameTarget, setRenameTarget] = useState<DateiDTO | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DateiDTO | null>(null);
   const [previewTarget, setPreviewTarget] = useState<DateiDTO | null>(null);
+  const [detailTarget, setDetailTarget] = useState<DateiDTO | null>(null);
   const [moveTarget, setMoveTarget] = useState<DateiDTO | null>(null);
+  const [bewertungTarget, setBewertungTarget] = useState<DateiDTO | null>(null);
   // Holds the row whose 3-dot menu is currently open. The menu hosts
   // the secondary actions (Verschieben / Umbenennen / Löschen) so the
   // table itself only shows Vorschau + Download + ⋮.
@@ -152,13 +154,26 @@ function DateienScreenInner() {
   // Search term — filters the in-memory list of files the user is
   // already authorised to see (the listing endpoint enforces access).
   const [searchTerm, setSearchTerm] = useState("");
+  // Tag-filter state: list of tag UUIDs the user has toggled on in
+  // the toolbar. Forwarded into useDateienListe so the backend
+  // applies AND-semantics across all selected tags.
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
   const ordnerTree = useOrdnerTree();
-  const dateienListe = useDateienListe(selectedOrdnerId);
+  const dateienListe = useDateienListe(selectedOrdnerId, selectedTagIds);
+  const allTags = useTags();
   const download = useDateiDownload();
   const deleteMutation = useDateiDelete();
 
   const rootFolders = ordnerTree.data ?? [];
+
+  function toggleTagFilter(tagId: string) {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId],
+    );
+  }
 
   const filteredDateien = useMemo(() => {
     const all = dateienListe.data ?? [];
@@ -178,7 +193,8 @@ function DateienScreenInner() {
         ),
       );
       return;
-    }    download.mutate(
+    }
+    download.mutate(
       {
         dateiId: datei.dateiID,
         name: datei.name,
@@ -186,9 +202,7 @@ function DateienScreenInner() {
       },
       {
         onSuccess: () => {
-          toast.success(
-            t("dateien.download.success", "Datei heruntergeladen"),
-          );
+          toast.success(t("dateien.download.success", "Datei heruntergeladen"));
         },
         onError: (err) => {
           if (err.code === "forbidden") {
@@ -202,27 +216,18 @@ function DateienScreenInner() {
           }
           if (err.code === "not-found") {
             toast.error(
-              t(
-                "dateien.download.error.notFound",
-                "Datei nicht gefunden.",
-              ),
+              t("dateien.download.error.notFound", "Datei nicht gefunden."),
             );
             return;
           }
           if (err.code === "network") {
             toast.error(
-              t(
-                "error.network",
-                "Netzwerkfehler – Server nicht erreichbar",
-              ),
+              t("error.network", "Netzwerkfehler – Server nicht erreichbar"),
             );
             return;
           }
           toast.error(
-            t(
-              "dateien.download.error.unknown",
-              "Download fehlgeschlagen.",
-            ),
+            t("dateien.download.error.unknown", "Download fehlgeschlagen."),
           );
         },
       },
@@ -261,7 +266,9 @@ function DateienScreenInner() {
       );
       return;
     }
-    setPreviewTarget(datei);
+    // Click on a row now opens the detail dialog (preview on the
+    // left + extended info / comments / tags / rating on the right).
+    setDetailTarget(datei);
   }
 
   if (ordnerTree.isLoading) {
@@ -348,6 +355,9 @@ function DateienScreenInner() {
           actions={<UploadButton ueberordnerId={selectedOrdnerId} />}
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
+          allTags={allTags.data ?? []}
+          selectedTagIds={selectedTagIds}
+          onToggleTagFilter={toggleTagFilter}
         />
         {isWide ? (
           <DateienDropZone ueberordnerId={selectedOrdnerId}>
@@ -390,6 +400,33 @@ function DateienScreenInner() {
           if (!next) setPreviewTarget(null);
         }}
         datei={previewTarget}
+        onDownload={handleDownload}
+      />
+
+      <DateiDetailDialog
+        open={detailTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setDetailTarget(null);
+        }}
+        // Live-rebind to the freshest copy from the invalidated
+        // file list query so tag chips and aggregate counters in
+        // the detail dialog refresh immediately after the user
+        // attaches/detaches a tag or submits a rating. The
+        // initial click captures only the dateiID; the snapshot
+        // we render is always the current cache state.
+        datei={
+          detailTarget
+            ? ((dateienListe.data ?? []).find(
+                (d) => d.dateiID === detailTarget.dateiID,
+              ) ?? detailTarget)
+            : null
+        }
+        ordnerId={selectedOrdnerId}
+        // Pass the selected folder so the detail dialog can gate
+        // KURSADMIN tag-management visibility by the folder's
+        // course (KURSADMINs only see add/remove on their own
+        // course's files).
+        selectedFolder={selectedFolder}
         onDownload={handleDownload}
       />
 
