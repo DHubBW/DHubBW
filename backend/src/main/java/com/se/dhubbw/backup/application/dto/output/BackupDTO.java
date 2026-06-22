@@ -1,4 +1,4 @@
-package com.se.dhubbw.shared.infrastructure.backup;
+package com.se.dhubbw.backup.application.dto.output;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

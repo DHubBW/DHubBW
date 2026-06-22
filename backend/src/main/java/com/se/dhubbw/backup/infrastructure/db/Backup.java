@@ -1,4 +1,4 @@
-package com.se.dhubbw.shared.infrastructure.backup;
+package com.se.dhubbw.backup.infrastructure.db;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -82,8 +82,8 @@ public class Backup {
 
     /**
      * JSON serialisation of the snapshot. The structure is internal
-     * and only consumed by the matching restore endpoint —
-     * see {@link BackupServiceImpl#captureSnapshotJson}.
+     * and only consumed by the matching restore endpoint — see
+     * {@code BackupServiceImpl#captureSnapshotJson}.
      */
     @Lob
     @Column(name = "payload", nullable = false)

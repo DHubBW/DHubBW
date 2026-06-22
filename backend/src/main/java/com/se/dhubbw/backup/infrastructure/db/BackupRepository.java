@@ -1,4 +1,4 @@
-package com.se.dhubbw.shared.infrastructure.backup;
+package com.se.dhubbw.backup.infrastructure.db;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
