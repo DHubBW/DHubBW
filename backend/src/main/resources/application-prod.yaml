@@ -20,6 +20,10 @@ spring:
   sql:
     init:
       mode: never
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: "10"
   mvc:
     dispatch-trace-request: false
 springdoc:
