@@ -54,6 +54,14 @@ public class DateiServiceTest {
     private DateiAnlegungRepository dateiAnlegungRepository;
 
     @Mock
+    private com.se.dhubbw.datei.infrastructure.db.KommentarRepository
+        kommentarRepository;
+
+    @Mock
+    private com.se.dhubbw.datei.infrastructure.db.BewertungRepository
+        bewertungRepository;
+
+    @Mock
     private OrdnerRepository ordnerRepository;
 
     @Mock

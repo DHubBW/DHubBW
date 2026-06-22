@@ -70,6 +70,18 @@ public class StudentDashboardServiceImplTest {
     private DateiRepository dateiRepository;
 
     @Mock
+    private com.se.dhubbw.datei.infrastructure.db.KommentarRepository
+        kommentarRepository;
+
+    @Mock
+    private com.se.dhubbw.datei.infrastructure.db.BewertungRepository
+        bewertungRepository;
+
+    @Mock
+    private com.se.dhubbw.datei.infrastructure.db.TagRepository
+        tagRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks

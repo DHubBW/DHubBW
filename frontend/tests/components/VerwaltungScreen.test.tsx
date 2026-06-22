@@ -135,6 +135,23 @@ jest.mock("@/hooks/useDeleteStudentBySysAdmin", () => ({
     reset: jest.fn(),
   }),
 }));
+// Backup-Hooks (von der BackupSection im SYSTEMADMIN-Tab gerendert).
+jest.mock("@/hooks/useBackups", () => ({
+  useBackups: () => ({ data: [], isLoading: false }),
+  useLatestBackup: () => ({ data: null, isLoading: false }),
+  useBackupCreate: () => ({
+    mutate: jest.fn(),
+    isPending: false,
+  }),
+  useBackupRestore: () => ({
+    mutate: jest.fn(),
+    isPending: false,
+  }),
+  useBackupDelete: () => ({
+    mutate: jest.fn(),
+    isPending: false,
+  }),
+}));
 
 jest.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => children,
@@ -157,7 +174,11 @@ jest.mock("@tanstack/react-query", () => ({
 
 jest.mock("expo-router", () => ({
   Redirect: ({ href }: { href: string }) => null,
-  useRouter: () => ({ replace: jest.fn(), push: jest.fn(), setParams: jest.fn() }),
+  useRouter: () => ({
+    replace: jest.fn(),
+    push: jest.fn(),
+    setParams: jest.fn(),
+  }),
   useLocalSearchParams: () => ({}),
   Link: ({ children }: { children: React.ReactNode }) => children,
 }));

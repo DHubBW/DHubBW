@@ -21,11 +21,13 @@
  */
 import { ChevronRight, Search, X } from "lucide-react-native";
 import { useRef, useState, type ReactNode } from "react";
-import { Platform, Pressable, TextInput, View } from "react-native";
+import { Platform, Pressable, ScrollView, TextInput, View } from "react-native";
 
 import { Text } from "@/components/ui/text";
-import type { OrdnerDTO } from "@/lib/api/types.gen";
+import type { OrdnerDTO, TagDTO } from "@/lib/api/types.gen";
 import { t } from "@/lib/i18n/t";
+
+import { TagBadge } from "./TagBadge";
 
 export interface DateienToolbarProps {
   /**
@@ -39,6 +41,17 @@ export interface DateienToolbarProps {
   searchTerm?: string;
   /** Called when the user types in the search input. */
   onSearchTermChange?: (next: string) => void;
+  /**
+   * All tags known to the platform — populated by {@code useTags}.
+   * Each tag renders as a toggle chip in a horizontal scroll row
+   * below the search bar; tapping a chip adds or removes its UUID
+   * from {@link #selectedTagIds}.
+   */
+  allTags?: TagDTO[];
+  /** Currently active tag-filter UUIDs (controlled). */
+  selectedTagIds?: string[];
+  /** Called when the user toggles a tag chip. */
+  onToggleTagFilter?: (tagId: string) => void;
 }
 
 /** Width of the expanded pill in pixels — wide enough for ~30 chars. */
@@ -62,6 +75,9 @@ export function DateienToolbar({
   actions,
   searchTerm = "",
   onSearchTermChange,
+  allTags,
+  selectedTagIds,
+  onToggleTagFilter,
 }: DateienToolbarProps) {
   const rootLabel = t("dateien.toolbar.allFiles", "Alle Dateien");
   const placeholder = t(
@@ -71,6 +87,10 @@ export function DateienToolbar({
   const [searchOpen, setSearchOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
+  const showTagFilter = Boolean(
+    onToggleTagFilter && allTags && allTags.length > 0,
+  );
+  const activeFilterIds = selectedTagIds ?? [];
 
   // Note: we deliberately do NOT auto-focus when opening — the user
   // explicitly asked for the bar not to grab focus. They can tap the
@@ -121,6 +141,50 @@ export function DateienToolbar({
           {actions}
         </View>
       </View>
+      {showTagFilter && (
+        <View className="mt-2">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerClassName="flex-row items-center gap-1.5 py-0.5"
+          >
+            <Text className="mr-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("dateien.toolbar.tagFilter", "Tags filtern")}
+            </Text>
+            {(allTags ?? []).map((tag) => {
+              const active = activeFilterIds.includes(tag.tagID);
+              return (
+                <TagBadge
+                  key={tag.tagID}
+                  name={tag.name}
+                  variant={active ? "filter-active" : "default"}
+                  onPress={() => onToggleTagFilter?.(tag.tagID)}
+                  testID={`tag-filter-${tag.tagID}`}
+                />
+              );
+            })}
+            {activeFilterIds.length > 0 && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() =>
+                  // Clear by toggling each active id off — keeps the
+                  // parent state machine in one place.
+                  activeFilterIds.forEach(
+                    (id) => onToggleTagFilter && onToggleTagFilter(id),
+                  )
+                }
+                className="ml-1 flex-row items-center gap-1 rounded-full border border-border px-2 py-0.5 active:bg-accent"
+                testID="tag-filter-clear"
+              >
+                <X size={11} color="hsl(var(--muted-foreground))" />
+                <Text className="text-[11px] font-medium text-muted-foreground">
+                  {t("dateien.toolbar.tagFilterClear", "Filter zurücksetzen")}
+                </Text>
+              </Pressable>
+            )}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }

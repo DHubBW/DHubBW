@@ -1,6 +1,7 @@
 package com.se.dhubbw.datei.application.dto.output;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -24,6 +25,10 @@ import java.util.UUID;
  * @param ordnerName Name of the folder containing this file.
  * @param downloadAnzahl Number of times this file has been
  * downloaded.
+ * @param bewertungDurchschnitt Average star rating across all
+ * submitted votes, or {@code 0.0} when no rating exists yet.
+ * @param bewertungAnzahl Total number of submitted votes.
+ * @param tags Tags attached to this file (may be empty).
  */
 public record DateiDTO(UUID dateiID,
                        String name,
@@ -32,4 +37,7 @@ public record DateiDTO(UUID dateiID,
                        String uploaderName,
                        UUID ordnerID,
                        String ordnerName,
-                       int downloadAnzahl) { }
+                       int downloadAnzahl,
+                       double bewertungDurchschnitt,
+                       int bewertungAnzahl,
+                       List<TagDTO> tags) { }

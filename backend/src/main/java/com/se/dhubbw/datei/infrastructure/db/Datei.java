@@ -8,13 +8,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -108,5 +113,55 @@ public class Datei {
     @Setter
     @Column(name = "download_anzahl", nullable = false)
     private int downloadAnzahl;
+
+    /**
+     * Cached aggregate of all individual ratings: sum of stars
+     * across every {@link Bewertung} attached to this file.
+     *
+     * <p>Held redundantly so the average rating can be served
+     * without re-aggregating every list view —
+     * {@code average = bewertungSumme / bewertungAnzahl}.</p>
+     */
+    @Getter
+    @Setter
+    @Column(name = "bewertung_summe", nullable = false)
+    @ColumnDefault("0")
+    private long bewertungSumme;
+
+    /**
+     * Cached aggregate of all individual ratings: count of
+     * {@link Bewertung} rows attached to this file.
+     */
+    @Getter
+    @Setter
+    @Column(name = "bewertung_anzahl", nullable = false)
+    @ColumnDefault("0")
+    private int bewertungAnzahl;
+
+    /**
+     * Tags attached to this file.
+     *
+     * <p>Many-to-many relationship: each tag can decorate any
+     * number of files and each file can carry any number of tags.
+     * The link rows live in their own join table {@code datei_tag}
+     * — defined here via {@link JoinTable} rather than the more
+     * common {@link JoinColumn} because a single FK column on
+     * {@code datei} would only allow one tag per file. {@code
+     * joinColumns} declares the FK on the owning side ({@code
+     * datei.datei_id} → {@code datei_tag.datei_id}) and {@code
+     * inverseJoinColumns} declares the FK on the inverse side
+     * ({@code tag.tag_id} → {@code datei_tag.tag_id}). The Tag
+     * entity exposes the same relationship as
+     * {@code @ManyToMany(mappedBy = "tags")} so navigating from
+     * either side returns the partner set.</p>
+     */
+    @Getter
+    @Setter
+    @ManyToMany
+    @JoinTable(
+        name = "datei_tag",
+        joinColumns = @JoinColumn(name = "datei_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tag> tags = new HashSet<>();
 
 }

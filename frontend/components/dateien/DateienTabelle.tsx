@@ -25,6 +25,8 @@ import { cn } from "@/lib/utils";
 
 import { EmptyFolderHint, ErrorHint } from "./EmptyStates";
 import { RowActions } from "./RowActions";
+import { StarRating } from "./StarRating";
+import { TagBadge } from "./TagBadge";
 
 export interface DateienTabelleProps {
   dateien: DateiDTO[];
@@ -49,18 +51,13 @@ const COLUMN_WIDTHS = {
   uploader: "flex-[2] min-w-[120px]",
   modified: "w-28",
   size: "w-24",
+  tags: "flex-[2] min-w-[140px]",
   downloads: "w-28",
+  bewertung: "w-32",
   // Hosts Vorschau · Download · 3-Punkte-Menü = 3 ActionButtons
   // (32 px each) plus their gap.
   actions: "w-28",
 } as const;
-
-interface ColumnDef {
-  key: SortColumn;
-  label: string;
-  widthClass: string;
-  align?: "left" | "right";
-}
 
 /**
  * Renders the sortable file table.
@@ -85,35 +82,55 @@ export function DateienTabelle({
     [dateien, sort],
   );
 
-  const columns: ColumnDef[] = [
-    {
-      key: "name",
-      label: t("dateien.table.name", "Name"),
-      widthClass: COLUMN_WIDTHS.name,
-    },
-    {
-      key: "uploader",
-      label: t("dateien.table.uploader", "Hochgeladen von"),
-      widthClass: COLUMN_WIDTHS.uploader,
-    },
-    {
-      key: "modified",
-      label: t("dateien.table.modified", "Geändert"),
-      widthClass: COLUMN_WIDTHS.modified,
-    },
-    {
-      key: "size",
-      label: t("dateien.table.size", "Größe"),
-      widthClass: COLUMN_WIDTHS.size,
-      align: "right",
-    },
-    {
-      key: "downloads",
-      label: t("dateien.table.downloads", "Downloads"),
-      widthClass: COLUMN_WIDTHS.downloads,
-      align: "right",
-    },
-  ];
+  // Helper that renders a sortable column header in the new
+  // free-form order (Name, Tags, Uploader, Bewertung, Modified,
+  // Size, Downloads). The sortable columns share a single
+  // pressable row that toggles asc/desc/none on the matching
+  // SortColumn.
+  function sortableHeader(
+    key: SortColumn,
+    label: string,
+    widthClass: string,
+    align: "left" | "right" = "left",
+  ) {
+    const active = sort.column === key;
+    const Icon = !active
+      ? ArrowUpDown
+      : sort.direction === "asc"
+        ? ArrowUp
+        : ArrowDown;
+    const justify = align === "right" ? "justify-end" : "justify-start";
+    return (
+      <Pressable
+        key={key}
+        onPress={() => setSort((s) => toggleSort(s, key))}
+        accessibilityRole="button"
+        accessibilityLabel={
+          t("dateien.table.sortBy", "Sortieren nach") + " " + label
+        }
+        className={cn(
+          "flex-row items-center gap-1 py-0.5",
+          justify,
+          widthClass,
+        )}
+      >
+        <Text
+          className={cn(
+            "text-[11px] font-semibold uppercase tracking-wide",
+            active ? "text-foreground" : "text-muted-foreground",
+          )}
+        >
+          {label}
+        </Text>
+        <Icon
+          size={11}
+          color={
+            active ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))"
+          }
+        />
+      </Pressable>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -127,16 +144,49 @@ export function DateienTabelle({
 
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }}>
-      {/* Header */}
+      {/* Header — explicit user-requested column order:
+          Name, Tags, Hochgeladen von, Bewertung, Geändert,
+          Größe, Downloads. Sortable cells go through
+          sortableHeader(); Tags + Bewertung are non-sortable
+          static labels. */}
       <View className="flex-row items-center border-b border-border bg-muted/40 px-5 py-2">
-        {columns.map((col) => (
-          <HeaderCell
-            key={col.key}
-            column={col}
-            sort={sort}
-            onPress={() => setSort((s) => toggleSort(s, col.key))}
-          />
-        ))}
+        {sortableHeader(
+          "name",
+          t("dateien.table.name", "Name"),
+          COLUMN_WIDTHS.name,
+        )}
+        <View className={COLUMN_WIDTHS.tags}>
+          <Text className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t("dateien.table.tags", "Tags")}
+          </Text>
+        </View>
+        {sortableHeader(
+          "uploader",
+          t("dateien.table.uploader", "Hochgeladen von"),
+          COLUMN_WIDTHS.uploader,
+        )}
+        <View className={COLUMN_WIDTHS.bewertung}>
+          <Text className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t("dateien.table.bewertung", "Bewertung")}
+          </Text>
+        </View>
+        {sortableHeader(
+          "modified",
+          t("dateien.table.modified", "Geändert"),
+          COLUMN_WIDTHS.modified,
+        )}
+        {sortableHeader(
+          "size",
+          t("dateien.table.size", "Größe"),
+          COLUMN_WIDTHS.size,
+          "right",
+        )}
+        {sortableHeader(
+          "downloads",
+          t("dateien.table.downloads", "Downloads"),
+          COLUMN_WIDTHS.downloads,
+          "right",
+        )}
         <View className={COLUMN_WIDTHS.actions} />
       </View>
 
@@ -157,51 +207,6 @@ export function DateienTabelle({
   );
 }
 
-interface HeaderCellProps {
-  column: ColumnDef;
-  sort: SortState;
-  onPress: () => void;
-}
-
-function HeaderCell({ column, sort, onPress }: HeaderCellProps) {
-  const active = sort.column === column.key;
-  const Icon = !active
-    ? ArrowUpDown
-    : sort.direction === "asc"
-      ? ArrowUp
-      : ArrowDown;
-  const justify = column.align === "right" ? "justify-end" : "justify-start";
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={t("dateien.table.sortBy", "Sortieren nach") + " " + column.label}
-      className={cn(
-        "flex-row items-center gap-1 py-0.5",
-        justify,
-        column.widthClass,
-      )}
-    >
-      <Text
-        className={cn(
-          "text-[11px] font-semibold uppercase tracking-wide",
-          active ? "text-foreground" : "text-muted-foreground",
-        )}
-      >
-        {column.label}
-      </Text>
-      <Icon
-        size={11}
-        color={
-          active
-            ? "hsl(var(--foreground))"
-            : "hsl(var(--muted-foreground))"
-        }
-      />
-    </Pressable>
-  );
-}
-
 interface RowProps {
   datei: DateiDTO;
   striped: boolean;
@@ -210,13 +215,7 @@ interface RowProps {
   onMore?: (datei: DateiDTO) => void;
 }
 
-function Row({
-  datei,
-  striped,
-  onDownload,
-  onPreview,
-  onMore,
-}: RowProps) {
+function Row({ datei, striped, onDownload, onPreview, onMore }: RowProps) {
   const FileIconCmp = fileIconFor(datei.name);
   const baseClass = cn(
     "flex-row items-center border-b border-border px-5 py-2.5",
@@ -231,7 +230,7 @@ function Row({
   // HTML and triggers a React hydration warning.
   const dataCells = (
     <>
-      {/* Name */}
+      {/* 1. Name */}
       <View className={cn("flex-row items-center gap-2.5", COLUMN_WIDTHS.name)}>
         <View className="rounded-md bg-muted p-1.5">
           <FileIconCmp size={14} color="hsl(var(--primary))" />
@@ -244,31 +243,55 @@ function Row({
         </Text>
       </View>
 
-      {/* Uploader */}
+      {/* 2. Tags — chips wrap; left-aligned to match the new
+          column order. Empty: render nothing rather than an
+          em-dash. */}
+      <View
+        className={cn(
+          "flex-row flex-wrap items-center justify-start gap-1",
+          COLUMN_WIDTHS.tags,
+        )}
+      >
+        {(datei.tags ?? []).map((tag) => (
+          <TagBadge
+            key={tag.tagID}
+            name={tag.name}
+            testID={`row-tag-${tag.tagID}`}
+          />
+        ))}
+      </View>
+
+      {/* 3. Uploader */}
       <View className={COLUMN_WIDTHS.uploader}>
-        <Text
-          className="text-sm text-muted-foreground"
-          numberOfLines={1}
-        >
+        <Text className="text-sm text-muted-foreground" numberOfLines={1}>
           {datei.uploaderName ?? "—"}
         </Text>
       </View>
 
-      {/* Modified */}
+      {/* 4. Bewertung */}
+      <View className={cn("items-start", COLUMN_WIDTHS.bewertung)}>
+        <StarRating
+          value={datei.bewertungDurchschnitt}
+          count={datei.bewertungAnzahl}
+          size={14}
+        />
+      </View>
+
+      {/* 5. Modified */}
       <View className={COLUMN_WIDTHS.modified}>
         <Text className="text-sm tabular-nums text-muted-foreground">
           {formatIsoDate(datei.zuletztBearbeitet)}
         </Text>
       </View>
 
-      {/* Size */}
+      {/* 6. Size */}
       <View className={cn("items-end", COLUMN_WIDTHS.size)}>
         <Text className="text-sm tabular-nums text-muted-foreground">
           {formatFileSize(datei.fileSize)}
         </Text>
       </View>
 
-      {/* Downloads */}
+      {/* 7. Downloads */}
       <View className={cn("items-end", COLUMN_WIDTHS.downloads)}>
         <Text className="text-sm tabular-nums text-muted-foreground">
           {datei.downloadAnzahl}
@@ -290,10 +313,7 @@ function Row({
   if (onPreview) {
     return (
       <View
-        className={cn(
-          baseClass,
-          "web:cursor-pointer web:hover:bg-accent/30",
-        )}
+        className={cn(baseClass, "web:cursor-pointer web:hover:bg-accent/30")}
       >
         <Pressable
           accessibilityRole="button"

@@ -72,3 +72,32 @@ INSERT INTO ordner_anlegung (anlegung_id, student_id, ordner_id, datum) VALUES
 INSERT INTO datei_anlegung (anlegung_id, student_id, datei_id, datum) VALUES
     ('88888888-8888-8888-8888-888888888881', '11111111-1111-1111-1111-111111111112', '55555555-5555-5555-5555-555555555551', DATE '2026-04-25'),
     ('88888888-8888-8888-8888-888888888882', '11111111-1111-1111-1111-111111111111', '55555555-5555-5555-5555-555555555552', DATE '2026-04-30');
+
+
+-- Kommentare zu Dateien (Demo)
+INSERT INTO kommentar (kommentar_id, datei_id, autor_id, inhalt, erstellt_am, zuletzt_bearbeitet, bearbeitet) VALUES
+    ('cccccccc-cccc-cccc-cccc-cccccccccc01', '55555555-5555-5555-5555-555555555551', '11111111-1111-1111-1111-111111111111', 'Tolle Zusammenfassung – Kapitel 3 hat mir sehr geholfen!', TIMESTAMP '2026-04-26 09:15:00', NULL, FALSE),
+    ('cccccccc-cccc-cccc-cccc-cccccccccc02', '55555555-5555-5555-5555-555555555551', '11111111-1111-1111-1111-111111111112', 'Auf Seite 4 ist ein Tippfehler, ich aktualisiere die Datei demnächst.', TIMESTAMP '2026-04-26 14:32:00', TIMESTAMP '2026-04-27 08:10:00', TRUE),
+    ('cccccccc-cccc-cccc-cccc-cccccccccc03', '55555555-5555-5555-5555-555555555552', '11111111-1111-1111-1111-111111111111', 'Notiz: bitte vor der Klausur durchlesen.', TIMESTAMP '2026-05-01 18:00:00', NULL, FALSE);
+
+
+
+-- Bewertungen (Demo)
+INSERT INTO bewertung (bewertung_id, datei_id, autor_id, sterne, bewertet_am) VALUES
+    ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb01', '55555555-5555-5555-5555-555555555551', '11111111-1111-1111-1111-111111111111', 5, TIMESTAMP '2026-04-26 09:00:00'),
+    ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb02', '55555555-5555-5555-5555-555555555551', '11111111-1111-1111-1111-111111111112', 4, TIMESTAMP '2026-04-26 10:00:00');
+
+-- Aggregate auf den Datei-Zeilen synchron halten
+UPDATE datei SET bewertung_summe = 9, bewertung_anzahl = 2 WHERE datei_id = '55555555-5555-5555-5555-555555555551';
+
+
+-- Tags (Demo)
+INSERT INTO tag (tag_id, name, ersteller_id, erstellt_am) VALUES
+    ('dddddddd-dddd-dddd-dddd-dddddddddd01', 'Klausur', '11111111-1111-1111-1111-111111111112', TIMESTAMP '2026-04-01 09:00:00'),
+    ('dddddddd-dddd-dddd-dddd-dddddddddd02', 'Skript', '11111111-1111-1111-1111-111111111112', TIMESTAMP '2026-04-01 09:00:00'),
+    ('dddddddd-dddd-dddd-dddd-dddddddddd03', 'Wichtig', '11111111-1111-1111-1111-111111111113', TIMESTAMP '2026-04-01 09:00:00');
+
+-- Tag-Zuordnungen
+INSERT INTO datei_tag (datei_id, tag_id) VALUES
+    ('55555555-5555-5555-5555-555555555551', 'dddddddd-dddd-dddd-dddd-dddddddddd02'),
+    ('55555555-5555-5555-5555-555555555551', 'dddddddd-dddd-dddd-dddd-dddddddddd03');

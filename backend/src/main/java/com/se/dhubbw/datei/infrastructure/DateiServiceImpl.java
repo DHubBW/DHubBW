@@ -2,12 +2,15 @@ package com.se.dhubbw.datei.infrastructure;
 
 import com.se.dhubbw.datei.application.dto.output.DateiDTO;
 import com.se.dhubbw.datei.application.dto.output.DateiDownloadDTO;
+import com.se.dhubbw.datei.application.dto.output.TagDTO;
 import com.se.dhubbw.datei.domain.FileStorageStrategy;
 import com.se.dhubbw.datei.domain.UploadSecurityValidator;
 import com.se.dhubbw.datei.infrastructure.db.Datei;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegung;
 import com.se.dhubbw.datei.infrastructure.db.DateiAnlegungRepository;
 import com.se.dhubbw.datei.infrastructure.db.DateiRepository;
+import com.se.dhubbw.datei.infrastructure.db.BewertungRepository;
+import com.se.dhubbw.datei.infrastructure.db.KommentarRepository;
 import com.se.dhubbw.kurs.infrastructure.db.Kurs;
 import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.ordner.infrastructure.db.Ordner;
@@ -74,6 +77,20 @@ public class DateiServiceImpl
      * Repository for file creation records.
      */
     private final DateiAnlegungRepository dateiAnlegungRepository;
+
+    /**
+     * Repository for file comments. Used by {@link #deleteDatei}
+     * to cascade-remove the comment thread when the file is
+     * deleted.
+     */
+    private final KommentarRepository kommentarRepository;
+
+    /**
+     * Repository for file ratings. Used by {@link #deleteDatei}
+     * to cascade-remove every rating attached to the deleted file
+     * so no orphan rating rows remain.
+     */
+    private final BewertungRepository bewertungRepository;
 
     /**
      * Repository for folder lookup.
@@ -322,6 +339,8 @@ public class DateiServiceImpl
         Student student = studentLookupHelper
             .findStudentByEmail(dhbwMail);
         verifyModifyAuthorized(datei, student);
+        kommentarRepository.deleteByDatei(datei);
+        bewertungRepository.deleteByDatei(datei);
         dateiAnlegungRepository.findByDatei(datei)
             .ifPresent(dateiAnlegungRepository::delete);
         if (datei.getDataOid() != null) {
@@ -616,14 +635,61 @@ public class DateiServiceImpl
     public List<DateiDTO> retrieveDateienForOrdner(
             final UUID ordnerId,
             final String dhbwMail) {
+        return retrieveDateienForOrdner(
+            ordnerId, java.util.List.of(), dhbwMail);
+    }
+
+    /**
+     * Retrieve all files in the given folder filtered by tags.
+     *
+     * @param ordnerId the UUID of the folder
+     * @param tagIds   the tag UUIDs to filter by (may be empty)
+     * @param dhbwMail the DHBW mail of the authenticated user
+     * @return list of file metadata DTOs, sorted by name
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<DateiDTO> retrieveDateienForOrdner(
+            final UUID ordnerId,
+            final List<UUID> tagIds,
+            final String dhbwMail) {
         Student student = studentLookupHelper
             .findStudentByEmail(dhbwMail);
         Ordner ordner = findOrdnerOrThrow(ordnerId);
         verifyReadAuthorized(ordner, student);
-        return dateiRepository
+        List<DateiDTO> dtos = dateiRepository
             .findByOrdnerIdOrderByNameAsc(ordnerId)
             .stream()
             .map(this::toDateiDto)
+            .toList();
+        return filterByTags(dtos, tagIds);
+    }
+
+    /**
+     * Apply tag filter on a DTO list using AND-semantics — a file
+     * must carry every requested tag to survive the filter.
+     *
+     * @param dateien the file DTOs to filter
+     * @param tagIds  the tag UUIDs to require; empty/null means
+     *     "no filter"
+     * @return the filtered list (never {@code null})
+     */
+    private List<DateiDTO> filterByTags(
+            final List<DateiDTO> dateien,
+            final List<UUID> tagIds) {
+        if (tagIds == null || tagIds.isEmpty()) {
+            return dateien;
+        }
+        return dateien.stream()
+            .filter(d -> {
+                if (d.tags() == null) {
+                    return false;
+                }
+                java.util.Set<UUID> dateiTagIds = d.tags().stream()
+                    .map(t -> t.tagID())
+                    .collect(java.util.stream.Collectors.toSet());
+                return dateiTagIds.containsAll(tagIds);
+            })
             .toList();
     }
 
@@ -825,6 +891,17 @@ public class DateiServiceImpl
         if (datei.getUploader() != null) {
             uploaderName = datei.getUploader().getName();
         }
+        double durchschnitt = datei.getBewertungAnzahl() == 0
+            ? 0.0
+            : (double) datei.getBewertungSumme()
+                / datei.getBewertungAnzahl();
+        java.util.List<TagDTO> tagDtos = datei.getTags() == null
+            ? java.util.List.of()
+            : datei.getTags().stream()
+                .map(t -> new TagDTO(t.getTagID(), t.getName()))
+                .sorted((a, b) -> a.name().compareToIgnoreCase(
+                    b.name()))
+                .toList();
         return new DateiDTO(
             datei.getDateiID(),
             datei.getName(),
@@ -833,7 +910,10 @@ public class DateiServiceImpl
             uploaderName,
             datei.getOrdner().getOrdnerID(),
             datei.getOrdner().getName(),
-            datei.getDownloadAnzahl());
+            datei.getDownloadAnzahl(),
+            durchschnitt,
+            datei.getBewertungAnzahl(),
+            tagDtos);
     }
 
     /**

@@ -279,6 +279,19 @@ export interface DateiDTO {
   ordnerName: string;
   /** Total download count. */
   downloadAnzahl: number;
+  /**
+   * Average star rating across all submitted votes, `0.0` when no
+   * vote exists yet. Backed by the per-file aggregate cache so the
+   * value is cheap to read.
+   */
+  bewertungDurchschnitt: number;
+  /** Total number of submitted votes. */
+  bewertungAnzahl: number;
+  /**
+   * Tags attached to this file. Sorted alphabetically by name on the
+   * server. May be empty.
+   */
+  tags: { tagID: string; name: string }[];
 }
 
 /**
@@ -414,4 +427,139 @@ export interface SystemAdminStatsDTO {
   megabyteVerfuegbar: number;
   /** Pending course creation requests. */
   anzahlKurserstellungsanfragen: number;
+}
+
+/**
+ * Comment on a file, returned by `GET /student/dateien/{dateiId}/kommentare`
+ * and the create / update endpoints.
+ *
+ * Mirrors `KommentarDTO` in the backend
+ * (`datei/application/dto/output/KommentarDTO.java`). Timestamps are
+ * serialised by Jackson as ISO-8601 `LocalDateTime` strings without a
+ * timezone (`"YYYY-MM-DDTHH:mm:ss"`), matching the project-wide
+ * convention.
+ *
+ * `canEdit` and `canDelete` are derived per request and reflect what the
+ * authenticated caller may do with this specific comment — the UI should
+ * use them to gate the edit/delete affordances rather than re-deriving
+ * from `studentType` / `autorID` itself.
+ */
+export interface KommentarDTO {
+  /** UUID of the comment (string-encoded). */
+  kommentarID: string;
+  /** UUID of the commented file (string-encoded). */
+  dateiID: string;
+  /**
+   * UUID of the authoring student, or `null` if the author has been
+   * removed from the platform.
+   */
+  autorID: string | null;
+  /**
+   * Display name of the authoring student, or `null` if the author has
+   * been removed from the platform.
+   */
+  autorName: string | null;
+  /** Comment text body. */
+  inhalt: string;
+  /**
+   * Timestamp the comment was originally created, ISO-8601 string
+   * without timezone (`"YYYY-MM-DDTHH:mm:ss"`).
+   */
+  erstelltAm: string;
+  /**
+   * Timestamp of the last edit, or `null` if the comment has never been
+   * edited. Same ISO-8601 format as `erstelltAm`.
+   */
+  zuletztBearbeitet: string | null;
+  /** Whether the comment has been edited at least once after creation. */
+  bearbeitet: boolean;
+  /** Whether the requesting student may edit this comment. */
+  canEdit: boolean;
+  /** Whether the requesting student may delete this comment. */
+  canDelete: boolean;
+}
+
+/**
+ * Request body for `POST /student/dateien/{dateiId}/kommentare`.
+ *
+ * Mirrors `CreateKommentarRequestDTO` in the backend.
+ */
+export interface CreateKommentarRequestDTO {
+  /** Comment text body — must not be blank. */
+  inhalt: string;
+}
+
+/**
+ * Request body for `PATCH /student/kommentare/{kommentarId}`.
+ *
+ * Mirrors `UpdateKommentarRequestDTO` in the backend.
+ */
+export interface UpdateKommentarRequestDTO {
+  /** New comment text body — must not be blank. */
+  inhalt: string;
+}
+
+/**
+ * Aggregated rating data for a single file plus the caller's own
+ * rating, returned by `GET/PUT/DELETE /student/dateien/{id}/bewertung`.
+ *
+ * Mirrors `DateiBewertungDTO` in the backend.
+ */
+export interface DateiBewertungDTO {
+  /** Average rating across all submitted votes (0.0 if none). */
+  durchschnitt: number;
+  /** Total number of submitted votes. */
+  anzahl: number;
+  /** The caller's own rating (1..5), or 0 if not rated yet. */
+  eigeneSterne: number;
+}
+
+/** Request body for `PUT /student/dateien/{id}/bewertung`. */
+export interface CreateBewertungRequestDTO {
+  /** Star count between 1 and 5 (inclusive). */
+  sterne: number;
+}
+
+/**
+ * Single tag entry returned by `GET /student/tags` and embedded in
+ * each {@link DateiDTO}.
+ *
+ * Mirrors `TagDTO` in the backend.
+ */
+export interface TagDTO {
+  /** UUID of the tag (string-encoded). */
+  tagID: string;
+  /** Display name of the tag. */
+  name: string;
+}
+
+/** Request body for `POST /student/tags`. */
+export interface CreateTagRequestDTO {
+  /** Display name of the new tag. */
+  name: string;
+}
+
+/**
+ * Backup metadata returned by `GET /systemadmin/backups`.
+ *
+ * Mirrors `BackupDTO` in the backend.
+ */
+export interface BackupDTO {
+  /** UUID of the backup (string-encoded). */
+  backupID: string;
+  /** ISO `"YYYY-MM-DDTHH:mm:ss"` creation timestamp. */
+  erstelltAm: string;
+  /** Source of the run — `"AUTO"` or `"MANUAL"`. */
+  quelle: "AUTO" | "MANUAL";
+  ordnerAnzahl: number;
+  dateiAnzahl: number;
+  kommentarAnzahl: number;
+  bewertungAnzahl: number;
+  tagAnzahl: number;
+}
+
+/** Request body for `POST /systemadmin/backups/{id}/restore`. */
+export interface RestoreBackupRequestDTO {
+  /** Two-fold confirmation count required by the backend. */
+  confirmationCount: number;
 }
