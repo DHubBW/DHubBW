@@ -5,3 +5,6 @@
 .agents/
 opencode.json
 skills-lock.json
+
+deploy/.env
+deploy/pgdata/
