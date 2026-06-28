@@ -85,7 +85,7 @@ Die [`deploy/.env.example`](./deploy/.env.example) enthält **funktionierende De
 | `POSTGRES_USER` | `dhubbw` | DB-Benutzer |
 | `POSTGRES_PASSWORD` | `dhubbw-demo-pw` | DB-Passwort – **vor Produktiveinsatz ändern** |
 | `JWT_SECRET` | Demo-Wert (56 Zeichen) | Signaturschlüssel für JWTs (HS256, ≥ 32 Bytes) – **vor Produktiveinsatz** mit `openssl rand -base64 48` generieren |
-| `POSTGRES_DATA_DIR` | `./pgdata` | Host-Verzeichnis für DB-Daten (Persistenz) |
+| `POSTGRES_DATA_DIR` | `./pgdata` (im `.env.example`) – Compose-Default ohne `.env`-Eintrag: `/opt/projects/devstack/db/data` (Projekt-VM) | Host-Verzeichnis für DB-Daten (Persistenz) |
 | `BACKEND_IMAGE` | `registry.gitlab.com/.../backend:latest` | Auf einen Commit-SHA festsetzbar |
 | `FRONTEND_IMAGE` | `registry.gitlab.com/.../frontend:latest` | s.o. |
 | `FRONTEND_HTTP_PORT` | `80` | Host-Port für HTTP |
