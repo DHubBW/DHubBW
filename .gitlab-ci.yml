@@ -26,6 +26,9 @@ variables:
   BACKEND_IMAGE:               dhubbw-backend:latest
   FRONTEND_IMAGE:              dhubbw-frontend:latest
   FRONTEND_BUILD_CACHE:        dhubbw-frontend:build-cache
+  # GitLab Container Registry
+  REGISTRY_BACKEND:            $CI_REGISTRY_IMAGE/backend
+  REGISTRY_FRONTEND:           $CI_REGISTRY_IMAGE/frontend
   # node_modules + .expo + target/ werden zwischen Jobs wiederverwendet
   GIT_CLEAN_FLAGS:             -ffdx -e backend/target/ -e frontend/node_modules/ -e frontend/.expo/ -e frontend/docs/
   TEST_DOCKER_OPTS:            "--cpus=1.5 --memory=900m"
@@ -79,6 +82,13 @@ build:backend:
     - docker run --rm $RUN_DOCKER_OPTS -v "$PWD/backend:/app" -v "$HOME/.m2:/root/.m2" -w /app
         eclipse-temurin:25-jdk ./mvnw clean package -DskipTests
     - docker build $BUILD_DOCKER_OPTS -f backend/docker/Dockerfile -t $BACKEND_IMAGE backend/
+    # Push in GitLab Container Registry (Tags: latest + commit-SHA)
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - docker tag $BACKEND_IMAGE $REGISTRY_BACKEND:latest
+    - docker tag $BACKEND_IMAGE $REGISTRY_BACKEND:$CI_COMMIT_SHORT_SHA
+    - docker push $REGISTRY_BACKEND:latest
+    - docker push $REGISTRY_BACKEND:$CI_COMMIT_SHORT_SHA
+    - docker logout "$CI_REGISTRY"
   rules:
     - <<: *main-only
       <<: *backend-changes
@@ -100,6 +110,13 @@ build:frontend:
         -t $FRONTEND_IMAGE
         frontend/
     - docker image prune -f || true
+    # Push in GitLab Container Registry (Tags: latest + commit-SHA)
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - docker tag $FRONTEND_IMAGE $REGISTRY_FRONTEND:latest
+    - docker tag $FRONTEND_IMAGE $REGISTRY_FRONTEND:$CI_COMMIT_SHORT_SHA
+    - docker push $REGISTRY_FRONTEND:latest
+    - docker push $REGISTRY_FRONTEND:$CI_COMMIT_SHORT_SHA
+    - docker logout "$CI_REGISTRY"
   rules:
     - <<: *main-only
       <<: *frontend-changes
