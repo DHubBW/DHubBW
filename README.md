@@ -31,8 +31,6 @@ Die deployte Instanz läuft auf einer VM mit PostgreSQL, Spring Boot Backend und
 
 Die ausführbaren Systeme werden als **Docker-Images** ausgeliefert. Sowohl das Spring Boot Backend als auch das React Native (Web) Frontend werden bei jedem `main`-Push automatisch durch die CI/CD-Pipeline in die **GitLab Container Registry dieses Projekts** gepusht.
 
-### Variante
-
 Die Deployment-Dateien (`docker-compose.yml` + `.env.example`) liegen auf einem dedizierten **`deployment`-Branch** dieses Repos. Dort sind ausschließlich die zum Deployment nötigen Dateien vorhanden – Backend- und Frontend-Source-Code sind dort nicht enthalten, sodass sie als kompaktes Paket abrufbar sind. Zusätzlich existieren dieselben Dateien unter [`deploy/`](./deploy/) im `main`-Branch, weil der CI/CD-Deploy-Job sie von dort liest.
 
 Der `deployment`-Branch wird bei Änderungen unter `deploy/` aktualisiert; er enthält nie Code-Änderungen aus `main`.
@@ -109,73 +107,8 @@ Falls auf der Ziel-VM kein Let's-Encrypt-Zertifikat vorhanden ist, müssen die b
 
 ## Dokumentation & Wiki
 
-Die vollständige Projektdokumentation befindet sich im zentralen **[DHubBW Wiki](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/home)**.
-
-### [1. Projektmanagement](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Projektmanagement)
-
-**Organisation und Verwaltung des Projekts**
-- **[Projekthandbuch](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Projektmanagement/Projekthandbuch)** – Zentrale Projektinformationen
-- **[Projektbeschreibung](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Projektmanagement/Projektbeschreibung)** – Grundlagen und Anforderungen
-- **[Team und Rollen](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Projektmanagement/Team-Und-Projektleitung)** – Teamstruktur und Verantwortlichkeiten
-- **[Workflow](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Projektmanagement/Workflow)** – Arbeitsprozesse und GitLab-Nutzung
-- **[Glossar](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Projektmanagement/Glossar)** – Begriffsdefinitionen und Fachterminologie
-
-### [2. Requirements Engineering](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering)
-
-**Anforderungsanalyse und -spezifikation** | **[Glossar](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/Glossar)**
-
-#### [WAS-Ebene](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene) – Problemraum
-
-*Erhebungen:*
-- **[Studenteninterviews](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Erhebungen/Interviews-zur-Erarbeitung-der-WAS-Ebene)** – Qualitative Interviews mit Studierenden
-- **[Umfrageergebnisse](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Erhebungen/Umfrageergebnisse)** – Quantitative Analyse
-- **[DHBWorld Entwicklerinterview](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Erhebungen/Interview-der-DHBWorld-Entwicklern)** – Einblicke aus Vorgängerprojekten
-
-*[Ergebnisse](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Ergebnis):*
-- **[Ist-Zustand](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Ergebnis/Ist-Zustand)** – Analyse der aktuellen Situation
-- **[Problembeschreibung](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Ergebnis/Problembeschreibung)** – Identifizierte Herausforderungen
-- **[Beispielablauf Student](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Ergebnis/Beispielablauf-Student)** – Typischer Studienalltag
-
-*Modelle:*
-- **[Fachliches Datenmodell](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Modelle/Fachliches-Datenmodell)** – Entitäten und Beziehungen
-- **[Prozessdiagramm (Ist-Zustand)](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Modelle/Business-Process-Diagram-1)** – Visualisierung aktueller Abläufe
-- **[Ablaufdiagramm (BPMN)](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WAS-Ebene/Modelle/Ablaufdiagramm)** – Prozessmodellierung in BPMN-Notation
-
-#### [WIE-Ebene](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene) – Lösungsraum
-
-*Lastenheft:*
-- **[Anforderungsliste](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Anforderungen%20(Lastenheft)/Anforderungsliste)** – Kompakte tabellarische Übersicht
-- **[Anforderungsbeschreibung](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Anforderungen%20(Lastenheft)/Anforderungsbeschreibung)** – Detaillierte Beschreibungen mit Kontext
-- **[Anforderungsableitung (Traceability)](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Anforderungen%20(Lastenheft)/Anforderungsableitung)** – Herleitung jeder Anforderung aus der WAS-Ebene
-
-*[Technologieabwägung](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Technologieabwägung):*
-- **[Methodik](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Technologieabwägung/Methodik)** – Systematische Evaluierungsmethode
-- **[Backend-Technologien](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Technologieabwägung/Backend-Technologien)** – Server-seitige Technologien
-- **[Frontend-Technologien](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Technologieabwägung/Frontend-Technologien)** – Client-seitige Frameworks
-- **[Datenbank-Technologien](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Technologieabwägung/Datenbank-Technologien)** – Datenpersistierung
-- **[Weitere Tools](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Technologieabwägung/Weitere-Tools)** – Ergänzende Werkzeuge
-- **[Technologie-Auswahl](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Technologieabwägung/Technologie-Auswahl)** – Begründete Entscheidungen
-
-### [3. Design & Programmentwurf](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf)
-
-**Software-Design und Architektur**
-- **[Architektur](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/Architektur)** – Systemarchitektur und Designentscheidungen
-- **[Datenbank](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/Datenbank)** – Datenbankdesign und Datenmodellierung
-- **[Prozessmodellierung](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/Prozessmodellierung)** – Geschäftsprozesse und Soll-Zustand
-- **[SAAM](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/SAAM)** – Architekturbewertung nach der Software Architecture Analysis Method
-- **[GUI-Entwurf](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Design-Programmentwurf/GUI-Entwurf)** – Grafische Benutzeroberfläche und User Experience
-
-### [4. Technische Dokumentation](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation)
-
-**Entwicklerdokumentation und Ressourcen**
-
-*[Codebasis](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation/Codebasis):*
-- **[APIs](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation/Codebasis/APIs)** – API-Referenzen und Schnittstellenbeschreibungen
-
-*[Tutorials](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation/Tutorials):*
-- **[Git Cheat Sheet](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation/Tutorials/Git-Cheat-Sheet)** – Schnellreferenz für Git-Befehle und Workflows
-- **[Docker & Ubuntu VM Setup](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation/Tutorials/Docker-Ubuntu-VM-Setup)** – Einrichtung der Entwicklungsumgebung
-- **[Docker Grundlagen & GitLab](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation/Tutorials/Docker-Grundlagen-und-GitLab)** – Docker-Konzepte und CI/CD-Workflow
+Die vollständige Projektdokumentation befindet sich im zentralen 
+## → **[DHubBW Wiki](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/home)←**.
 
 ---
 
