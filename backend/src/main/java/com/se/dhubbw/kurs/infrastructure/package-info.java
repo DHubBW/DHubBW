@@ -12,6 +12,8 @@
  * open join requests, open creation requests), and the {@link
  * com.se.dhubbw.kurs.infrastructure.KursMitgliederServiceImpl}
  * which implements member and role management use cases.</p>
+ *
+ * @architecture.layer Infrastructure Layer
  */
 package com.se.dhubbw.kurs.infrastructure;
 

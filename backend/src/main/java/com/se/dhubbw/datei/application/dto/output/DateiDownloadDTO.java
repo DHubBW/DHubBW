@@ -1,9 +1,5 @@
 package com.se.dhubbw.datei.application.dto.output;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 /**
  * Data transfer object for file download responses.
  * Carries the binary content together with the file name for the HTTP response.
@@ -12,23 +8,11 @@ import lombok.NoArgsConstructor;
  * name so the controller can build the correct
  * Content-Disposition and Content-Type headers.</p>
  *
+ * @param name file display name (used for Content-Disposition)
+ * @param data raw file bytes
  * @architecture.component Dateiverwaltung
  * @architecture.layer Application Layer
  * @architecture.category R-Software (representation transformation
  *     Entity → API Response)
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-public class DateiDownloadDTO {
-
-    /**
-     * File display name (used for Content-Disposition).
-     */
-    private String name;
-
-    /**
-     * Raw file bytes.
-     */
-    private byte[] data;
-}
+public record DateiDownloadDTO(String name, byte[] data) { }

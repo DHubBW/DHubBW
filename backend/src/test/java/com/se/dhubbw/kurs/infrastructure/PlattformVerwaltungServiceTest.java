@@ -122,11 +122,11 @@ public class PlattformVerwaltungServiceTest {
             plattformVerwaltungService.retrieveSystemAdminStats();
 
         assertNotNull(stats);
-        assertEquals(2L, stats.getAnzahlKurse());
-        assertEquals(10L, stats.getAnzahlNutzer());
-        assertEquals(5L, stats.getAnzahlDateien());
-        assertEquals(3.3, stats.getMegabyteBelegt(), 0.001);
-        assertEquals(1L, stats.getAnzahlKurserstellungsanfragen());
+        assertEquals(2L, stats.anzahlKurse());
+        assertEquals(10L, stats.anzahlNutzer());
+        assertEquals(5L, stats.anzahlDateien());
+        assertEquals(3.3, stats.megabyteBelegt(), 0.001);
+        assertEquals(1L, stats.anzahlKurserstellungsanfragen());
     }
 
     @Test
@@ -137,8 +137,8 @@ public class PlattformVerwaltungServiceTest {
             plattformVerwaltungService.retrieveKurse();
 
         assertEquals(1, result.size());
-        assertEquals(kurs.getKursID(), result.get(0).getKursID());
-        assertEquals("TINF24B2", result.get(0).getKursName());
+        assertEquals(kurs.getKursID(), result.get(0).kursID());
+        assertEquals("TINF24B2", result.get(0).kursName());
     }
 
     @Test
@@ -366,8 +366,8 @@ public class PlattformVerwaltungServiceTest {
                 .retrieveKursMembersAndTheirRoles(kurs.getKursID());
 
         assertEquals(1, result.size());
-        assertEquals("Linus", result.get(0).getStudentName());
-        assertEquals(StudentType.STUDENT, result.get(0).getRolle());
+        assertEquals("Linus", result.get(0).studentName());
+        assertEquals(StudentType.STUDENT, result.get(0).rolle());
     }
 
     @Test
@@ -391,10 +391,10 @@ public class PlattformVerwaltungServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(student.getStudentID(),
-            result.get(0).getStudentID());
-        assertEquals("Linus", result.get(0).getName());
+            result.get(0).studentID());
+        assertEquals("Linus", result.get(0).name());
         assertEquals(StudentType.STUDENT,
-            result.get(0).getStudentType());
+            result.get(0).studentType());
     }
 
     @Test

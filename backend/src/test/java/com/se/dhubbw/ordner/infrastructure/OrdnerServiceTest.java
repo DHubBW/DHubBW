@@ -174,7 +174,7 @@ public class OrdnerServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(
-            rootOrdner.getOrdnerID(), result.get(0).getOrdnerID());
+            rootOrdner.getOrdnerID(), result.get(0).ordnerID());
     }
 
     /**
@@ -207,9 +207,9 @@ public class OrdnerServiceTest {
 
         assertEquals(2, path.size());
         assertEquals(
-            rootOrdner.getOrdnerID(), path.get(0).getOrdnerID());
+            rootOrdner.getOrdnerID(), path.get(0).ordnerID());
         assertEquals(
-            childOrdner.getOrdnerID(), path.get(1).getOrdnerID());
+            childOrdner.getOrdnerID(), path.get(1).ordnerID());
     }
 
     /**
@@ -265,7 +265,7 @@ public class OrdnerServiceTest {
         assertEquals(1, children.size());
         assertEquals(
             childOrdner.getOrdnerID(),
-            children.get(0).getOrdnerID());
+            children.get(0).ordnerID());
     }
 
     /**

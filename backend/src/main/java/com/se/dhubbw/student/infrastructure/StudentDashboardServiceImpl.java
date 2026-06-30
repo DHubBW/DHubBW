@@ -11,6 +11,7 @@ import com.se.dhubbw.kurs.infrastructure.db.KursBeitrittsAnfrageRepository;
 import com.se.dhubbw.kurs.infrastructure.db.KursErstellungsAnfrageRepository;
 import com.se.dhubbw.ordner.infrastructure.db.OrdnerAnlegungRepository;
 import com.se.dhubbw.shared.infrastructure.config.retry.RetryableTransactional;
+import com.se.dhubbw.shared.infrastructure.constants.Constants;
 import com.se.dhubbw.shared.infrastructure.helper.StudentLookupHelper;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import com.se.dhubbw.student.application.dto.output.PendingKursRequestDTO;
@@ -130,34 +131,10 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
         new ColorLogger(StudentDashboardServiceImpl.class);
 
     /**
-     * Minimum length required for a new password.
-     */
-    private static final int MIN_PASSWORD_LENGTH = 10;
-
-    /**
-     * Maximum length allowed for a new password.
-     */
-    private static final int MAX_PASSWORD_LENGTH = 128;
-
-    /**
-     * Regex describing the project's password policy. Mirrors the
-     * frontend's {@code PASSWORD_REGEX} so client-side and server-side
-     * checks stay aligned.
-     *
-     * <p>Requirements: at least one lowercase letter, one uppercase
-     * letter, one digit, one special character (non-letter, non-digit,
-     * non-whitespace), 10..128 non-whitespace characters total.</p>
-     */
-    private static final String PASSWORD_REGEX_STR =
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])"
-            + "(?=.*[^A-Za-z0-9\\s])\\S{"
-            + MIN_PASSWORD_LENGTH + "," + MAX_PASSWORD_LENGTH + "}$";
-
-    /**
-     * Compiled form of {@link #PASSWORD_REGEX_STR}.
+     * Compiled form of {@link Constants#PASSWORD_REGEX}.
      */
     private static final Pattern PASSWORD_PATTERN =
-        Pattern.compile(PASSWORD_REGEX_STR);
+        Pattern.compile(Constants.PASSWORD_REGEX);
 
     /**
      * Remove the student from their current course.
@@ -396,7 +373,7 @@ public class StudentDashboardServiceImpl implements StudentDashboardService {
     @Override
     @Transactional(readOnly = true)
     public String retrieveKursForUser(final String dhbwMail) {
-        return retrieveProfile(dhbwMail).getKursName();
+        return retrieveProfile(dhbwMail).kursName();
     }
 
     /**

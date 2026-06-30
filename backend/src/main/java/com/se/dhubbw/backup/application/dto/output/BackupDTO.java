@@ -6,6 +6,11 @@ import java.util.UUID;
 /**
  * DTO summarising a single backup run.
  *
+ * @architecture.component Dateiverwaltung
+ * @architecture.layer Application Layer
+ * @architecture.category R-Software (representation transformation
+ *     for API response)
+ *
  * @param backupID         Unique backup identifier.
  * @param erstelltAm       Timestamp the backup was created.
  * @param quelle           Source of the run — {@code "AUTO"} or

@@ -1,6 +1,7 @@
 package com.se.dhubbw.student.infrastructure;
 
 import com.se.dhubbw.shared.infrastructure.config.security.JwtService;
+import com.se.dhubbw.shared.infrastructure.constants.Constants;
 import com.se.dhubbw.shared.infrastructure.logger.ColorLogger;
 import com.se.dhubbw.student.application.dto.input.LoginRequestDTO;
 import com.se.dhubbw.student.application.dto.input.RegisterRequestDTO;
@@ -69,23 +70,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserDetailsService userDetailsService;
 
     /**
-     * Regex describing the project's password policy. Mirrors the
-     * frontend's {@code PASSWORD_REGEX} so client-side and server-side
-     * checks stay aligned.
-     *
-     * <p>Requirements: at least one lowercase letter, one uppercase
-     * letter, one digit, one special character (non-letter, non-digit,
-     * non-whitespace), 10..128 non-whitespace characters total.</p>
-     */
-    private static final String PASSWORD_REGEX_STR =
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])"
-            + "(?=.*[^A-Za-z0-9\\s])\\S{10,128}$";
-
-    /**
-     * Compiled form of {@link #PASSWORD_REGEX_STR}.
+     * Compiled form of {@link Constants#PASSWORD_REGEX}.
      */
     private static final Pattern PASSWORD_PATTERN =
-        Pattern.compile(PASSWORD_REGEX_STR);
+        Pattern.compile(Constants.PASSWORD_REGEX);
 
     /** {@inheritDoc} */
     @Override

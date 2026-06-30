@@ -860,7 +860,7 @@ public class DateiServiceTest {
             datei.getDateiID(), "admin@dhbw.de");
 
         assertNotNull(result);
-        assertEquals("test.pdf", result.getName());
+        assertEquals("test.pdf", result.name());
         assertEquals(5, datei.getDownloadAnzahl());
         verify(dateiRepository).save(datei);
     }
@@ -1024,7 +1024,7 @@ public class DateiServiceTest {
             datei.getDateiID(), "admin@dhbw.de");
 
         assertNotNull(result);
-        assertEquals("test.pdf", result.getName());
+        assertEquals("test.pdf", result.name());
         // Preview must NOT increment the download counter.
         assertEquals(4, datei.getDownloadAnzahl());
         verify(dateiRepository, never()).save(datei);

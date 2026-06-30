@@ -158,9 +158,9 @@ public class KursController {
             @Valid @RequestBody final KursErstellungsAnfrageRequestDTO request,
             final Authentication authentication) {
         kursService.openCreateCourseRequest(
-            request.getKursName(),
-            request.getJahrgang(),
-            request.getAdditionalNotes(),
+            request.kursName(),
+            request.jahrgang(),
+            request.additionalNotes(),
             authentication.getName()
         );
         return ResponseEntity.status(HttpStatus.CREATED)

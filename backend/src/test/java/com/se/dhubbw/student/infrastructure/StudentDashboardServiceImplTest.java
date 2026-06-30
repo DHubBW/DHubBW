@@ -409,11 +409,11 @@ public class StudentDashboardServiceImplTest {
             studentDashboardService.retrieveProfile(STUDENT_MAIL);
 
         assertNotNull(profile);
-        assertEquals("Max Mustermann", profile.getName());
-        assertEquals(STUDENT_MAIL, profile.getDhbwMail());
-        assertEquals(StudentType.STUDENT, profile.getStudentType());
-        assertEquals("TINF24B2", profile.getKursName());
-        assertNull(profile.getPendingKursRequest());
+        assertEquals("Max Mustermann", profile.name());
+        assertEquals(STUDENT_MAIL, profile.dhbwMail());
+        assertEquals(StudentType.STUDENT, profile.studentType());
+        assertEquals("TINF24B2", profile.kursName());
+        assertNull(profile.pendingKursRequest());
     }
 
     @Test
@@ -434,11 +434,11 @@ public class StudentDashboardServiceImplTest {
             studentDashboardService.retrieveProfile(STUDENT_MAIL);
 
         assertNotNull(profile);
-        assertEquals("Max Mustermann", profile.getName());
-        assertEquals(STUDENT_MAIL, profile.getDhbwMail());
-        assertEquals(StudentType.STUDENT, profile.getStudentType());
-        assertNull(profile.getKursName());
-        assertNull(profile.getPendingKursRequest());
+        assertEquals("Max Mustermann", profile.name());
+        assertEquals(STUDENT_MAIL, profile.dhbwMail());
+        assertEquals(StudentType.STUDENT, profile.studentType());
+        assertNull(profile.kursName());
+        assertNull(profile.pendingKursRequest());
     }
 
     @Test
@@ -474,7 +474,7 @@ public class StudentDashboardServiceImplTest {
             studentDashboardService.retrieveProfile(STUDENT_MAIL);
 
         assertNotNull(profile);
-        assertNull(profile.getPendingKursRequest());
+        assertNull(profile.pendingKursRequest());
     }
 
     @Test
@@ -492,11 +492,11 @@ public class StudentDashboardServiceImplTest {
             studentDashboardService.retrieveProfile(STUDENT_MAIL);
 
         assertNotNull(profile);
-        PendingKursRequestDTO pending = profile.getPendingKursRequest();
+        PendingKursRequestDTO pending = profile.pendingKursRequest();
         assertNotNull(pending);
-        assertEquals("BEITRITT", pending.getType());
-        assertEquals("TINF24B2", pending.getKursName());
-        assertEquals(REQUEST_DATE, pending.getAnfrageDatum());
+        assertEquals("BEITRITT", pending.type());
+        assertEquals("TINF24B2", pending.kursName());
+        assertEquals(REQUEST_DATE, pending.anfrageDatum());
     }
 
     @Test
@@ -517,11 +517,11 @@ public class StudentDashboardServiceImplTest {
             studentDashboardService.retrieveProfile(STUDENT_MAIL);
 
         assertNotNull(profile);
-        PendingKursRequestDTO pending = profile.getPendingKursRequest();
+        PendingKursRequestDTO pending = profile.pendingKursRequest();
         assertNotNull(pending);
-        assertEquals("ERSTELLUNG", pending.getType());
-        assertEquals("TINF26B1", pending.getKursName());
-        assertEquals(REQUEST_DATE, pending.getAnfrageDatum());
+        assertEquals("ERSTELLUNG", pending.type());
+        assertEquals("TINF26B1", pending.kursName());
+        assertEquals(REQUEST_DATE, pending.anfrageDatum());
     }
 
     @Test
@@ -539,11 +539,11 @@ public class StudentDashboardServiceImplTest {
             studentDashboardService.retrieveProfile(STUDENT_MAIL);
 
         assertNotNull(profile);
-        PendingKursRequestDTO pending = profile.getPendingKursRequest();
+        PendingKursRequestDTO pending = profile.pendingKursRequest();
         assertNotNull(pending);
-        assertEquals("BEITRITT", pending.getType());
-        assertEquals("TINF24B2", pending.getKursName());
-        assertEquals(REQUEST_DATE, pending.getAnfrageDatum());
+        assertEquals("BEITRITT", pending.type());
+        assertEquals("TINF24B2", pending.kursName());
+        assertEquals(REQUEST_DATE, pending.anfrageDatum());
         verify(kursErstellungsAnfrageRepository, never())
             .findByStudentAndIsApprovedFalse(any());
     }

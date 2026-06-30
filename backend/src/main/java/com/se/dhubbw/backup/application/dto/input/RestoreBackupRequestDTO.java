@@ -1,10 +1,5 @@
 package com.se.dhubbw.backup.application.dto.input;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 /**
  * Request body for the SYSTEMADMIN backup endpoints that need a
  * two-fold confirmation:
@@ -18,21 +13,10 @@ import lombok.Setter;
  * {@code BackupServiceImpl#MIN_CONFIRMATION_COUNT} so even a
  * hand-rolled HTTP call cannot bypass the double-confirm rule.</p>
  *
+ * @param confirmationCount number of confirmations the admin has
+ *     clicked through
  * @architecture.component Dateiverwaltung
  * @architecture.layer Application Layer
  * @architecture.category R-Software (request payload)
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-public class RestoreBackupRequestDTO {
-
-    /**
-     * Number of confirmations the admin has clicked through. Must
-     * be at least
-     * {@code BackupServiceImpl#MIN_CONFIRMATION_COUNT} for the
-     * action (restore or delete) to actually run.
-     */
-    private int confirmationCount;
-}
+public record RestoreBackupRequestDTO(int confirmationCount) { }

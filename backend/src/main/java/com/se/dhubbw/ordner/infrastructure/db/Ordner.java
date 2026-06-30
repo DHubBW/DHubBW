@@ -82,7 +82,7 @@ public class Ordner {
      */
     @Getter
     @Setter
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private OrdnerFarbe farbe;
 
     /**
