@@ -1,9 +1,6 @@
 package com.se.dhubbw.kurs.application.dto.output;
 
 import com.se.dhubbw.student.infrastructure.util.StudentType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
@@ -15,28 +12,16 @@ import java.util.UUID;
  * {@code retrieveKursMembersAndTheirRoles} to expose the id, name
  * and role of each approved member of a given course.</p>
  *
+ * @param studentID   unique identifier of the course member
+ * @param studentName full name of the course member
+ * @param rolle       current role of the course member
  * @architecture.component Kursverwaltung
  * @architecture.layer Application Layer
  * @architecture.category R-Software (representation transformation
  *     Entity → API Response)
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-public class KursMitgliedRolleDTO {
-
-    /**
-     * Unique identifier of the course member.
-     */
-    private UUID studentID;
-
-    /**
-     * Full name of the course member.
-     */
-    private String studentName;
-
-    /**
-     * Current role of the course member.
-     */
-    private StudentType rolle;
-}
+public record KursMitgliedRolleDTO(
+    UUID studentID,
+    String studentName,
+    StudentType rolle
+) { }

@@ -13,6 +13,8 @@
  *   <li>OpenAPI/Swagger documentation for course endpoints</li>
  * </ul>
  *
+ * @architecture.layer Application Layer
+ *
  * @since 1.0
  */
 package com.se.dhubbw.kurs.application;

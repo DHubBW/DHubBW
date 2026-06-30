@@ -1,9 +1,5 @@
 package com.se.dhubbw.student.application.dto.output;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 
 /**
@@ -16,30 +12,15 @@ import java.time.LocalDate;
  * {@code kursName} is {@code null} for creation requests where
  * the requested name is not yet confirmed.</p>
  *
+ * @param type        type of the pending request
+ * ({@code "BEITRITT"} or {@code "ERSTELLUNG"})
+ * @param kursName    name of the target course (may be {@code null}
+ * for creation requests)
+ * @param anfrageDatum date the request was submitted
  * @architecture.component Benutzerverwaltung
  * @architecture.layer Application Layer
  * @architecture.category R-Software (representation transformation
  *     Entity → API Response)
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-public class PendingKursRequestDTO {
-
-    /**
-     * Type of the pending request.
-     * Either {@code "BEITRITT"} or {@code "ERSTELLUNG"}.
-     */
-    private String type;
-
-    /**
-     * Name of the target course.
-     * May be {@code null} for creation requests.
-     */
-    private String kursName;
-
-    /**
-     * Date the request was submitted.
-     */
-    private LocalDate anfrageDatum;
-}
+public record PendingKursRequestDTO(
+    String type, String kursName, LocalDate anfrageDatum) { }

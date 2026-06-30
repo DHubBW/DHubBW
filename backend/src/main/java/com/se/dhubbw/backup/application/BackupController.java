@@ -154,7 +154,7 @@ public class BackupController {
             @PathVariable final UUID backupId,
             @RequestBody final RestoreBackupRequestDTO request) {
         backupService.restoreBackup(
-            backupId, request.getConfirmationCount());
+            backupId, request.confirmationCount());
         return ResponseEntity.ok().build();
     }
 
@@ -200,7 +200,7 @@ public class BackupController {
             @PathVariable final UUID backupId,
             @RequestBody final RestoreBackupRequestDTO request) {
         backupService.deleteBackup(
-            backupId, request.getConfirmationCount());
+            backupId, request.confirmationCount());
         return ResponseEntity.ok(new RequestStatusResponseDTO(
             "Backup deleted successfully.",
             PersistenceOperation.DELETE));

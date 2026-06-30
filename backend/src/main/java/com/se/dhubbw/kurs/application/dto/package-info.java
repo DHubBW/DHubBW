@@ -7,6 +7,8 @@
  * Kursadmin REST endpoints to expose course enrollment request
  * data to clients.</p>
  *
+ * @architecture.layer Application Layer
+ *
  * @since 1.0
  */
 package com.se.dhubbw.kurs.application.dto;

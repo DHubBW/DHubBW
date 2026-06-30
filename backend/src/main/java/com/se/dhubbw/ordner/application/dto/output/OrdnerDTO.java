@@ -1,9 +1,6 @@
 package com.se.dhubbw.ordner.application.dto.output;
 
 import com.se.dhubbw.ordner.domain.OrdnerFarbe;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
@@ -14,58 +11,20 @@ import java.util.UUID;
  * <p>Carries display-relevant metadata only;
  * file contents are intentionally excluded.</p>
  *
+ * @param ordnerID     unique folder identifier
+ * @param name         folder name
+ * @param level        nesting level (0 = root folder)
+ * @param farbe        folder color
+ * @param isPublic     whether the folder is publicly visible
+ * @param ueberOrdnerID parent folder identifier, or null for root folders
+ * @param kursID       identifier of the course this folder belongs to
+ * @param hasChildren  whether the folder has at least one direct child folder
  * @architecture.component Ordnerverwaltung
  * @architecture.layer Application Layer
  * @architecture.category R-Software (representation transformation
  *     Entity → API Response)
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-public class OrdnerDTO {
-
-    /**
-     * Unique folder identifier.
-     */
-    private UUID ordnerID;
-
-    /**
-     * Folder name.
-     */
-    private String name;
-
-    /**
-     * Nesting level (0 = root folder).
-     */
-    private int level;
-
-    /**
-     * Folder color.
-     */
-    private OrdnerFarbe farbe;
-
-    /**
-     * Whether the folder is publicly visible.
-     */
-    private boolean isPublic;
-
-    /**
-     * Parent folder identifier, or null for root folders.
-     */
-    private UUID ueberOrdnerID;
-
-    /**
-     * Identifier of the course this folder belongs to.
-     */
-    private UUID kursID;
-
-    /**
-     * Whether the folder has at least one direct child folder.
-     *
-     * <p>Used by clients to suppress an "expand"-affordance for leaf
-     * folders without paying the round-trip of an extra
-     * {@code /children} call. Computed at mapping time from the
-     * folder's eagerly-loaded child list.</p>
-     */
-    private boolean hasChildren;
-}
+public record OrdnerDTO(UUID ordnerID, String name, int level,
+                        OrdnerFarbe farbe, boolean isPublic,
+                        UUID ueberOrdnerID, UUID kursID,
+                        boolean hasChildren) { }

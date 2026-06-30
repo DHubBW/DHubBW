@@ -3,5 +3,7 @@
  *
  * <p>Contains the REST controller for folder management
  * endpoints.</p>
+ *
+ * @architecture.layer Application Layer
  */
 package com.se.dhubbw.ordner.application;

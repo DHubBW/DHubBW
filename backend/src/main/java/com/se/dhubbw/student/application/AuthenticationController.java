@@ -41,20 +41,7 @@ public class AuthenticationController {
     private final ColorLogger colorLogger =
         new ColorLogger(this.getClass());
 
-    /**
-     * HTTP status code for conflict (email already exists).
-     */
-    private static final int HTTP_CONFLICT = 409;
 
-    /**
-     * HTTP status code for unauthorized.
-     */
-    private static final int HTTP_UNAUTHORIZED = 401;
-
-    /**
-     * HTTP status code for wrong format of mail / name.
-     */
-    private static final int HTTP_UNPROCESSABLE_ENTITY = 422;
 
     /**
      * Authentication service.
@@ -98,7 +85,7 @@ public class AuthenticationController {
             "^[a-z]+\\.[a-z]+\\.[a-z0-9]+@student\\.dhbw-karlsruhe\\.de$")) {
             colorLogger.colorError("The dhbw mail format "
                 + "of the student doesn't match the required format.");
-            return ResponseEntity.status(HTTP_UNPROCESSABLE_ENTITY)
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(new AuthResponseDTO(
                     "Invalid DHBW Mail Format", null, 0));
         } else if (!request.name()
@@ -107,7 +94,7 @@ public class AuthenticationController {
                 + "+(?:[- ][A-ZÄÖÜ][a-zäöüß]+)*$")) {
             colorLogger.colorError("The name of the student "
                 + "doesn't match the required format 'FirstName LastName'.");
-            return ResponseEntity.status(HTTP_UNPROCESSABLE_ENTITY)
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(new AuthResponseDTO(
                     "Invalid Name format. "
                         + "The name has to be in the following format: "
@@ -125,7 +112,7 @@ public class AuthenticationController {
                     token,
                     expiresAt));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HTTP_CONFLICT)
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new AuthResponseDTO(
                     "Student with email '"
                         + request.dhbwMail()
@@ -157,7 +144,7 @@ public class AuthenticationController {
                     expiresAt));
         } catch (Exception e) {
             return ResponseEntity
-                .status(HTTP_UNAUTHORIZED)
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(new AuthResponseDTO(
                     "Invalid credentials for email: '"
                         + request.dhbwMail() + "'.",

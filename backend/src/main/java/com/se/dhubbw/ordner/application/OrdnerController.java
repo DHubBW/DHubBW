@@ -215,8 +215,8 @@ public class OrdnerController {
             final CreateOrdnerRequestDTO request,
             final Authentication authentication) {
         UUID id = ordnerService.createFolder(
-            request.getUeberOrdnerId(), request.getName(),
-            request.isPublic(), request.getFarbe(),
+            request.ueberOrdnerId(), request.name(),
+            request.isPublic(), request.farbe(),
             authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
@@ -259,7 +259,7 @@ public class OrdnerController {
             final RenameOrdnerRequestDTO request,
             final Authentication authentication) {
         ordnerService.renameFolder(
-            ordnerId, request.getNewName(),
+            ordnerId, request.newName(),
             authentication.getName());
         return ResponseEntity.status(HttpStatus.OK)
             .body(new SmallResponseDTO("Folder renamed successfully"));

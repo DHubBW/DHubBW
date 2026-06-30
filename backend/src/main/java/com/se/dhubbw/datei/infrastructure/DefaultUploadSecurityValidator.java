@@ -277,7 +277,7 @@ public class DefaultUploadSecurityValidator
         }
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);
-            if (c == ' '
+            if (c == '\0'
                     || (c < FIRST_PRINTABLE_ASCII && c != '\t')
                     || c == ASCII_DEL
                     || DANGEROUS_NAME_CHARS.contains(c)) {

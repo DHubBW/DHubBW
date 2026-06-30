@@ -296,16 +296,16 @@ public class DateiController {
         DateiDownloadDTO dto = dateiService.downloadDatei(
             dateiId, authentication.getName());
         MediaType contentType = MediaTypeFactory
-            .getMediaType(dto.getName())
+            .getMediaType(dto.name())
             .orElse(MediaType.APPLICATION_OCTET_STREAM);
         return ResponseEntity.ok()
             .contentType(contentType)
             .header(
                 HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\""
-                    + dto.getName() + "\"")
+                    + dto.name() + "\"")
             .body(new InputStreamResource(
-                new ByteArrayInputStream(dto.getData())));
+                new ByteArrayInputStream(dto.data())));
     }
 
     /**
@@ -357,16 +357,16 @@ public class DateiController {
         DateiDownloadDTO dto = dateiService.previewDatei(
             dateiId, authentication.getName());
         MediaType contentType = MediaTypeFactory
-            .getMediaType(dto.getName())
+            .getMediaType(dto.name())
             .orElse(MediaType.APPLICATION_OCTET_STREAM);
         return ResponseEntity.ok()
             .contentType(contentType)
             .header(
                 HttpHeaders.CONTENT_DISPOSITION,
                 "inline; filename=\""
-                    + dto.getName() + "\"")
+                    + dto.name() + "\"")
             .body(new InputStreamResource(
-                new ByteArrayInputStream(dto.getData())));
+                new ByteArrayInputStream(dto.data())));
     }
 
     /**
@@ -412,7 +412,7 @@ public class DateiController {
             final RenameDateiRequestDTO request,
             final Authentication authentication) {
         dateiService.renameDatei(
-            dateiId, request.getNewName(),
+            dateiId, request.newName(),
             authentication.getName());
         return ResponseEntity
             .status(HttpStatus.OK).body(new RequestStatusResponseDTO(
@@ -524,7 +524,7 @@ public class DateiController {
             final MoveDateiRequestDTO request,
             final Authentication authentication) {
         dateiService.moveDatei(
-            dateiId, request.getTargetOrdnerId(),
+            dateiId, request.targetOrdnerId(),
             authentication.getName());
         return ResponseEntity.status(HttpStatus.OK).body(
             new RequestStatusResponseDTO(
