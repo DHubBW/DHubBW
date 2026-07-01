@@ -171,6 +171,7 @@ Checkstyle läuft automatisch bei `mvn verify` (nur `src/main/java`):
 - **[Docker & Ubuntu VM Setup](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation/Tutorials/Docker-Ubuntu-VM-Setup)** – Einrichtung der Entwicklungsumgebung
 - **[Docker Grundlagen & GitLab](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation/Tutorials/Docker-Grundlagen-und-GitLab)** – Docker-Konzepte und CI/CD-Workflow
 - **[Backend-Technologien](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Requirements-Engineering/WIE-Ebene/Technologieabwägung/Backend-Technologien)** – Technologieabwägung und -auswahl
+- **[Traceability: Mensaplan](https://gitlab.com/groups/dhbw-se/se-tinf24b2/gruppe-4/-/wikis/Technische-Dokumentation/Traceability-Mensa)** – Durchgehende Nachverfolgbarkeit vom Problem bis zum Code
 
 ---
 
